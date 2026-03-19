@@ -3,178 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EduPortal — Faculty Dashboard</title>
+<title>VelsPortal — Faculty Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:#05060f; --surf:#0b0d1e; --surf2:#0f1228; --surf3:#141830;
-    --border:rgba(167,139,250,.13);
-    --text:#f0eeff; --dim:rgba(240,238,255,.55); --faint:rgba(240,238,255,.22);
-    --violet:#a78bfa; --cyan:#38bdf8; --pink:#f472b6;
-    --emerald:#34d399; --amber:#fbbf24; --red:#f87171;
-    --gv:linear-gradient(135deg,#a78bfa,#ec4899);
-    --gc:linear-gradient(135deg,#38bdf8,#6366f1);
-    --ge:linear-gradient(135deg,#34d399,#0ea5e9);
-    --ga:linear-gradient(135deg,#fbbf24,#f97316);
-    --sp-xs:6px; --sp-sm:12px; --sp-md:20px; --sp-lg:28px; --sp-xl:36px;
-    --sw:272px;
-  }
-  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-  html,body{height:100%;}
-  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-
-  /* ══ SIDEBAR ══ */
-  .sb{width:var(--sw);background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow:hidden;transition:transform .3s ease;}
-  .sb-scroll{display:flex;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;}
-  .sb-top{padding:var(--sp-lg) var(--sp-md) var(--sp-md);border-bottom:1px solid var(--border);flex-shrink:0;}
-  .sb-inst{display:flex;align-items:center;gap:var(--sp-sm);padding:10px 14px;background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(244,114,182,.06));border:1px solid rgba(167,139,250,.16);border-radius:12px;margin-bottom:var(--sp-md);}
-  .sb-inst-icon{width:34px;height:34px;background:var(--gv);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .sb-inst-name{font-size:.75rem;font-weight:800;color:var(--text);}
-  .sb-inst-sub{font-size:.65rem;font-weight:500;color:var(--violet);font-family:'JetBrains Mono',monospace;}
-  .tch-card{display:flex;align-items:center;gap:var(--sp-sm);padding:13px 14px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.18);border-radius:13px;}
-  .tav{width:44px;height:44px;background:var(--gv);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(167,139,250,.28);}
-  .tch-name{font-size:.85rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:148px;}
-  .tch-id{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--violet);margin-top:2px;}
-  .nav{padding:var(--sp-md) var(--sp-sm);flex:1;}
-  .nl{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(240,238,255,.25);padding:0 10px;margin:18px 0 7px;}
-  .nl:first-child{margin-top:0;}
-  .ni{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:10px;cursor:pointer;transition:background .18s,border-color .18s,color .18s;color:rgba(240,238,255,.45);font-size:.84rem;font-weight:500;margin-bottom:2px;border:1px solid transparent;position:relative;white-space:nowrap;}
-  .ni .ic{font-size:.95rem;width:20px;text-align:center;flex-shrink:0;}
-  .ni:hover{background:rgba(167,139,250,.08);color:var(--text);border-color:rgba(167,139,250,.15);}
-  .ni.act{background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(167,139,250,.06));border-color:rgba(167,139,250,.24);color:var(--violet);font-weight:600;}
-  .ni.act::before{content:'';position:absolute;left:0;top:22%;height:56%;width:3px;background:var(--gv);border-radius:0 3px 3px 0;}
-  .ni.so{color:rgba(248,113,113,.6);margin-top:var(--sp-xs);}
-  .ni.so:hover{background:rgba(248,113,113,.08);color:#f87171;border-color:rgba(248,113,113,.18);}
-
-  /* ══ MAIN ══ */
-  .main{margin-left:var(--sw);flex:1;min-height:100vh;background:linear-gradient(158deg,#05060f 0%,#080a1c 55%,#060810 100%);display:flex;flex-direction:column;overflow-x:hidden;}
-  .topbar{padding:var(--sp-md) var(--sp-xl);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(5,6,18,.9);backdrop-filter:blur(16px);position:sticky;top:0;z-index:100;flex-shrink:0;}
-  .topbar-l{display:flex;align-items:center;gap:var(--sp-sm);}
-  .ptitle{font-size:1.25rem;font-weight:800;color:var(--text);}
-  .tbadge{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);background:rgba(240,238,255,.06);padding:6px 14px;border-radius:20px;border:1px solid var(--border);}
-  .menu-btn{display:none;background:rgba(167,139,250,.09);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:.95rem;color:var(--text);align-items:center;}
-  .content{padding:var(--sp-xl);flex:1;animation:fi .35s ease;}
-  @keyframes fi{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  .sec{display:none;}.sec.act{display:block;}
-
-  /* ══ CARDS ══ */
-  .card{background:var(--surf2);border:1px solid var(--border);border-radius:16px;padding:var(--sp-lg);margin-bottom:var(--sp-lg);position:relative;overflow:hidden;}
-  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:var(--gv);}
-  .ctitle{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:var(--sp-md);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .cicon{width:30px;height:30px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0;}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-lg);}
-  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-md);}
-
-  /* ══ WELCOME ══ */
-  .welcome{background:linear-gradient(135deg,#100830 0%,#0c1232 55%,#100830 100%);border:1px solid rgba(167,139,250,.2);border-radius:20px;padding:var(--sp-lg) var(--sp-xl);margin-bottom:var(--sp-lg);position:relative;overflow:hidden;}
-  .welcome::before{content:'';position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:radial-gradient(circle,rgba(167,139,250,.12) 0%,transparent 68%);border-radius:50%;pointer-events:none;}
-  .welcome::after{content:'👨‍🏫';position:absolute;right:var(--sp-xl);top:50%;transform:translateY(-50%);font-size:4.5rem;opacity:.07;}
-  .w-inst{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--violet);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;opacity:.7;}
-  .w-title{font-size:1.6rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:8px;}
-  .w-title .wn{background:var(--gv);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .w-sub{font-size:.83rem;font-weight:400;color:var(--dim);}
-
-  /* ══ STAT CARDS ══ */
-  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-md);margin-bottom:var(--sp-lg);}
-  .sc{border-radius:18px;padding:var(--sp-md) 20px;display:flex;align-items:center;gap:var(--sp-md);border:1px solid transparent;position:relative;overflow:hidden;transition:transform .22s,box-shadow .22s;}
-  .sc:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.3);}
-  .sc-v{background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(244,114,182,.05));border-color:rgba(167,139,250,.22);}
-  .sc-c{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(99,102,241,.05));border-color:rgba(56,189,248,.2);}
-  .sc-e{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(14,165,233,.04));border-color:rgba(52,211,153,.2);}
-  .sc-a{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(249,115,22,.04));border-color:rgba(251,191,36,.2);}
-  .sc-ico{width:48px;height:48px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
-  .ico-v{background:linear-gradient(135deg,rgba(167,139,250,.22),rgba(244,114,182,.14));}
-  .ico-c{background:linear-gradient(135deg,rgba(56,189,248,.22),rgba(99,102,241,.14));}
-  .ico-e{background:linear-gradient(135deg,rgba(52,211,153,.22),rgba(14,165,233,.14));}
-  .ico-a{background:linear-gradient(135deg,rgba(251,191,36,.22),rgba(249,115,22,.14));}
-  .sc-num{font-size:1.9rem;font-weight:800;line-height:1;margin-bottom:4px;display:block;}
-  .sc-v .sc-num{background:var(--gv);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .sc-c .sc-num{background:var(--gc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .sc-e .sc-num{background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .sc-a .sc-num{background:var(--ga);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .sc-lbl{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);}
-
-  /* ══ STUDENT ROWS ══ */
-  .stu-row{display:flex;align-items:center;gap:var(--sp-md);padding:14px 18px;background:var(--surf3);border:1px solid var(--border);border-radius:13px;margin-bottom:10px;cursor:pointer;transition:border-color .2s,transform .2s,background .2s;}
-  .stu-row:hover{border-color:rgba(167,139,250,.3);transform:translateX(5px);background:rgba(167,139,250,.05);}
-  .sav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:800;color:#fff;flex-shrink:0;}
-  .sav.eng-av{background:var(--gc);}
-  .sav.art-av{background:var(--gv);}
-  .sn{font-size:.875rem;font-weight:700;color:var(--text);}
-  .sm{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);margin-top:2px;}
-  .stu-mini{background:var(--surf3);border:1px solid var(--border);border-radius:14px;padding:var(--sp-md);cursor:pointer;transition:all .22s;}
-  .stu-mini:hover{border-color:rgba(167,139,250,.3);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.28);}
-  .stu-mini-head{display:flex;align-items:center;gap:var(--sp-sm);margin-bottom:var(--sp-sm);}
-  .sav-sm{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#fff;flex-shrink:0;}
-  .sav-sm.eng-av{background:var(--gc);}
-  .sav-sm.art-av{background:var(--gv);}
-  .sn-sm{font-size:.82rem;font-weight:700;color:var(--text);}
-  .sid-sm{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--violet);}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;}
-
-  /* ══ FILTER TABS ══ */
-  .ftab{padding:8px 18px;border-radius:9px;font-size:.78rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--faint);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
-  .ftab:hover{color:var(--text);background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.18);}
-  .ftab.act{background:var(--gv);color:#fff;border-color:transparent;}
-
-  /* ══ SEARCH ══ */
-  .search{width:100%;padding:12px 16px;margin-bottom:var(--sp-md);background:var(--surf3);border:1px solid var(--border);border-radius:11px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s,box-shadow .2s;}
-  .search:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(167,139,250,.1);}
-  .search::placeholder{color:var(--faint);}
-
-  /* ══ TABLE ══ */
-  .tw{overflow-x:auto;border-radius:10px;}
-  table{width:100%;border-collapse:collapse;min-width:560px;}
-  th{background:rgba(167,139,250,.08);padding:12px 16px;text-align:left;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--violet);border-bottom:1px solid rgba(167,139,250,.16);white-space:nowrap;}
-  td{padding:13px 16px;border-bottom:1px solid rgba(240,238,255,.04);font-size:.845rem;color:var(--dim);transition:background .14s;vertical-align:middle;}
-  tr:hover td{background:rgba(167,139,250,.03);}
-  tr:last-child td{border-bottom:none;}
-
-  /* ══ BADGES ══ */
-  .b{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700;white-space:nowrap;letter-spacing:.2px;}
-  .bg{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2);}
-  .br{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.2);}
-  .by{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
-  .bv{background:rgba(167,139,250,.1);color:var(--violet);border:1px solid rgba(167,139,250,.2);}
-  .bc{background:rgba(56,189,248,.1);color:var(--cyan);border:1px solid rgba(56,189,248,.2);}
-  .beng{background:rgba(56,189,248,.14);color:var(--cyan);border:1px solid rgba(56,189,248,.28);font-weight:800;}
-  .bart{background:rgba(167,139,250,.14);color:var(--violet);border:1px solid rgba(167,139,250,.28);font-weight:800;}
-
-  /* ══ PROGRESS ══ */
-  .pbar{height:7px;background:rgba(240,238,255,.07);border-radius:4px;overflow:hidden;width:88px;}
-  .pfill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.16,1,.3,1);}
-
-  /* ══ DETAIL ROWS ══ */
-  .drow{display:flex;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(240,238,255,.05);}
-  .drow:last-child{border-bottom:none;}
-  .dlbl{width:46%;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);padding-top:1px;}
-  .dval{flex:1;font-size:.85rem;color:var(--text);}
-
-  /* ══ MODAL ══ */
-  .modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(5,6,15,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
-  .modal-overlay.open{display:flex;}
-  .modal{background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:var(--sp-xl);max-width:780px;width:100%;max-height:90vh;overflow-y:auto;position:relative;animation:mrise .3s cubic-bezier(.16,1,.3,1);}
-  @keyframes mrise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-  .modal-close{position:absolute;top:16px;right:18px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:6px 14px;color:#f87171;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.8rem;}
-  .modal-close:hover{background:rgba(248,113,113,.2);}
-  .modal-head{margin-bottom:var(--sp-lg);padding-right:80px;}
-  .modal-name{font-size:1.25rem;font-weight:800;color:var(--text);margin-bottom:5px;}
-  .modal-meta{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--violet);}
-  .modal-section{margin-bottom:var(--sp-lg);}
-  .modal-sec-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--violet);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
-
-  /* ══ RESPONSIVE ══ */
-  @media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:720px){
-    .sb{transform:translateX(-100%);}.sb.open{transform:translateX(0);box-shadow:4px 0 40px rgba(0,0,0,.5);}
-    .main{margin-left:0;}.menu-btn{display:flex!important;}
-    .content{padding:var(--sp-md);}.g2,.g3{grid-template-columns:1fr;}
-    .stat-row{grid-template-columns:1fr 1fr;}.topbar{padding:var(--sp-sm) var(--sp-md);}
-    .welcome{padding:var(--sp-md);}
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-</style>
+<link rel="stylesheet" href="teacher_style.css">
 </head>
 <body>
 
@@ -185,7 +17,7 @@
       <div class="sb-inst">
         <div class="sb-inst-icon">🏛</div>
         <div>
-          <div class="sb-inst-name">SVIT</div>
+          <div class="sb-inst-name">VISTAS</div>
           <div class="sb-inst-sub">Faculty Portal</div>
         </div>
       </div>
@@ -232,7 +64,7 @@
     <!-- ═══ DASHBOARD ═══════════════════════════════ -->
     <section class="sec act" id="sec-dashboard">
       <div class="welcome">
-        <p class="w-inst">Sri Venkateswara Institute of Technology</p>
+        <p class="w-inst">VELS Institution Of Science, Technology & Advanced Studies</p>
         <h2 class="w-title">Good day, <span class="wn" id="wName">—</span>!</h2>
         <p class="w-sub">Faculty Portal &nbsp;·&nbsp; Academic Year 2025–26</p>
       </div>
@@ -248,16 +80,6 @@
           <div><span class="sc-num" id="stat-tch">…</span><div class="sc-lbl">Teachers</div></div></div>
       </div>
 
-      <div class="g2" style="margin-bottom:var(--sp-lg)">
-        <div class="sc sc-c" style="border-radius:16px">
-          <div class="sc-ico ico-c">📅</div>
-          <div><span class="sc-num" id="stat-att">…</span><div class="sc-lbl">Avg Attendance</div></div>
-        </div>
-        <div class="sc sc-v" style="border-radius:16px">
-          <div class="sc-ico ico-v">🎓</div>
-          <div><span class="sc-num" id="stat-cgpa">…</span><div class="sc-lbl">Avg CGPA</div></div>
-        </div>
-      </div>
 
       <div class="card">
         <div class="ctitle">
@@ -390,17 +212,48 @@
   </div><!-- /content -->
 </main>
 
-<!-- ══ STUDENT DETAIL MODAL ═══════════════════════ -->
+<!-- ══ STUDENT EDIT MODAL ═════════════════════════ -->
 <div class="modal-overlay" id="stuModal" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕ Close</button>
     <div class="modal-head">
-      <div class="modal-name" id="modal-name">—</div>
-      <div class="modal-meta" id="modal-meta">—</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <div class="modal-name" id="modal-name">—</div>
+          <div class="modal-meta" id="modal-meta">—</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <button class="modal-edit-btn" id="btnToggleEdit" onclick="toggleEditMode()">✏️ Edit</button>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+      </div>
+      <!-- Tab bar -->
+      <div class="modal-tabs" id="modalTabs">
+        <button class="mtab act" onclick="switchTab('personal',this)">👤 Personal</button>
+        <button class="mtab"     onclick="switchTab('profile',this)">📝 Profile</button>
+        <button class="mtab"     onclick="switchTab('attendance',this)">📅 Attendance</button>
+        <button class="mtab"     onclick="switchTab('marks',this)">📊 Marks</button>
+        <button class="mtab"     onclick="switchTab('results',this)">🏆 Results</button>
+      </div>
     </div>
-    <div id="modal-content">
-      <div style="text-align:center;padding:30px;color:var(--faint)">Loading…</div>
+
+    <!-- Save bar (shown in edit mode) -->
+    <div id="savebar" style="display:none;padding:12px 0;margin-bottom:16px;display:none;align-items:center;justify-content:space-between;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:12px;padding:12px 18px;">
+      <span style="font-size:.82rem;color:var(--emerald);font-weight:600">✏️ Edit mode — make your changes then save</span>
+      <div style="display:flex;gap:8px">
+        <button class="sbtn-cancel" onclick="cancelEdit()">Cancel</button>
+        <button class="sbtn-save"   onclick="saveCurrentTab()">💾 Save Changes</button>
+      </div>
     </div>
+
+    <!-- Save status message -->
+    <div id="saveMsg" style="display:none;padding:10px 16px;border-radius:10px;margin-bottom:14px;font-size:.83rem;font-weight:600"></div>
+
+    <!-- Tab content panels -->
+    <div id="tab-personal"   class="tabpanel act"></div>
+    <div id="tab-profile"    class="tabpanel"></div>
+    <div id="tab-attendance" class="tabpanel"></div>
+    <div id="tab-marks"      class="tabpanel"></div>
+    <div id="tab-results"    class="tabpanel"></div>
   </div>
 </div>
 
@@ -409,549 +262,6 @@
      Reads from Supabase via FastAPI (localhost:8000)
      Shows Engineering (ENG001–ENG160) + Arts (ART001–ART120)
 ══════════════════════════════════════════════════════ -->
-<script>
-const API   = 'https://student-management-9ryk.onrender.com';
-const tId   = sessionStorage.getItem('userId')   || '';
-const token = sessionStorage.getItem('token')    || '';
-const tName = sessionStorage.getItem('userName') || 'Faculty';
-
-/* Redirect if not logged in */
-if (!tId || !token) { window.location.href = 'index.html'; }
-
-const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
-
-/* ── Cached data ────────────────────────────────── */
-let ALL_STUDENTS  = [];
-let ENG_STUDENTS  = [];
-let ART_STUDENTS  = [];
-let _attCache     = [];
-let _marksCache   = [];
-let _resCache     = [];
-let _dirFilter    = 'all';
-let _attFilter    = 'all';
-let _mrkFilter    = 'all';
-let _resFilter    = 'all';
-
-/* ── API fetch helper ───────────────────────────── */
-async function api(path) {
-  try {
-    const r = await fetch(API + path, { headers: H() });
-    if (r.status === 401) { sessionStorage.clear(); window.location.href = 'index.html'; return null; }
-    if (!r.ok) return null;
-    return await r.json();
-  } catch(e) { console.error('API error:', path, e); return null; }
-}
-
-/* ── Helpers ────────────────────────────────────── */
-function isEng(uid) { return (uid||'').startsWith('ENG'); }
-function deptBadge(uid) {
-  return isEng(uid)
-    ? `<span class="b beng">ENG</span>`
-    : `<span class="b bart">ART</span>`;
-}
-function avClass(uid) { return isEng(uid) ? 'eng-av' : 'art-av'; }
-function gradeT70(tot) {
-  const p = tot / 70 * 100;
-  if (p >= 90) return {g:'S',  c:'bg'};
-  if (p >= 80) return {g:'A+', c:'bg'};
-  if (p >= 70) return {g:'A',  c:'bc'};
-  if (p >= 60) return {g:'B+', c:'by'};
-  if (p >= 50) return {g:'B',  c:'by'};
-  return             {g:'F',  c:'br'};
-}
-function deptShort(dept) {
-  if (!dept) return '—';
-  const words = dept.split(' ');
-  return words.length <= 3 ? dept : words.slice(0,3).join(' ') + '…';
-}
-function spin(id, cols) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:26px;color:var(--faint)">
-    <div style="width:26px;height:26px;border:2px solid rgba(167,139,250,.2);border-top-color:var(--violet);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>
-    Loading from Supabase…</td></tr>`;
-}
-
-/* ══ SIDEBAR IDENTITY ═════════════════════════════ */
-const tInit = tName.split(' ').filter(w=>/^[A-Z]/.test(w)).map(w=>w[0]).join('').slice(0,2)||'TC';
-document.getElementById('tAv').textContent   = tInit;
-document.getElementById('tName').textContent = tName;
-document.getElementById('tId').textContent   = tId;
-document.getElementById('wName').textContent = tName.split(' ').slice(-1)[0];
-
-/* ══ LOAD ALL STUDENTS (ENG + ART) ════════════════ */
-async function loadAllStudents() {
-  if (ALL_STUDENTS.length) return;
-  const data = await api('/api/teacher/students?limit=300');
-  ALL_STUDENTS = data?.students ?? [];
-  ENG_STUDENTS = ALL_STUDENTS.filter(s => isEng(s.user_id));
-  ART_STUDENTS = ALL_STUDENTS.filter(s => !isEng(s.user_id));
-}
-
-/* ══ DASHBOARD ════════════════════════════════════ */
-async function loadDashboard() {
-  /* Stats */
-  const stats = await api('/api/teacher/stats');
-  if (stats) {
-    document.getElementById('stat-total').textContent = stats.total_students       ?? '—';
-    document.getElementById('stat-eng').textContent   = stats.engineering_students ?? '—';
-    document.getElementById('stat-art').textContent   = stats.arts_students        ?? '—';
-    document.getElementById('stat-tch').textContent   = stats.total_teachers       ?? '—';
-    document.getElementById('stat-att').textContent   = (stats.avg_attendance_pct  ? stats.avg_attendance_pct + '%' : '—');
-    document.getElementById('stat-cgpa').textContent  = stats.avg_cgpa             ?? '—';
-  }
-
-  await loadAllStudents();
-
-  /* Mini cards — 9 students mixed ENG+ART */
-  const sample = ALL_STUDENTS.slice(0, 9);
-  document.getElementById('dash-count').textContent = `Showing 9 of ${ALL_STUDENTS.length} total`;
-  document.getElementById('dash-stus').innerHTML = sample.length
-    ? sample.map(s => `
-        <div class="stu-mini" onclick="openStudent('${s.user_id}')">
-          <div class="stu-mini-head">
-            <div class="sav-sm ${avClass(s.user_id)}">${(s.name||'?')[0]}</div>
-            <div>
-              <div class="sn-sm">${s.name||s.user_id}</div>
-              <div class="sid-sm">${s.user_id}</div>
-            </div>
-          </div>
-          <div class="tags">
-            ${deptBadge(s.user_id)}
-            <span class="b bc">Sem ${s.current_sem??'—'}</span>
-            <span class="b bv">${(s.department||'').split(' ')[0]}</span>
-          </div>
-        </div>`).join('')
-    : `<div style="color:var(--faint);grid-column:span 3;padding:10px">No students loaded. Check API.</div>`;
-}
-
-/* ══ STUDENT DIRECTORY ════════════════════════════ */
-async function loadDirectory() {
-  if (!ALL_STUDENTS.length) await loadAllStudents();
-  renderDir();
-}
-
-function setDirFilter(type, btn) {
-  _dirFilter = type;
-  document.querySelectorAll('#ft-all,#ft-eng,#ft-art').forEach(b => b.classList.remove('act'));
-  btn.classList.add('act');
-  renderDir();
-}
-function filterStus() { renderDir(); }
-
-function renderDir() {
-  let list = _dirFilter === 'eng' ? ENG_STUDENTS : _dirFilter === 'art' ? ART_STUDENTS : ALL_STUDENTS;
-  const q = (document.getElementById('searchQ')?.value || '').toLowerCase();
-  if (q) list = list.filter(s =>
-    (s.name||'').toLowerCase().includes(q) ||
-    (s.user_id||'').toLowerCase().includes(q) ||
-    (s.department||'').toLowerCase().includes(q)
-  );
-  document.getElementById('dir-count').textContent = `${list.length} students`;
-  const el = document.getElementById('stuList');
-  if (!list.length) {
-    el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--faint)">No students found.</div>`;
-    return;
-  }
-  el.innerHTML = list.map(s => `
-    <div class="stu-row" onclick="openStudent('${s.user_id}')">
-      <div class="sav ${avClass(s.user_id)}">${(s.name||'?')[0]}</div>
-      <div style="flex:1">
-        <div class="sn">${s.name||s.user_id}</div>
-        <div class="sm">${s.user_id} &nbsp;·&nbsp; ${deptShort(s.department)} &nbsp;·&nbsp; Sem ${s.current_sem??'—'} &nbsp;·&nbsp; ${s.degree??'—'}</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        ${deptBadge(s.user_id)}
-        <span class="b bc" style="font-family:'JetBrains Mono',monospace;font-size:.66rem">${s.roll_number||''}</span>
-      </div>
-    </div>`).join('');
-}
-
-/* ══ ENGINEERING SECTION ══════════════════════════ */
-async function loadEng() {
-  if (!ENG_STUDENTS.length) await loadAllStudents();
-  document.getElementById('eng-count').textContent = `${ENG_STUDENTS.length} students · Semesters 1–8`;
-  renderDeptList('engList', ENG_STUDENTS);
-}
-
-/* ══ ARTS SECTION ══════════════════════════════════ */
-async function loadArts() {
-  if (!ART_STUDENTS.length) await loadAllStudents();
-  document.getElementById('art-count').textContent = `${ART_STUDENTS.length} students · Semesters 1–6`;
-  renderDeptList('artList', ART_STUDENTS);
-}
-
-function renderDeptList(containerId, list) {
-  const el = document.getElementById(containerId);
-  if (!list.length) { el.innerHTML = `<div style="color:var(--faint);padding:20px">No data available.</div>`; return; }
-
-  /* Group by semester */
-  const bySem = {};
-  list.forEach(s => {
-    const k = s.current_sem ?? '?';
-    (bySem[k] = bySem[k]||[]).push(s);
-  });
-
-  el.innerHTML = Object.keys(bySem)
-    .sort((a,b) => parseInt(a) - parseInt(b))
-    .map(sem => {
-      const students = bySem[sem];
-      return `
-        <div style="margin-bottom:var(--sp-lg)">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
-            <span style="font-size:.85rem;font-weight:800;color:var(--text)">Semester ${sem}</span>
-            <span class="b bc">${students.length} students</span>
-            <span style="font-size:.75rem;color:var(--faint);margin-left:4px">${students[0]?.department||''}</span>
-          </div>
-          ${students.map(s => `
-            <div class="stu-row" onclick="openStudent('${s.user_id}')" style="margin-bottom:8px">
-              <div class="sav ${avClass(s.user_id)}">${(s.name||'?')[0]}</div>
-              <div style="flex:1">
-                <div class="sn">${s.name||s.user_id}</div>
-                <div class="sm">${s.user_id} &nbsp;·&nbsp; ${deptShort(s.department)} &nbsp;·&nbsp; ${s.degree??'—'} &nbsp;·&nbsp; Section ${s.section??'—'}</div>
-              </div>
-              <span class="b bc" style="font-family:'JetBrains Mono',monospace;font-size:.66rem">${s.roll_number||''}</span>
-            </div>`).join('')}
-        </div>`;
-    }).join('');
-}
-
-/* ══ ATTENDANCE ════════════════════════════════════ */
-async function loadAttendance() {
-  if (!ALL_STUDENTS.length) await loadAllStudents();
-  spin('attBody', 7);
-
-  const sample = ALL_STUDENTS.slice(0, 25);
-  const results = await Promise.all(sample.map(s => api(`/api/student/${s.user_id}/attendance`)));
-
-  _attCache = sample.map((s, i) => ({ s, att: results[i] || [] }));
-
-  /* Stat cards */
-  const pcts = _attCache.map(({att}) => {
-    const tc = att.reduce((a,r)=>a+(r.conducted||0),0);
-    const ta = att.reduce((a,r)=>a+(r.attended||0),0);
-    return tc ? Math.round(ta/tc*100) : 0;
-  });
-  document.getElementById('att-tracked').textContent = sample.length;
-  document.getElementById('att-avg').textContent     = pcts.length ? Math.round(pcts.reduce((a,v)=>a+v,0)/pcts.length)+'%' : '—';
-  document.getElementById('att-low').textContent     = pcts.filter(p=>p<75).length;
-
-  renderAttTable();
-}
-
-function setAttFilter(type, btn) {
-  _attFilter = type;
-  document.querySelectorAll('#at-all,#at-eng,#at-art').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act');
-  renderAttTable();
-}
-
-function renderAttTable() {
-  let rows = _attCache;
-  if (_attFilter==='eng') rows = rows.filter(r=>isEng(r.s.user_id));
-  if (_attFilter==='art') rows = rows.filter(r=>!isEng(r.s.user_id));
-
-  if (!rows.length) {
-    document.getElementById('attBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--faint)">No data for this filter.</td></tr>`;
-    return;
-  }
-  document.getElementById('attBody').innerHTML = rows.map(({s, att}) => {
-    const tc  = att.reduce((a,r)=>a+(r.conducted||0),0);
-    const ta  = att.reduce((a,r)=>a+(r.attended||0),0);
-    const pct = tc ? Math.round(ta/tc*100) : 0;
-    const cl  = pct>=85?'bg':pct>=75?'by':'br';
-    const st  = pct>=85?'Good':pct>=75?'Average':'Shortage';
-    const fc  = pct>=85?'var(--emerald)':pct>=75?'var(--amber)':'var(--red)';
-    return `<tr onclick="openStudent('${s.user_id}')" style="cursor:pointer">
-      <td><strong style="color:var(--text)">${s.name||s.user_id}</strong></td>
-      <td>${deptBadge(s.user_id)} <span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;margin-left:5px">${s.user_id}</span></td>
-      <td><span class="b bc">Sem ${s.current_sem??'—'}</span></td>
-      <td>${tc}</td>
-      <td>${ta}</td>
-      <td><div style="display:flex;align-items:center;gap:9px">
-        <div class="pbar"><div class="pfill" style="width:${pct}%;background:${fc}"></div></div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.75rem">${pct}%</span>
-      </div></td>
-      <td><span class="b ${cl}">${st}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-/* ══ INTERNAL MARKS ════════════════════════════════ */
-async function loadMarks() {
-  if (!ALL_STUDENTS.length) await loadAllStudents();
-  spin('marksBody', 9);
-
-  const sample = ALL_STUDENTS.slice(0, 20);
-  const results = await Promise.all(sample.map(s => api(`/api/student/${s.user_id}/marks`)));
-
-  _marksCache = [];
-  sample.forEach((s,i) => (results[i]||[]).forEach(m => _marksCache.push({s, m})));
-
-  /* Stat cards */
-  const totals = _marksCache.map(r => r.m.total ?? 0);
-  document.getElementById('mrk-done').textContent  = _marksCache.length;
-  document.getElementById('mrk-above').textContent = totals.filter(t=>t/70*100>=60).length;
-  document.getElementById('mrk-below').textContent = totals.filter(t=>t/70*100<60).length;
-
-  renderMarksTable();
-}
-
-function setMrkFilter(type, btn) {
-  _mrkFilter = type;
-  document.querySelectorAll('#mk-all,#mk-eng,#mk-art').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act');
-  renderMarksTable();
-}
-
-function renderMarksTable() {
-  let rows = _marksCache;
-  if (_mrkFilter==='eng') rows = rows.filter(r=>isEng(r.s.user_id));
-  if (_mrkFilter==='art') rows = rows.filter(r=>!isEng(r.s.user_id));
-  if (!rows.length) {
-    document.getElementById('marksBody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--faint)">No data.</td></tr>`;
-    return;
-  }
-  document.getElementById('marksBody').innerHTML = rows.map(({s,m}) => {
-    const tot = m.total??(m.ia1+m.ia2+m.ia3+m.assignment);
-    const {g,c} = gradeT70(tot);
-    return `<tr onclick="openStudent('${s.user_id}')" style="cursor:pointer">
-      <td><strong style="color:var(--text)">${s.name||s.user_id}</strong></td>
-      <td>${deptBadge(s.user_id)} <span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;margin-left:5px">${s.user_id}</span></td>
-      <td style="max-width:160px;white-space:normal;font-size:.8rem;color:var(--text)">${m.subject_name||m.subject_code}</td>
-      <td>${m.ia1}</td><td>${m.ia2}</td><td>${m.ia3}</td><td>${m.assignment}</td>
-      <td><strong style="color:var(--text)">${tot}</strong></td>
-      <td><span class="b ${c}">${g}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-/* ══ RESULTS ═══════════════════════════════════════ */
-async function loadResults() {
-  if (!ALL_STUDENTS.length) await loadAllStudents();
-  spin('resBody', 7);
-
-  const sample = ALL_STUDENTS.slice(0, 25);
-  const results = await Promise.all(sample.map(s => api(`/api/student/${s.user_id}/results`)));
-  _resCache = sample.map((s,i) => ({ s, wrap: results[i]||{subjects:[],overall_cgpa:0} }));
-
-  /* Stat cards */
-  const stats = await api('/api/teacher/stats');
-  if (stats) document.getElementById('res-cgpa').textContent = stats.avg_cgpa ?? '—';
-  const dists   = _resCache.reduce((a,r) => a+(r.wrap.subjects||[]).filter(x=>x.grade==='S'||x.grade==='A+').length, 0);
-  const arrears = _resCache.filter(r => (r.wrap.subjects||[]).some(x=>x.status==='Fail')).length;
-  document.getElementById('res-dist').textContent   = dists;
-  document.getElementById('res-arrear').textContent = arrears;
-
-  renderResTable();
-}
-
-function setResFilter(type, btn) {
-  _resFilter = type;
-  document.querySelectorAll('#rs-all,#rs-eng,#rs-art').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act');
-  renderResTable();
-}
-
-function renderResTable() {
-  let rows = _resCache;
-  if (_resFilter==='eng') rows = rows.filter(r=>isEng(r.s.user_id));
-  if (_resFilter==='art') rows = rows.filter(r=>!isEng(r.s.user_id));
-  if (!rows.length) {
-    document.getElementById('resBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--faint)">No data.</td></tr>`;
-    return;
-  }
-  document.getElementById('resBody').innerHTML = rows.map(({s, wrap}) => {
-    const cgpa   = wrap.overall_cgpa ?? 0;
-    const cv     = parseFloat(cgpa)||0;
-    const gc     = cv>=9?'bg':cv>=8?'bc':'by';
-    const hasArr = (wrap.subjects||[]).some(x=>x.status==='Fail');
-    return `<tr onclick="openStudent('${s.user_id}')" style="cursor:pointer">
-      <td><strong style="color:var(--text)">${s.name||s.user_id}</strong></td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem">${s.user_id}</td>
-      <td>${deptBadge(s.user_id)}</td>
-      <td style="max-width:180px;white-space:normal;font-size:.8rem">${deptShort(s.department)}</td>
-      <td><span class="b bc">Sem ${s.current_sem??'—'}</span></td>
-      <td><span class="b ${gc}">${cgpa||'—'}</span></td>
-      <td><span class="b ${hasArr?'br':'bg'}">${hasArr?'Has Arrear':'Clear'}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-/* ══ STUDENT DETAIL MODAL ══════════════════════════ */
-async function openStudent(uid) {
-  document.getElementById('stuModal').classList.add('open');
-  document.getElementById('modal-name').textContent = uid;
-  document.getElementById('modal-meta').textContent = 'Loading…';
-  document.getElementById('modal-content').innerHTML = `
-    <div style="text-align:center;padding:36px;color:var(--faint)">
-      <div style="width:34px;height:34px;border:2px solid rgba(167,139,250,.2);border-top-color:var(--violet);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
-      Fetching student data from Supabase…
-    </div>`;
-
-  const [personal, profile, att, marks, results] = await Promise.all([
-    api(`/api/student/${uid}/personal`),
-    api(`/api/student/${uid}/profile`),
-    api(`/api/student/${uid}/attendance`),
-    api(`/api/student/${uid}/marks`),
-    api(`/api/student/${uid}/results`),
-  ]);
-
-  const name = personal?.name || uid;
-  document.getElementById('modal-name').innerHTML =
-    `${name} &nbsp;${deptBadge(uid)}`;
-  document.getElementById('modal-meta').textContent =
-    `${uid}  ·  ${profile?.department||'—'}  ·  Sem ${profile?.current_sem||'—'}  ·  ${profile?.degree||'—'}`;
-
-  /* Attendance summary */
-  const tc   = (att||[]).reduce((a,r)=>a+(r.conducted||0),0);
-  const ta   = (att||[]).reduce((a,r)=>a+(r.attended||0),0);
-  const pct  = tc ? Math.round(ta/tc*100) : 0;
-  const attC = pct>=75?'var(--emerald)':pct>=65?'var(--amber)':'var(--red)';
-  const cgpa = results?.overall_cgpa ?? '—';
-  const pass = (results?.subjects||[]).filter(s=>s.status==='Pass').length;
-
-  document.getElementById('modal-content').innerHTML = `
-    <!-- Personal -->
-    <div class="modal-section">
-      <div class="modal-sec-title">Personal Information</div>
-      <div class="g2" style="gap:0">
-        <div>
-          <div class="drow"><div class="dlbl">Date of Birth</div><div class="dval">${personal?.dob||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Gender</div><div class="dval">${personal?.gender||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Blood Group</div><div class="dval"><span class="b br">${personal?.blood_group||'—'}</span></div></div>
-          <div class="drow"><div class="dlbl">Mobile</div><div class="dval">${personal?.mobile||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Email</div><div class="dval" style="font-size:.78rem;word-break:break-all">${personal?.email||'—'}</div></div>
-        </div>
-        <div>
-          <div class="drow"><div class="dlbl">Father</div><div class="dval">${personal?.father_name||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Mother</div><div class="dval">${personal?.mother_name||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Parent Mobile</div><div class="dval">${personal?.parent_mobile||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Nationality</div><div class="dval">${personal?.nationality||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Address</div><div class="dval" style="font-size:.78rem">${personal?.address||'—'}</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Academic -->
-    <div class="modal-section">
-      <div class="modal-sec-title">Academic Profile</div>
-      <div class="g2" style="gap:0">
-        <div>
-          <div class="drow"><div class="dlbl">Roll Number</div><div class="dval"><span class="b bc">${profile?.roll_number||'—'}</span></div></div>
-          <div class="drow"><div class="dlbl">Batch</div><div class="dval">${profile?.batch||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Specialisation</div><div class="dval">${profile?.specialisation||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Section</div><div class="dval">${profile?.section||'—'}</div></div>
-        </div>
-        <div>
-          <div class="drow"><div class="dlbl">Advisor</div><div class="dval">${profile?.advisor||'—'}</div></div>
-          <div class="drow"><div class="dlbl">10th</div><div class="dval">${profile?.edu10_pct||'—'} · ${profile?.edu10_board||'—'}</div></div>
-          <div class="drow"><div class="dlbl">12th</div><div class="dval">${profile?.edu12_pct||'—'} · ${profile?.edu12_board||'—'}</div></div>
-          <div class="drow"><div class="dlbl">Entrance</div><div class="dval">${profile?.entrance_exam||'—'}</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Performance -->
-    <div class="modal-section">
-      <div class="modal-sec-title">Performance Summary</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-        <div style="background:var(--surf3);border:1px solid var(--border);border-radius:13px;padding:18px;text-align:center">
-          <div style="font-size:1.8rem;font-weight:800;background:var(--gc);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${cgpa}</div>
-          <div style="font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.7px;margin-top:4px">CGPA</div>
-        </div>
-        <div style="background:var(--surf3);border:1px solid var(--border);border-radius:13px;padding:18px;text-align:center">
-          <div style="font-size:1.8rem;font-weight:800;color:${attC}">${pct}%</div>
-          <div style="font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.7px;margin-top:4px">Attendance</div>
-        </div>
-        <div style="background:var(--surf3);border:1px solid var(--border);border-radius:13px;padding:18px;text-align:center">
-          <div style="font-size:1.8rem;font-weight:800;background:var(--ge);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${pass}</div>
-          <div style="font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.7px;margin-top:4px">Passed</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Marks table -->
-    ${(marks||[]).length ? `
-    <div class="modal-section">
-      <div class="modal-sec-title">Current Semester — Internal Marks</div>
-      <div class="tw"><table>
-        <thead><tr><th>Subject</th><th>IA1</th><th>IA2</th><th>IA3</th><th>Assign</th><th>Total/70</th><th>Grade</th></tr></thead>
-        <tbody>${(marks||[]).map(m=>{
-          const tot=m.total??(m.ia1+m.ia2+m.ia3+m.assignment);
-          const {g,c}=gradeT70(tot);
-          return `<tr><td style="max-width:180px;white-space:normal;font-size:.8rem">${m.subject_name}</td><td>${m.ia1}</td><td>${m.ia2}</td><td>${m.ia3}</td><td>${m.assignment}</td><td><strong style="color:var(--text)">${tot}</strong></td><td><span class="b ${c}">${g}</span></td></tr>`;
-        }).join('')}</tbody>
-      </table></div>
-    </div>` : ''}
-
-    <!-- Attendance table -->
-    ${(att||[]).length ? `
-    <div class="modal-section">
-      <div class="modal-sec-title">Current Semester — Attendance</div>
-      <div class="tw"><table>
-        <thead><tr><th>Subject</th><th>Conducted</th><th>Attended</th><th>%</th><th>Status</th></tr></thead>
-        <tbody>${(att||[]).map(r=>{
-          const p=r.conducted?Math.round(r.attended/r.conducted*100):0;
-          const cl=p>=75?'bg':p>=65?'by':'br';
-          const fc=p>=75?'var(--emerald)':p>=65?'var(--amber)':'var(--red)';
-          return `<tr><td style="max-width:180px;white-space:normal;font-size:.8rem">${r.subject_name}</td><td>${r.conducted}</td><td>${r.attended}</td>
-          <td><div style="display:flex;align-items:center;gap:8px"><div class="pbar" style="width:80px"><div class="pfill" style="width:${p}%;background:${fc}"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:.74rem">${p}%</span></div></td>
-          <td><span class="b ${cl}">${p>=75?'Good':p>=65?'Warning':'Shortage'}</span></td></tr>`;
-        }).join('')}</tbody>
-      </table></div>
-    </div>` : ''}
-  `;
-}
-
-function closeModal() {
-  document.getElementById('stuModal').classList.remove('open');
-}
-document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
-
-/* ══ NAVIGATION ════════════════════════════════════ */
-const TITLES = {
-  dashboard:'Faculty Dashboard', students:'Student Directory',
-  eng:'Engineering Department', arts:'Arts Department',
-  attendance:'Attendance Management', marks:'Internal Marks', results:'Results Overview'
-};
-const LOADERS = {
-  dashboard:  loadDashboard,
-  students:   loadDirectory,
-  eng:        loadEng,
-  arts:       loadArts,
-  attendance: loadAttendance,
-  marks:      loadMarks,
-  results:    loadResults,
-};
-const _loaded = {};
-
-function go(name) {
-  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('act'));
-  document.getElementById('sec-'+name).classList.add('act');
-  document.querySelectorAll('.ni').forEach(el=>el.classList.remove('act'));
-  document.querySelectorAll('.ni').forEach(el=>{
-    if(el.getAttribute('onclick')?.includes(`'${name}'`)) el.classList.add('act');
-  });
-  document.getElementById('ptitle').textContent = TITLES[name]||name;
-  document.getElementById('sb').classList.remove('open');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if (!_loaded[name] && LOADERS[name]) { _loaded[name]=true; LOADERS[name](); }
-}
-
-function signOut() { sessionStorage.clear(); window.location.href='index.html'; }
-
-/* ── Clock ─────────────────────────────────────── */
-function tick() {
-  const n=new Date();
-  const el=document.getElementById('tbadge');
-  if(el) el.textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'  ·  '+n.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-}
-setInterval(tick,1000); tick();
-
-/* ── Boot ──────────────────────────────────────── */
-_loaded['dashboard']=true;
-loadDashboard();
-</script>
+<script src="teacher_script.js"></script>
 </body>
 </html>

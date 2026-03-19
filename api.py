@@ -1,5 +1,5 @@
 """
-EduPortal v3  ·  Python + FastAPI Backend
+VelsPortal v3  ·  Python + FastAPI Backend
 ==========================================
 Supports:
   • Engineering Dept: 8 sems × 20 students = 160 students (ENG001–ENG160)
@@ -41,19 +41,13 @@ SECRET_KEY         = os.getenv("SECRET_KEY",    "change-me-in-production")
 ALGORITHM          = "HS256"
 TOKEN_EXPIRE_HOURS = 8
 
-# ── CORS: read from .env, but ALWAYS include both Live Server ports ──────────
 _env_origins = os.getenv("ALLOWED_ORIGINS", "")
 _base_origins = [o.strip() for o in _env_origins.split(",") if o.strip()]
-
-# Ensure both common Live Server ports are always included
 _live_server_origins = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-    "http://127.0.0.1:5501",
-    "http://localhost:5501",
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-    "null",  # file:// protocol (opening HTML directly)
+    "http://127.0.0.1:5500", "http://localhost:5500",
+    "http://127.0.0.1:5501", "http://localhost:5501",
+    "http://127.0.0.1:3000", "http://localhost:3000",
+    "null",
 ]
 ALLOWED_ORIGINS = list(set(_base_origins + _live_server_origins))
 
@@ -63,7 +57,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 #  APP
 # ─────────────────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="EduPortal API",
+    title="VelsPortal API",
     version="3.0",
     description="Academic Management System — Engineering (8 sem) + Arts (6 sem)",
 )
@@ -71,7 +65,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",  # any localhost port
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -86,7 +80,7 @@ security = HTTPBearer()
 class LoginRequest(BaseModel):
     user_id:  str
     password: str
-    role:     str  # 'student' | 'teacher'
+    role:     str
 
 class ChangePasswordRequest(BaseModel):
     user_id:          str
@@ -113,9 +107,57 @@ class NoticeCreateRequest(BaseModel):
     body:    str
     type:    Optional[str] = "info"
 
+# ── NEW: Edit schemas for teacher to update student data ─────────────────────
+class EditPersonalRequest(BaseModel):
+    """Teacher can update any field in student_personal table."""
+    dob:            Optional[str] = None
+    gender:         Optional[str] = None
+    blood_group:    Optional[str] = None
+    nationality:    Optional[str] = None
+    religion:       Optional[str] = None
+    mobile:         Optional[str] = None
+    email:          Optional[str] = None
+    address:        Optional[str] = None
+    father_name:    Optional[str] = None
+    mother_name:    Optional[str] = None
+    parent_mobile:  Optional[str] = None
+
+class EditProfileRequest(BaseModel):
+    """Teacher can update any field in student_profile table."""
+    roll_number:    Optional[str] = None
+    department:     Optional[str] = None
+    degree:         Optional[str] = None
+    specialisation: Optional[str] = None
+    batch:          Optional[str] = None
+    admission_year: Optional[str] = None
+    current_sem:    Optional[str] = None
+    section:        Optional[str] = None
+    advisor:        Optional[str] = None
+    edu10_board:    Optional[str] = None
+    edu10_pct:      Optional[str] = None
+    edu12_board:    Optional[str] = None
+    edu12_pct:      Optional[str] = None
+    entrance_exam:  Optional[str] = None
+
+class EditAttendanceRequest(BaseModel):
+    """Teacher updates attendance for one subject row."""
+    subject_code: str
+    conducted:    int
+    attended:     int
+    semester:     Optional[str] = None
+
+class EditMarksRequest(BaseModel):
+    """Teacher updates marks for one subject row."""
+    subject_code: str
+    ia1:          int
+    ia2:          int
+    ia3:          int
+    assignment:   int
+    semester:     Optional[str] = None
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  JWT HELPERS
+#  HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 def create_token(data: dict) -> str:
     payload = {
@@ -143,17 +185,11 @@ def _require_teacher(payload: dict):
 
 
 def _guard_student(payload: dict, user_id: str):
-    """Students can only see their own data; teachers see everyone's."""
     if payload["role"] == "student" and payload["user_id"] != user_id.upper():
         raise HTTPException(status_code=403, detail="Access denied")
 
 
 def _safe_single(query) -> dict | None:
-    """
-    Execute a .single() query and return data or None.
-    supabase-py v2 raises an exception when no row is found with .single(),
-    so we catch it instead of letting it crash the endpoint.
-    """
     try:
         result = query.single().execute()
         return result.data
@@ -162,7 +198,6 @@ def _safe_single(query) -> dict | None:
 
 
 def _safe_query(query) -> list:
-    """Execute a regular (non-single) query, return list or []."""
     try:
         result = query.execute()
         return result.data or []
@@ -172,7 +207,7 @@ def _safe_query(query) -> list:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  ── AUTH ────────────────────────────────────────────────────────────────────
+#  AUTH
 # ─────────────────────────────────────────────────────────────────────────────
 @app.post("/api/login", tags=["Auth"])
 async def login(req: LoginRequest):
@@ -221,24 +256,20 @@ async def change_password(req: ChangePasswordRequest, payload: dict = Depends(ve
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  ── STUDENT READ ────────────────────────────────────────────────────────────
+#  STUDENT READ
 # ─────────────────────────────────────────────────────────────────────────────
 @app.get("/api/student/{user_id}/summary", tags=["Student"])
 async def get_summary(user_id: str, payload: dict = Depends(verify_token)):
     _guard_student(payload, user_id)
     uid = user_id.upper()
-
     profile  = _safe_single(supabase.table("student_profile").select("*").eq("user_id", uid)) or {}
     att_rows = _safe_query(supabase.table("attendance").select("conducted,attended").eq("user_id", uid))
     res_rows = _safe_query(supabase.table("exam_results").select("cgpa").eq("user_id", uid))
-
     total_c  = sum(r.get("conducted", 0) for r in att_rows)
     total_a  = sum(r.get("attended",  0) for r in att_rows)
     att_pct  = round(total_a / total_c * 100, 1) if total_c else 0.0
-
     cgpa_vals = [float(r["cgpa"]) for r in res_rows if r.get("cgpa")]
     avg_cgpa  = round(sum(cgpa_vals) / len(cgpa_vals), 2) if cgpa_vals else 0.0
-
     return {
         "user_id":         uid,
         "current_sem":     profile.get("current_sem", "—"),
@@ -257,19 +288,13 @@ async def get_summary(user_id: str, payload: dict = Depends(verify_token)):
 @app.get("/api/student/{user_id}/personal", tags=["Student"])
 async def get_personal(user_id: str, payload: dict = Depends(verify_token)):
     _guard_student(payload, user_id)
-    data = _safe_single(
-        supabase.table("student_personal").select("*").eq("user_id", user_id.upper())
-    )
-    return data or {}
+    return _safe_single(supabase.table("student_personal").select("*").eq("user_id", user_id.upper())) or {}
 
 
 @app.get("/api/student/{user_id}/profile", tags=["Student"])
 async def get_profile(user_id: str, payload: dict = Depends(verify_token)):
     _guard_student(payload, user_id)
-    data = _safe_single(
-        supabase.table("student_profile").select("*").eq("user_id", user_id.upper())
-    )
-    return data or {}
+    return _safe_single(supabase.table("student_profile").select("*").eq("user_id", user_id.upper())) or {}
 
 
 @app.get("/api/student/{user_id}/subjects", tags=["Student"])
@@ -331,10 +356,7 @@ async def get_results(
     if semester:
         q = q.eq("semester", semester)
     rows = _safe_query(q)
-
-    all_cgpa = _safe_query(
-        supabase.table("exam_results").select("cgpa").eq("user_id", user_id.upper())
-    )
+    all_cgpa = _safe_query(supabase.table("exam_results").select("cgpa").eq("user_id", user_id.upper()))
     vals = [float(r["cgpa"]) for r in all_cgpa if r.get("cgpa")]
     overall_cgpa = round(sum(vals) / len(vals), 2) if vals else 0.0
     return {"subjects": rows, "overall_cgpa": overall_cgpa}
@@ -343,35 +365,28 @@ async def get_results(
 @app.get("/api/student/{user_id}/notices", tags=["Student"])
 async def get_notices(user_id: str, payload: dict = Depends(verify_token)):
     _guard_student(payload, user_id)
-    rows = _safe_query(
-        supabase.table("notices")
-        .select("*")
-        .eq("user_id", user_id.upper())
-        .order("created_at", desc=True)
-        .limit(10)
+    return _safe_query(
+        supabase.table("notices").select("*").eq("user_id", user_id.upper())
+        .order("created_at", desc=True).limit(10)
     )
-    return rows
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  ── TEACHER READ ────────────────────────────────────────────────────────────
+#  TEACHER READ
 # ─────────────────────────────────────────────────────────────────────────────
 @app.get("/api/teacher/profile/{teacher_id}", tags=["Teacher"])
 async def get_teacher_profile(teacher_id: str, payload: dict = Depends(verify_token)):
     tid = teacher_id.upper()
     if payload["role"] == "teacher" and payload["user_id"] != tid:
         raise HTTPException(status_code=403, detail="Access denied")
-    data = _safe_single(
-        supabase.table("teacher_profile").select("*").eq("user_id", tid)
-    )
-    return data or {}
+    return _safe_single(supabase.table("teacher_profile").select("*").eq("user_id", tid)) or {}
 
 
 @app.get("/api/teacher/students", tags=["Teacher"])
 async def get_all_students(
     department: Optional[str] = Query(None),
     semester:   Optional[str] = Query(None),
-    dept_type:  Optional[str] = Query(None, description="'eng' or 'art'"),
+    dept_type:  Optional[str] = Query(None),
     search:     Optional[str] = Query(None),
     limit:      int           = Query(50, ge=1, le=300),
     offset:     int           = Query(0,  ge=0),
@@ -384,24 +399,17 @@ async def get_all_students(
         .order("user_id")
         .range(offset, offset + limit - 1)
     )
-    if department:
-        q = q.eq("department", department)
-    if semester:
-        q = q.eq("current_sem", semester)
-
+    if department: q = q.eq("department", department)
+    if semester:   q = q.eq("current_sem", semester)
     rows = _safe_query(q)
 
-    # Fetch names from users table
     uids = [r["user_id"] for r in rows]
     if uids:
-        user_rows = _safe_query(
-            supabase.table("users").select("user_id, name").in_("user_id", uids)
-        )
+        user_rows = _safe_query(supabase.table("users").select("user_id, name").in_("user_id", uids))
         name_map = {u["user_id"]: u["name"] for u in user_rows}
         for r in rows:
             r["name"] = name_map.get(r["user_id"], "")
 
-    # Post-filters
     if search:
         sl = search.lower()
         rows = [r for r in rows if sl in r.get("name","").lower() or sl in r.get("user_id","").lower()]
@@ -428,21 +436,17 @@ async def get_student_detail(user_id: str, payload: dict = Depends(verify_token)
 @app.get("/api/teacher/stats", tags=["Teacher"])
 async def get_teacher_stats(payload: dict = Depends(verify_token)):
     _require_teacher(payload)
-
     total_students = len(_safe_query(supabase.table("users").select("user_id").eq("role", "student")))
     total_teachers = len(_safe_query(supabase.table("users").select("user_id").eq("role", "teacher")))
     eng_count      = len(_safe_query(supabase.table("users").select("user_id").eq("role","student").like("user_id","ENG%")))
     art_count      = len(_safe_query(supabase.table("users").select("user_id").eq("role","student").like("user_id","ART%")))
-
     att_rows = _safe_query(supabase.table("attendance").select("conducted,attended"))
     total_c  = sum(r.get("conducted", 0) for r in att_rows)
     total_a  = sum(r.get("attended",  0) for r in att_rows)
     avg_att  = round(total_a / total_c * 100, 1) if total_c else 0.0
-
     res_rows  = _safe_query(supabase.table("exam_results").select("cgpa"))
     cgpa_vals = [float(r["cgpa"]) for r in res_rows if r.get("cgpa")]
     avg_cgpa  = round(sum(cgpa_vals) / len(cgpa_vals), 2) if cgpa_vals else 0.0
-
     return {
         "total_students":       total_students,
         "engineering_students": eng_count,
@@ -463,7 +467,7 @@ async def get_departments(payload: dict = Depends(verify_token)):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  ── TEACHER WRITE ───────────────────────────────────────────────────────────
+#  TEACHER WRITE — existing
 # ─────────────────────────────────────────────────────────────────────────────
 @app.put("/api/teacher/attendance/{user_id}", tags=["Teacher"])
 async def update_attendance(
@@ -473,8 +477,7 @@ async def update_attendance(
     uid = user_id.upper()
     data = {"conducted": req.conducted, "attended": req.attended,
             "updated_at": datetime.now(timezone.utc).isoformat()}
-    if req.semester:
-        data["semester"] = req.semester
+    if req.semester: data["semester"] = req.semester
     supabase.table("attendance").update(data).eq("user_id", uid).eq("subject_code", req.subject_code).execute()
     return {"message": "Attendance updated"}
 
@@ -488,8 +491,7 @@ async def update_marks(
     total = req.ia1 + req.ia2 + req.ia3 + req.assignment
     data  = {"ia1": req.ia1, "ia2": req.ia2, "ia3": req.ia3,
              "assignment": req.assignment, "total": total}
-    if req.semester:
-        data["semester"] = req.semester
+    if req.semester: data["semester"] = req.semester
     supabase.table("internal_marks").update(data).eq("user_id", uid).eq("subject_code", req.subject_code).execute()
     return {"message": "Marks updated", "total": total}
 
@@ -512,13 +514,146 @@ async def delete_notice(notice_id: int, payload: dict = Depends(verify_token)):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  ── UTILITY ─────────────────────────────────────────────────────────────────
+#  TEACHER WRITE — NEW: Edit student personal & profile details
+# ─────────────────────────────────────────────────────────────────────────────
+@app.put("/api/teacher/edit/personal/{user_id}", tags=["Teacher - Edit"])
+async def edit_personal(
+    user_id: str,
+    req:     EditPersonalRequest,
+    payload: dict = Depends(verify_token),
+):
+    """
+    Teacher updates a student's personal details.
+    Only non-None fields are written — so sending just mobile
+    will only update mobile, leaving everything else untouched.
+    """
+    _require_teacher(payload)
+    uid = user_id.strip().upper()
+
+    # Build update dict — only include fields that were actually sent
+    update_data = {k: v for k, v in req.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields provided to update")
+
+    try:
+        supabase.table("student_personal").update(update_data).eq("user_id", uid).execute()
+        logger.info(f"Personal updated for {uid}: {list(update_data.keys())}")
+        return {"message": "Personal details updated", "updated_fields": list(update_data.keys())}
+    except Exception as e:
+        logger.error(f"Edit personal error {uid}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update personal details")
+
+
+@app.put("/api/teacher/edit/profile/{user_id}", tags=["Teacher - Edit"])
+async def edit_profile(
+    user_id: str,
+    req:     EditProfileRequest,
+    payload: dict = Depends(verify_token),
+):
+    """
+    Teacher updates a student's academic profile.
+    Also syncs department to the users table if changed.
+    """
+    _require_teacher(payload)
+    uid = user_id.strip().upper()
+
+    update_data = {k: v for k, v in req.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields provided to update")
+
+    try:
+        supabase.table("student_profile").update(update_data).eq("user_id", uid).execute()
+        # If department was changed, keep users table in sync too
+        if "department" in update_data:
+            supabase.table("users").update({"department": update_data["department"]}).eq("user_id", uid).execute()
+        logger.info(f"Profile updated for {uid}: {list(update_data.keys())}")
+        return {"message": "Academic profile updated", "updated_fields": list(update_data.keys())}
+    except Exception as e:
+        logger.error(f"Edit profile error {uid}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update academic profile")
+
+
+@app.put("/api/teacher/edit/attendance/{user_id}", tags=["Teacher - Edit"])
+async def edit_attendance(
+    user_id: str,
+    req:     EditAttendanceRequest,
+    payload: dict = Depends(verify_token),
+):
+    """Teacher edits attendance for a specific subject."""
+    _require_teacher(payload)
+    uid = user_id.strip().upper()
+
+    if req.attended > req.conducted:
+        raise HTTPException(status_code=400, detail="Attended cannot exceed conducted classes")
+
+    update_data = {
+        "conducted":  req.conducted,
+        "attended":   req.attended,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if req.semester:
+        update_data["semester"] = req.semester
+
+    try:
+        supabase.table("attendance").update(update_data)\
+            .eq("user_id", uid)\
+            .eq("subject_code", req.subject_code)\
+            .execute()
+        logger.info(f"Attendance edited for {uid} / {req.subject_code}")
+        return {"message": "Attendance updated successfully"}
+    except Exception as e:
+        logger.error(f"Edit attendance error {uid}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update attendance")
+
+
+@app.put("/api/teacher/edit/marks/{user_id}", tags=["Teacher - Edit"])
+async def edit_marks(
+    user_id: str,
+    req:     EditMarksRequest,
+    payload: dict = Depends(verify_token),
+):
+    """Teacher edits internal marks for a specific subject."""
+    _require_teacher(payload)
+    uid = user_id.strip().upper()
+
+    # Validate ranges
+    if not (0 <= req.ia1 <= 20):
+        raise HTTPException(status_code=400, detail="IA1 must be between 0 and 20")
+    if not (0 <= req.ia2 <= 20):
+        raise HTTPException(status_code=400, detail="IA2 must be between 0 and 20")
+    if not (0 <= req.ia3 <= 20):
+        raise HTTPException(status_code=400, detail="IA3 must be between 0 and 20")
+    if not (0 <= req.assignment <= 10):
+        raise HTTPException(status_code=400, detail="Assignment must be between 0 and 10")
+
+    total = req.ia1 + req.ia2 + req.ia3 + req.assignment
+    update_data = {
+        "ia1": req.ia1, "ia2": req.ia2, "ia3": req.ia3,
+        "assignment": req.assignment, "total": total,
+    }
+    if req.semester:
+        update_data["semester"] = req.semester
+
+    try:
+        supabase.table("internal_marks").update(update_data)\
+            .eq("user_id", uid)\
+            .eq("subject_code", req.subject_code)\
+            .execute()
+        logger.info(f"Marks edited for {uid} / {req.subject_code} total={total}")
+        return {"message": "Marks updated successfully", "total": total}
+    except Exception as e:
+        logger.error(f"Edit marks error {uid}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update marks")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  UTILITY
 # ─────────────────────────────────────────────────────────────────────────────
 @app.get("/api/health", tags=["Utility"])
 async def health():
     return {
         "status":    "ok",
-        "version":   "3.0",
+        "version":   "3.1",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
