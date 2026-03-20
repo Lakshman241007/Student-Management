@@ -536,12 +536,15 @@ async def edit_personal(
         raise HTTPException(status_code=400, detail="No fields provided to update")
 
     try:
-        supabase.table("student_personal").update(update_data).eq("user_id", uid).execute()
-        logger.info(f"Personal updated for {uid}: {list(update_data.keys())}")
+        # Use upsert so it works whether the row exists or not.
+        # on_conflict="user_id" means: if row exists → update; if not → insert.
+        upsert_data = {"user_id": uid, **update_data}
+        supabase.table("student_personal").upsert(upsert_data, on_conflict="user_id").execute()
+        logger.info(f"Personal upserted for {uid}: {list(update_data.keys())}")
         return {"message": "Personal details updated", "updated_fields": list(update_data.keys())}
     except Exception as e:
         logger.error(f"Edit personal error {uid}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update personal details")
+        raise HTTPException(status_code=500, detail=f"Failed to update personal details: {str(e)}")
 
 
 @app.put("/api/teacher/edit/profile/{user_id}", tags=["Teacher - Edit"])
@@ -562,15 +565,16 @@ async def edit_profile(
         raise HTTPException(status_code=400, detail="No fields provided to update")
 
     try:
-        supabase.table("student_profile").update(update_data).eq("user_id", uid).execute()
+        upsert_data = {"user_id": uid, **update_data}
+        supabase.table("student_profile").upsert(upsert_data, on_conflict="user_id").execute()
         # If department was changed, keep users table in sync too
         if "department" in update_data:
             supabase.table("users").update({"department": update_data["department"]}).eq("user_id", uid).execute()
-        logger.info(f"Profile updated for {uid}: {list(update_data.keys())}")
+        logger.info(f"Profile upserted for {uid}: {list(update_data.keys())}")
         return {"message": "Academic profile updated", "updated_fields": list(update_data.keys())}
     except Exception as e:
         logger.error(f"Edit profile error {uid}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update academic profile")
+        raise HTTPException(status_code=500, detail=f"Failed to update academic profile: {str(e)}")
 
 
 @app.put("/api/teacher/edit/attendance/{user_id}", tags=["Teacher - Edit"])
