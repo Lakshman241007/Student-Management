@@ -1,239 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VelsPortal — Student Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="student_style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VelsPortal — Student Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="student_style.css">
 </head>
+
 <body>
 
-<!-- ══ SIDEBAR ═══════════════════════════════════ -->
-<aside class="sb" id="sb">
-  <div class="sb-scroll">
-    <div class="sb-top">
-      <div class="sb-inst">
-        <div class="sb-inst-icon">🏛</div>
-        <div class="sb-inst-text">
-          <div class="sb-inst-name">VISTAS</div>
-          <div class="sb-inst-sub">Student Portal</div>
+  <!-- ══ SIDEBAR ═══════════════════════════════════ -->
+  <aside class="sb" id="sb">
+    <div class="sb-scroll">
+      <div class="sb-top">
+        <div class="sb-inst">
+          <div class="sb-inst-icon">🏛</div>
+          <div class="sb-inst-text">
+            <div class="sb-inst-name">VISTAS</div>
+            <div class="sb-inst-sub">Student Portal</div>
+          </div>
+        </div>
+        <div class="stu-card">
+          <div class="av" id="sbAv">A</div>
+          <div>
+            <div class="stu-name" id="sbName">Loading…</div>
+            <div class="stu-id" id="sbId">—</div>
+          </div>
         </div>
       </div>
-      <div class="stu-card">
-        <div class="av" id="sbAv">A</div>
-        <div>
-          <div class="stu-name" id="sbName">Loading…</div>
-          <div class="stu-id"   id="sbId">—</div>
-        </div>
-      </div>
+
+      <nav class="nav">
+        <div class="nl">Overview</div>
+        <div class="ni act" onclick="go('dashboard')"><span class="ic">🏠</span> Dashboard</div>
+
+        <div class="nl">Academic</div>
+        <div class="ni" onclick="go('personal')"> <span class="ic">👤</span> Personal Details</div>
+        <div class="ni" onclick="go('profile')"> <span class="ic">📝</span> Student Profile</div>
+        <div class="ni" onclick="go('subjects')"><span class="ic">📚</span> Sem-wise Subjects</div>
+        <div class="ni" onclick="go('attendance')"><span class="ic">📅</span> Attendance</div>
+        <div class="ni" onclick="go('marks')"><span class="ic">📊</span> Internal Marks</div>
+        <div class="ni" onclick="go('results')"> <span class="ic">🏆</span> Exam Results</div>
+
+        <div class="nl">Account</div>
+        <div class="ni" onclick="go('password')"> <span class="ic">🔐</span> Change Password</div>
+        <div class="ni so" onclick="signOut()"> <span class="ic">🚪</span> Sign Out</div>
+      </nav>
     </div>
+  </aside>
 
-    <nav class="nav">
-      <div class="nl">Overview</div>
-      <div class="ni act" onclick="go('dashboard')"><span class="ic">🏠</span> Dashboard</div>
+  <!-- ══ MAIN ═══════════════════════════════════════ -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+        <h1 class="ptitle" id="ptitle">Dashboard</h1>
+      </div>
+      <div class="tbadge" id="tbadge">—</div>
+    </header>
 
-      <div class="nl">Academic</div>
-      <div class="ni" onclick="go('personal')">  <span class="ic">👤</span> Personal Details</div>
-      <div class="ni" onclick="go('profile')">   <span class="ic">📝</span> Student Profile</div>
-      <div class="ni" onclick="go('subjects')">  <span class="ic">📚</span> Sem-wise Subjects</div>
-      <div class="ni" onclick="go('attendance')"><span class="ic">📅</span> Attendance</div>
-      <div class="ni" onclick="go('marks')">     <span class="ic">📊</span> Internal Marks</div>
-      <div class="ni" onclick="go('results')">   <span class="ic">🏆</span> Exam Results</div>
+    <div class="content">
 
-      <div class="nl">Account</div>
-      <div class="ni" onclick="go('password')">  <span class="ic">🔐</span> Change Password</div>
-      <div class="ni so" onclick="signOut()">    <span class="ic">🚪</span> Sign Out</div>
-    </nav>
-  </div>
-</aside>
+      <!-- ═══ DASHBOARD ══════════════════════════════ -->
+      <section class="sec act" id="sec-dashboard">
 
-<!-- ══ MAIN ═══════════════════════════════════════ -->
-<main class="main">
-  <header class="topbar">
-    <div class="topbar-left">
-      <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
-      <h1 class="ptitle" id="ptitle">Dashboard</h1>
+        <div class="welcome">
+          <p class="w-inst" id="wInst">VELS Institution Of Science, Technology & Advanced Studies</p>
+          <h2 class="w-title">Welcome back, <span class="wn" id="wName">—</span>!</h2>
+          <p class="w-sub" id="wSub">—</p>
+        </div>
+
+        <div class="stat-row">
+          <div class="sc sc-c">
+            <div class="sc-ico ico-c">📈</div>
+            <div>
+              <span class="sc-num" id="d-cgpa">—</span>
+              <div class="sc-lbl">Current CGPA</div>
+              <div class="sc-sub">Out of 10.0</div>
+            </div>
+          </div>
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">📅</div>
+            <div>
+              <span class="sc-num" id="d-att">—</span>
+              <div class="sc-lbl">Attendance</div>
+              <div class="sc-sub">This semester</div>
+            </div>
+          </div>
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">🎓</div>
+            <div>
+              <span class="sc-num" id="d-sem">—</span>
+              <div class="sc-lbl">Current Semester</div>
+              <div class="sc-sub" id="d-dept">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <div class="ctitle">
+              <div class="cicon">📋</div>Quick Info
+            </div>
+            <div class="drow">
+              <div class="dlbl">Roll Number</div>
+              <div class="dval" id="qi-roll">—</div>
+            </div>
+            <div class="drow">
+              <div class="dlbl">Department</div>
+              <div class="dval" id="qi-dept">—</div>
+            </div>
+            <div class="drow">
+              <div class="dlbl">Batch</div>
+              <div class="dval" id="qi-batch">—</div>
+            </div>
+            <div class="drow">
+              <div class="dlbl">Section</div>
+              <div class="dval" id="qi-sec">—</div>
+            </div>
+            <div class="drow">
+              <div class="dlbl">Advisor</div>
+              <div class="dval" id="qi-adv">—</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ctitle">
+              <div class="cicon">📣</div>Notices
+            </div>
+            <div id="notices"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ PERSONAL ═══════════════════════════════ -->
+      <section class="sec" id="sec-personal">
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">👤</div>Personal Information
+          </div>
+          <div class="g2">
+            <div>
+              <div class="drow">
+                <div class="dlbl">Full Name</div>
+                <div class="dval" id="pd-name">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Date of Birth</div>
+                <div class="dval" id="pd-dob">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Gender</div>
+                <div class="dval" id="pd-gender">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Blood Group</div>
+                <div class="dval" id="pd-blood">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Nationality</div>
+                <div class="dval" id="pd-nat">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Religion</div>
+                <div class="dval" id="pd-relig">—</div>
+              </div>
+            </div>
+            <div>
+              <div class="drow">
+                <div class="dlbl">Mobile</div>
+                <div class="dval" id="pd-mob">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Email</div>
+                <div class="dval" id="pd-email">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Address</div>
+                <div class="dval" id="pd-addr">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Father's Name</div>
+                <div class="dval" id="pd-father">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Mother's Name</div>
+                <div class="dval" id="pd-mother">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Parent Mobile</div>
+                <div class="dval" id="pd-pmob">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ PROFILE ════════════════════════════════ -->
+      <section class="sec" id="sec-profile">
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📝</div>Academic Profile
+          </div>
+          <div class="g2">
+            <div>
+              <div class="drow">
+                <div class="dlbl">Student ID</div>
+                <div class="dval" id="sp-id">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Roll Number</div>
+                <div class="dval" id="sp-roll">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Department</div>
+                <div class="dval" id="sp-dept">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Degree</div>
+                <div class="dval" id="sp-deg">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Specialisation</div>
+                <div class="dval" id="sp-spec">—</div>
+              </div>
+            </div>
+            <div>
+              <div class="drow">
+                <div class="dlbl">Batch</div>
+                <div class="dval" id="sp-batch">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Admission Year</div>
+                <div class="dval" id="sp-adm">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Current Semester</div>
+                <div class="dval" id="sp-sem">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Section</div>
+                <div class="dval" id="sp-sec">—</div>
+              </div>
+              <div class="drow">
+                <div class="dlbl">Advisor</div>
+                <div class="dval" id="sp-adv">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">🏫</div>Previous Education
+          </div>
+          <div class="drow">
+            <div class="dlbl">10th Board</div>
+            <div class="dval" id="sp-10">—</div>
+          </div>
+          <div class="drow">
+            <div class="dlbl">10th Percentage</div>
+            <div class="dval" id="sp-10p">—</div>
+          </div>
+          <div class="drow">
+            <div class="dlbl">12th / Diploma</div>
+            <div class="dval" id="sp-12">—</div>
+          </div>
+          <div class="drow">
+            <div class="dlbl">12th Percentage</div>
+            <div class="dval" id="sp-12p">—</div>
+          </div>
+          <div class="drow">
+            <div class="dlbl">Entrance Exam</div>
+            <div class="dval" id="sp-ent">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ SUBJECTS ═══════════════════════════════ -->
+      <section class="sec" id="sec-subjects">
+        <div class="stabs" id="semTabs"></div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📚</div>Subjects &nbsp;<span id="semLbl"
+              style="color:var(--cyan);font-size:.85rem;font-weight:600"></span>
+          </div>
+          <div class="g3" id="subGrid"></div>
+        </div>
+      </section>
+
+      <!-- ═══ ATTENDANCE ══════════════════════════════ -->
+      <section class="sec" id="sec-attendance">
+        <div class="stat-row" id="attStats" style="margin-bottom:var(--sp-lg)"></div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📋</div>Subject-wise Attendance
+          </div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Code</th>
+                  <th>Conducted</th>
+                  <th>Attended</th>
+                  <th>Percentage</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="attBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ MARKS ═══════════════════════════════════ -->
+      <section class="sec" id="sec-marks">
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📊</div>Internal Assessment Marks
+          </div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Code</th>
+                  <th>IA–1 /20</th>
+                  <th>IA–2 /20</th>
+                  <th>IA–3 /20</th>
+                  <th>Assign /10</th>
+                  <th>Total /70</th>
+                  <th>Grade</th>
+                </tr>
+              </thead>
+              <tbody id="marksBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ RESULTS ═════════════════════════════════ -->
+      <section class="sec" id="sec-results">
+        <div class="stat-row" id="resStats" style="margin-bottom:var(--sp-lg)"></div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">🏆</div>Semester Exam Results
+          </div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Code</th>
+                  <th>Internal /50</th>
+                  <th>External /100</th>
+                  <th>Total /150</th>
+                  <th>Grade</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="resBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ PASSWORD ════════════════════════════════ -->
+      <section class="sec" id="sec-password">
+        <div class="card" style="max-width:500px">
+          <div class="ctitle">
+            <div class="cicon">🔐</div>Change Password
+          </div>
+          <div class="pfg"><label class="pfl">Current Password</label><input class="pfi" type="password" id="cp1"
+              placeholder="Enter current password"></div>
+          <div class="pfg"><label class="pfl">New Password</label> <input class="pfi" type="password" id="cp2"
+              placeholder="Minimum 8 characters"></div>
+          <div class="pfg"><label class="pfl">Confirm New Password</label><input class="pfi" type="password" id="cp3"
+              placeholder="Re-enter new password"></div>
+          <button class="pbtn" onclick="chgPwd()">Update Password</button>
+          <div class="pwd-msg" id="pwdMsg"></div>
+        </div>
+      </section>
+
     </div>
-    <div class="tbadge" id="tbadge">—</div>
-  </header>
+  </main>
 
-  <div class="content">
-
-    <!-- ═══ DASHBOARD ══════════════════════════════ -->
-    <section class="sec act" id="sec-dashboard">
-
-      <div class="welcome">
-        <p class="w-inst" id="wInst">VELS Institution Of Science, Technology & Advanced Studies</p>
-        <h2 class="w-title">Welcome back, <span class="wn" id="wName">—</span>!</h2>
-        <p class="w-sub" id="wSub">—</p>
-      </div>
-
-      <div class="stat-row">
-        <div class="sc sc-c">
-          <div class="sc-ico ico-c">📈</div>
-          <div>
-            <span class="sc-num" id="d-cgpa">—</span>
-            <div class="sc-lbl">Current CGPA</div>
-            <div class="sc-sub">Out of 10.0</div>
-          </div>
-        </div>
-        <div class="sc sc-v">
-          <div class="sc-ico ico-v">📅</div>
-          <div>
-            <span class="sc-num" id="d-att">—</span>
-            <div class="sc-lbl">Attendance</div>
-            <div class="sc-sub">This semester</div>
-          </div>
-        </div>
-        <div class="sc sc-e">
-          <div class="sc-ico ico-e">🎓</div>
-          <div>
-            <span class="sc-num" id="d-sem">—</span>
-            <div class="sc-lbl">Current Semester</div>
-            <div class="sc-sub" id="d-dept">—</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="g2">
-        <div class="card">
-          <div class="ctitle"><div class="cicon">📋</div>Quick Info</div>
-          <div class="drow"><div class="dlbl">Roll Number</div><div class="dval" id="qi-roll">—</div></div>
-          <div class="drow"><div class="dlbl">Department</div><div class="dval" id="qi-dept">—</div></div>
-          <div class="drow"><div class="dlbl">Batch</div>       <div class="dval" id="qi-batch">—</div></div>
-          <div class="drow"><div class="dlbl">Section</div>     <div class="dval" id="qi-sec">—</div></div>
-          <div class="drow"><div class="dlbl">Advisor</div>     <div class="dval" id="qi-adv">—</div></div>
-        </div>
-        <div class="card">
-          <div class="ctitle"><div class="cicon">📣</div>Notices</div>
-          <div id="notices"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ PERSONAL ═══════════════════════════════ -->
-    <section class="sec" id="sec-personal">
-      <div class="card">
-        <div class="ctitle"><div class="cicon">👤</div>Personal Information</div>
-        <div class="g2">
-          <div>
-            <div class="drow"><div class="dlbl">Full Name</div>    <div class="dval" id="pd-name">—</div></div>
-            <div class="drow"><div class="dlbl">Date of Birth</div><div class="dval" id="pd-dob">—</div></div>
-            <div class="drow"><div class="dlbl">Gender</div>       <div class="dval" id="pd-gender">—</div></div>
-            <div class="drow"><div class="dlbl">Blood Group</div>  <div class="dval" id="pd-blood">—</div></div>
-            <div class="drow"><div class="dlbl">Nationality</div>  <div class="dval" id="pd-nat">—</div></div>
-            <div class="drow"><div class="dlbl">Religion</div>     <div class="dval" id="pd-relig">—</div></div>
-          </div>
-          <div>
-            <div class="drow"><div class="dlbl">Mobile</div>       <div class="dval" id="pd-mob">—</div></div>
-            <div class="drow"><div class="dlbl">Email</div>        <div class="dval" id="pd-email">—</div></div>
-            <div class="drow"><div class="dlbl">Address</div>      <div class="dval" id="pd-addr">—</div></div>
-            <div class="drow"><div class="dlbl">Father's Name</div><div class="dval" id="pd-father">—</div></div>
-            <div class="drow"><div class="dlbl">Mother's Name</div><div class="dval" id="pd-mother">—</div></div>
-            <div class="drow"><div class="dlbl">Parent Mobile</div><div class="dval" id="pd-pmob">—</div></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ PROFILE ════════════════════════════════ -->
-    <section class="sec" id="sec-profile">
-      <div class="card">
-        <div class="ctitle"><div class="cicon">📝</div>Academic Profile</div>
-        <div class="g2">
-          <div>
-            <div class="drow"><div class="dlbl">Student ID</div>      <div class="dval" id="sp-id">—</div></div>
-            <div class="drow"><div class="dlbl">Roll Number</div>     <div class="dval" id="sp-roll">—</div></div>
-            <div class="drow"><div class="dlbl">Department</div>      <div class="dval" id="sp-dept">—</div></div>
-            <div class="drow"><div class="dlbl">Degree</div>          <div class="dval" id="sp-deg">—</div></div>
-            <div class="drow"><div class="dlbl">Specialisation</div>  <div class="dval" id="sp-spec">—</div></div>
-          </div>
-          <div>
-            <div class="drow"><div class="dlbl">Batch</div>           <div class="dval" id="sp-batch">—</div></div>
-            <div class="drow"><div class="dlbl">Admission Year</div>  <div class="dval" id="sp-adm">—</div></div>
-            <div class="drow"><div class="dlbl">Current Semester</div><div class="dval" id="sp-sem">—</div></div>
-            <div class="drow"><div class="dlbl">Section</div>         <div class="dval" id="sp-sec">—</div></div>
-            <div class="drow"><div class="dlbl">Advisor</div>         <div class="dval" id="sp-adv">—</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">🏫</div>Previous Education</div>
-        <div class="drow"><div class="dlbl">10th Board</div>    <div class="dval" id="sp-10">—</div></div>
-        <div class="drow"><div class="dlbl">10th Percentage</div><div class="dval" id="sp-10p">—</div></div>
-        <div class="drow"><div class="dlbl">12th / Diploma</div><div class="dval" id="sp-12">—</div></div>
-        <div class="drow"><div class="dlbl">12th Percentage</div><div class="dval" id="sp-12p">—</div></div>
-        <div class="drow"><div class="dlbl">Entrance Exam</div> <div class="dval" id="sp-ent">—</div></div>
-      </div>
-    </section>
-
-    <!-- ═══ SUBJECTS ═══════════════════════════════ -->
-    <section class="sec" id="sec-subjects">
-      <div class="stabs" id="semTabs"></div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">📚</div>Subjects &nbsp;<span id="semLbl" style="color:var(--cyan);font-size:.85rem;font-weight:600"></span></div>
-        <div class="g3" id="subGrid"></div>
-      </div>
-    </section>
-
-    <!-- ═══ ATTENDANCE ══════════════════════════════ -->
-    <section class="sec" id="sec-attendance">
-      <div class="stat-row" id="attStats" style="margin-bottom:var(--sp-lg)"></div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">📋</div>Subject-wise Attendance</div>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Subject</th><th>Code</th><th>Conducted</th><th>Attended</th><th>Percentage</th><th>Status</th></tr></thead>
-            <tbody id="attBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ MARKS ═══════════════════════════════════ -->
-    <section class="sec" id="sec-marks">
-      <div class="card">
-        <div class="ctitle"><div class="cicon">📊</div>Internal Assessment Marks</div>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Subject</th><th>Code</th><th>IA–1 /20</th><th>IA–2 /20</th><th>IA–3 /20</th><th>Assign /10</th><th>Total /70</th><th>Grade</th></tr></thead>
-            <tbody id="marksBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ RESULTS ═════════════════════════════════ -->
-    <section class="sec" id="sec-results">
-      <div class="stat-row" id="resStats" style="margin-bottom:var(--sp-lg)"></div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">🏆</div>Semester Exam Results</div>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Subject</th><th>Code</th><th>Internal /50</th><th>External /100</th><th>Total /150</th><th>Grade</th><th>Status</th></tr></thead>
-            <tbody id="resBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ PASSWORD ════════════════════════════════ -->
-    <section class="sec" id="sec-password">
-      <div class="card" style="max-width:500px">
-        <div class="ctitle"><div class="cicon">🔐</div>Change Password</div>
-        <div class="pfg"><label class="pfl">Current Password</label><input class="pfi" type="password" id="cp1" placeholder="Enter current password"></div>
-        <div class="pfg"><label class="pfl">New Password</label>    <input class="pfi" type="password" id="cp2" placeholder="Minimum 8 characters"></div>
-        <div class="pfg"><label class="pfl">Confirm New Password</label><input class="pfi" type="password" id="cp3" placeholder="Re-enter new password"></div>
-        <button class="pbtn" onclick="chgPwd()">Update Password</button>
-        <div class="pwd-msg" id="pwdMsg"></div>
-      </div>
-    </section>
-
-  </div>
-</main>
-
-<script src="student_script.js"></script>
+  <script src="student_script.js"></script>
 </body>
+
 </html>
