@@ -1,267 +1,446 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VelsPortal — Faculty Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="teacher_style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VelsPortal — Faculty Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="teacher_style.css">
 </head>
+
 <body>
 
-<!-- ══ SIDEBAR ═══════════════════════════════════ -->
-<aside class="sb" id="sb">
-  <div class="sb-scroll">
-    <div class="sb-top">
-      <div class="sb-inst">
-        <div class="sb-inst-icon">🏛</div>
-        <div>
-          <div class="sb-inst-name">VISTAS</div>
-          <div class="sb-inst-sub">Faculty Portal</div>
+  <!-- ══ SIDEBAR ═══════════════════════════════════ -->
+  <aside class="sb" id="sb">
+    <div class="sb-scroll">
+      <div class="sb-top">
+        <div class="sb-inst">
+          <div class="sb-inst-icon">🏛</div>
+          <div>
+            <div class="sb-inst-name">VISTAS</div>
+            <div class="sb-inst-sub">Faculty Portal</div>
+          </div>
+        </div>
+        <div class="tch-card">
+          <div class="tav" id="tAv">T</div>
+          <div>
+            <div class="tch-name" id="tName">Loading…</div>
+            <div class="tch-id" id="tId">—</div>
+          </div>
         </div>
       </div>
-      <div class="tch-card">
-        <div class="tav" id="tAv">T</div>
-        <div>
-          <div class="tch-name" id="tName">Loading…</div>
-          <div class="tch-id"   id="tId">—</div>
+      <nav class="nav">
+        <div class="nl">Overview</div>
+        <div class="ni act" onclick="go('dashboard')"><span class="ic">🏠</span> Dashboard</div>
+
+        <div class="nl">Departments</div>
+        <div class="ni" onclick="go('students')"><span class="ic">👥</span> All Students</div>
+        <div class="ni" onclick="go('eng')"><span class="ic">🔧</span> Engineering Dept</div>
+        <div class="ni" onclick="go('arts')"><span class="ic">🎨</span> Arts Dept</div>
+
+        <div class="nl">Academic</div>
+        <div class="ni" onclick="go('attendance')"><span class="ic">📅</span> Attendance Mgmt</div>
+        <div class="ni" onclick="go('marks')"><span class="ic">📊</span> Internal Marks</div>
+        <div class="ni" onclick="go('results')"><span class="ic">🏆</span> Results Overview</div>
+
+        <div class="nl">Student Services</div>
+        <div class="ni" onclick="go('od-requests')"><span class="ic">📋</span> OD Requests <span id="od-badge"
+            style="display:none;background:var(--violet);color:#fff;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:auto">0</span>
         </div>
-      </div>
+
+        <div class="nl">Account</div>
+        <div class="ni so" onclick="signOut()"><span class="ic">🚪</span> Sign Out</div>
+      </nav>
     </div>
-    <nav class="nav">
-      <div class="nl">Overview</div>
-      <div class="ni act" onclick="go('dashboard')"><span class="ic">🏠</span> Dashboard</div>
+  </aside>
 
-      <div class="nl">Departments</div>
-      <div class="ni" onclick="go('students')"  ><span class="ic">👥</span> All Students</div>
-      <div class="ni" onclick="go('eng')"       ><span class="ic">🔧</span> Engineering Dept</div>
-      <div class="ni" onclick="go('arts')"      ><span class="ic">🎨</span> Arts Dept</div>
+  <!-- ══ MAIN ═══════════════════════════════════════ -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-l">
+        <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+        <h1 class="ptitle" id="ptitle">Faculty Dashboard</h1>
+      </div>
+      <div class="tbadge" id="tbadge">—</div>
+    </header>
 
-      <div class="nl">Academic</div>
-      <div class="ni" onclick="go('attendance')"><span class="ic">📅</span> Attendance Mgmt</div>
-      <div class="ni" onclick="go('marks')"     ><span class="ic">📊</span> Internal Marks</div>
-      <div class="ni" onclick="go('results')"   ><span class="ic">🏆</span> Results Overview</div>
+    <div class="content">
 
-      <div class="nl">Account</div>
-      <div class="ni so" onclick="signOut()"><span class="ic">🚪</span> Sign Out</div>
-    </nav>
+      <!-- ═══ DASHBOARD ═══════════════════════════════ -->
+      <section class="sec act" id="sec-dashboard">
+        <div class="welcome">
+          <p class="w-inst">VELS Institution Of Science, Technology & Advanced Studies</p>
+          <h2 class="w-title">Good day, <span class="wn" id="wName">—</span>!</h2>
+          <p class="w-sub">Faculty Portal &nbsp;·&nbsp; Academic Year 2025–26</p>
+        </div>
+
+        <div class="stat-row">
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">👥</div>
+            <div><span class="sc-num" id="stat-total">…</span>
+              <div class="sc-lbl">Total Students</div>
+            </div>
+          </div>
+          <div class="sc sc-c">
+            <div class="sc-ico ico-c">🔧</div>
+            <div><span class="sc-num" id="stat-eng">…</span>
+              <div class="sc-lbl">Eng Students</div>
+            </div>
+          </div>
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">🎨</div>
+            <div><span class="sc-num" id="stat-art">…</span>
+              <div class="sc-lbl">Arts Students</div>
+            </div>
+          </div>
+          <div class="sc sc-a">
+            <div class="sc-ico ico-a">👨‍🏫</div>
+            <div><span class="sc-num" id="stat-tch">…</span>
+              <div class="sc-lbl">Teachers</div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">👥</div>Recent Students
+            <span style="margin-left:auto;font-size:.78rem;font-weight:400;color:var(--faint)" id="dash-count"></span>
+          </div>
+          <div class="g3" id="dash-stus">
+            <div style="color:var(--faint);font-size:.85rem;grid-column:span 3;padding:10px">Loading from Supabase…
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ ALL STUDENTS ════════════════════════════ -->
+      <section class="sec" id="sec-students">
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">🔍</div>Student Directory
+            <span style="margin-left:auto;font-size:.78rem;font-weight:500;color:var(--dim)" id="dir-count"></span>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <button class="ftab act" id="ft-all" onclick="setDirFilter('all',this)">All Students</button>
+            <button class="ftab" id="ft-eng" onclick="setDirFilter('eng',this)">🔧 Engineering</button>
+            <button class="ftab" id="ft-art" onclick="setDirFilter('art',this)">🎨 Arts</button>
+          </div>
+          <input class="search" type="text" id="searchQ" placeholder="🔍  Search by name, ID or department…"
+            oninput="filterStus()">
+          <div id="stuList">
+            <div style="text-align:center;padding:30px;color:var(--faint)">Loading students…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ ENGINEERING DEPT ═════════════════════════ -->
+      <section class="sec" id="sec-eng">
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">🔧</div>Engineering Department
+            <span style="margin-left:auto;font-size:.78rem;font-weight:500;color:var(--cyan)" id="eng-count"></span>
+          </div>
+          <div id="engList">
+            <div style="text-align:center;padding:30px;color:var(--faint)">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ ARTS DEPT ════════════════════════════════ -->
+      <section class="sec" id="sec-arts">
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">🎨</div>Arts Department
+            <span style="margin-left:auto;font-size:.78rem;font-weight:500;color:var(--violet)" id="art-count"></span>
+          </div>
+          <div id="artList">
+            <div style="text-align:center;padding:30px;color:var(--faint)">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ ATTENDANCE MGMT ══════════════════════════ -->
+      <section class="sec" id="sec-attendance">
+        <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">📅</div>
+            <div><span class="sc-num" id="att-tracked">…</span>
+              <div class="sc-lbl">Students Tracked</div>
+            </div>
+          </div>
+          <div class="sc sc-c">
+            <div class="sc-ico ico-c">📊</div>
+            <div><span class="sc-num" id="att-avg">…</span>
+              <div class="sc-lbl">Avg Attendance</div>
+            </div>
+          </div>
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">⚠️</div>
+            <div><span class="sc-num" id="att-low">…</span>
+              <div class="sc-lbl">Below 75%</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📅</div>Subject-wise Attendance
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <button class="ftab act" id="at-all" onclick="setAttFilter('all',this)">All</button>
+            <button class="ftab" id="at-eng" onclick="setAttFilter('eng',this)">🔧 Engineering</button>
+            <button class="ftab" id="at-art" onclick="setAttFilter('art',this)">🎨 Arts</button>
+          </div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>ID / Dept</th>
+                  <th>Semester</th>
+                  <th>Conducted</th>
+                  <th>Attended</th>
+                  <th>Overall %</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="attBody">
+                <tr>
+                  <td colspan="7" style="text-align:center;padding:24px;color:var(--faint)">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ MARKS ════════════════════════════════════ -->
+      <section class="sec" id="sec-marks">
+        <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">📝</div>
+            <div><span class="sc-num" id="mrk-done">…</span>
+              <div class="sc-lbl">Entries Loaded</div>
+            </div>
+          </div>
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">✅</div>
+            <div><span class="sc-num" id="mrk-above">…</span>
+              <div class="sc-lbl">Above Average</div>
+            </div>
+          </div>
+          <div class="sc sc-a">
+            <div class="sc-ico ico-a">⚠️</div>
+            <div><span class="sc-num" id="mrk-below">…</span>
+              <div class="sc-lbl">Below 60%</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📊</div>Internal Marks Overview
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <button class="ftab act" id="mk-all" onclick="setMrkFilter('all',this)">All</button>
+            <button class="ftab" id="mk-eng" onclick="setMrkFilter('eng',this)">🔧 Engineering</button>
+            <button class="ftab" id="mk-art" onclick="setMrkFilter('art',this)">🎨 Arts</button>
+          </div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>ID / Dept</th>
+                  <th>Subject</th>
+                  <th>IA–1</th>
+                  <th>IA–2</th>
+                  <th>IA–3</th>
+                  <th>Assign</th>
+                  <th>Total /70</th>
+                  <th>Grade</th>
+                </tr>
+              </thead>
+              <tbody id="marksBody">
+                <tr>
+                  <td colspan="9" style="text-align:center;padding:24px;color:var(--faint)">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ RESULTS ══════════════════════════════════ -->
+      <section class="sec" id="sec-results">
+        <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">🎓</div>
+            <div><span class="sc-num" id="res-dist">…</span>
+              <div class="sc-lbl">Distinctions</div>
+            </div>
+          </div>
+          <div class="sc sc-c">
+            <div class="sc-ico ico-c">📈</div>
+            <div><span class="sc-num" id="res-cgpa">…</span>
+              <div class="sc-lbl">Avg CGPA</div>
+            </div>
+          </div>
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">⚠️</div>
+            <div><span class="sc-num" id="res-arrear">…</span>
+              <div class="sc-lbl">With Arrears</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">🏆</div>Results Summary
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <button class="ftab act" id="rs-all" onclick="setResFilter('all',this)">All</button>
+            <button class="ftab" id="rs-eng" onclick="setResFilter('eng',this)">🔧 Engineering</button>
+            <button class="ftab" id="rs-art" onclick="setResFilter('art',this)">🎨 Arts</button>
+          </div>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>ID</th>
+                  <th>Type</th>
+                  <th>Department</th>
+                  <th>Semester</th>
+                  <th>CGPA</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="resBody">
+                <tr>
+                  <td colspan="7" style="text-align:center;padding:24px;color:var(--faint)">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ═══ OD REQUESTS ══════════════════════════════ -->
+      <section class="sec" id="sec-od-requests">
+        <!-- Stats -->
+        <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">📋</div>
+            <div><span class="sc-num" id="od-t-total">0</span>
+              <div class="sc-lbl">Total Requests</div>
+            </div>
+          </div>
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">⏳</div>
+            <div><span class="sc-num" id="od-t-pending">0</span>
+              <div class="sc-lbl">Pending Review</div>
+            </div>
+          </div>
+          <div class="sc sc-c">
+            <div class="sc-ico ico-c">✅</div>
+            <div><span class="sc-num" id="od-t-approved">0</span>
+              <div class="sc-lbl">Approved</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications banner -->
+        <div id="od-notif-banner"
+          style="display:none;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.25);border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:1.4rem">🔔</div>
+          <div>
+            <div style="font-size:.85rem;font-weight:700;color:var(--violet)" id="od-notif-text">New OD requests waiting
+              for your review.</div>
+            <div style="font-size:.75rem;color:var(--faint);margin-top:2px">Review and approve or reject below.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ctitle">
+            <div class="cicon">📋</div>OD Requests
+            <div style="display:flex;gap:8px;margin-left:auto">
+              <button class="ftab act" id="odf-all" onclick="setOdFilter('all',this)">All</button>
+              <button class="ftab" id="odf-pending" onclick="setOdFilter('pending',this)">⏳ Pending</button>
+              <button class="ftab" id="odf-eng" onclick="setOdFilter('eng',this)">🔧 Engineering</button>
+              <button class="ftab" id="odf-art" onclick="setOdFilter('art',this)">🎨 Arts</button>
+            </div>
+          </div>
+          <div id="od-request-list">
+            <div style="text-align:center;padding:40px;color:var(--faint)">
+              <div style="font-size:2rem;margin-bottom:10px">📋</div>
+              No OD requests yet.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /content -->
+  </main>
+
+  <!-- ══ STUDENT EDIT MODAL ═════════════════════════ -->
+  <div class="modal-overlay" id="stuModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-head">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div class="modal-name" id="modal-name">—</div>
+            <div class="modal-meta" id="modal-meta">—</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button class="modal-edit-btn" id="btnToggleEdit" onclick="toggleEditMode()">✏️ Edit</button>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+          </div>
+        </div>
+        <!-- Tab bar -->
+        <div class="modal-tabs" id="modalTabs">
+          <button class="mtab act" onclick="switchTab('personal',this)">👤 Personal</button>
+          <button class="mtab" onclick="switchTab('profile',this)">📝 Profile</button>
+          <button class="mtab" onclick="switchTab('attendance',this)">📅 Attendance</button>
+          <button class="mtab" onclick="switchTab('marks',this)">📊 Marks</button>
+          <button class="mtab" onclick="switchTab('results',this)">🏆 Results</button>
+        </div>
+      </div>
+
+      <!-- Save bar (shown in edit mode) -->
+      <div id="savebar"
+        style="display:none;padding:12px 0;margin-bottom:16px;display:none;align-items:center;justify-content:space-between;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:12px;padding:12px 18px;">
+        <span style="font-size:.82rem;color:var(--emerald);font-weight:600">✏️ Edit mode — make your changes then
+          save</span>
+        <div style="display:flex;gap:8px">
+          <button class="sbtn-cancel" onclick="cancelEdit()">Cancel</button>
+          <button class="sbtn-save" onclick="saveCurrentTab()">💾 Save Changes</button>
+        </div>
+      </div>
+
+      <!-- Save status message -->
+      <div id="saveMsg"
+        style="display:none;padding:10px 16px;border-radius:10px;margin-bottom:14px;font-size:.83rem;font-weight:600">
+      </div>
+
+      <!-- Tab content panels -->
+      <div id="tab-personal" class="tabpanel act"></div>
+      <div id="tab-profile" class="tabpanel"></div>
+      <div id="tab-attendance" class="tabpanel"></div>
+      <div id="tab-marks" class="tabpanel"></div>
+      <div id="tab-results" class="tabpanel"></div>
+    </div>
   </div>
-</aside>
 
-<!-- ══ MAIN ═══════════════════════════════════════ -->
-<main class="main">
-  <header class="topbar">
-    <div class="topbar-l">
-      <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
-      <h1 class="ptitle" id="ptitle">Faculty Dashboard</h1>
-    </div>
-    <div class="tbadge" id="tbadge">—</div>
-  </header>
-
-  <div class="content">
-
-    <!-- ═══ DASHBOARD ═══════════════════════════════ -->
-    <section class="sec act" id="sec-dashboard">
-      <div class="welcome">
-        <p class="w-inst">VELS Institution Of Science, Technology & Advanced Studies</p>
-        <h2 class="w-title">Good day, <span class="wn" id="wName">—</span>!</h2>
-        <p class="w-sub">Faculty Portal &nbsp;·&nbsp; Academic Year 2025–26</p>
-      </div>
-
-      <div class="stat-row">
-        <div class="sc sc-v"><div class="sc-ico ico-v">👥</div>
-          <div><span class="sc-num" id="stat-total">…</span><div class="sc-lbl">Total Students</div></div></div>
-        <div class="sc sc-c"><div class="sc-ico ico-c">🔧</div>
-          <div><span class="sc-num" id="stat-eng">…</span><div class="sc-lbl">Eng Students</div></div></div>
-        <div class="sc sc-e"><div class="sc-ico ico-e">🎨</div>
-          <div><span class="sc-num" id="stat-art">…</span><div class="sc-lbl">Arts Students</div></div></div>
-        <div class="sc sc-a"><div class="sc-ico ico-a">👨‍🏫</div>
-          <div><span class="sc-num" id="stat-tch">…</span><div class="sc-lbl">Teachers</div></div></div>
-      </div>
-
-
-      <div class="card">
-        <div class="ctitle">
-          <div class="cicon">👥</div>Recent Students
-          <span style="margin-left:auto;font-size:.78rem;font-weight:400;color:var(--faint)" id="dash-count"></span>
-        </div>
-        <div class="g3" id="dash-stus">
-          <div style="color:var(--faint);font-size:.85rem;grid-column:span 3;padding:10px">Loading from Supabase…</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ ALL STUDENTS ════════════════════════════ -->
-    <section class="sec" id="sec-students">
-      <div class="card">
-        <div class="ctitle">
-          <div class="cicon">🔍</div>Student Directory
-          <span style="margin-left:auto;font-size:.78rem;font-weight:500;color:var(--dim)" id="dir-count"></span>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-          <button class="ftab act" id="ft-all" onclick="setDirFilter('all',this)">All Students</button>
-          <button class="ftab"     id="ft-eng" onclick="setDirFilter('eng',this)">🔧 Engineering</button>
-          <button class="ftab"     id="ft-art" onclick="setDirFilter('art',this)">🎨 Arts</button>
-        </div>
-        <input class="search" type="text" id="searchQ" placeholder="🔍  Search by name, ID or department…" oninput="filterStus()">
-        <div id="stuList"><div style="text-align:center;padding:30px;color:var(--faint)">Loading students…</div></div>
-      </div>
-    </section>
-
-    <!-- ═══ ENGINEERING DEPT ═════════════════════════ -->
-    <section class="sec" id="sec-eng">
-      <div class="card">
-        <div class="ctitle">
-          <div class="cicon">🔧</div>Engineering Department
-          <span style="margin-left:auto;font-size:.78rem;font-weight:500;color:var(--cyan)" id="eng-count"></span>
-        </div>
-        <div id="engList"><div style="text-align:center;padding:30px;color:var(--faint)">Loading…</div></div>
-      </div>
-    </section>
-
-    <!-- ═══ ARTS DEPT ════════════════════════════════ -->
-    <section class="sec" id="sec-arts">
-      <div class="card">
-        <div class="ctitle">
-          <div class="cicon">🎨</div>Arts Department
-          <span style="margin-left:auto;font-size:.78rem;font-weight:500;color:var(--violet)" id="art-count"></span>
-        </div>
-        <div id="artList"><div style="text-align:center;padding:30px;color:var(--faint)">Loading…</div></div>
-      </div>
-    </section>
-
-    <!-- ═══ ATTENDANCE MGMT ══════════════════════════ -->
-    <section class="sec" id="sec-attendance">
-      <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="sc sc-e"><div class="sc-ico ico-e">📅</div>
-          <div><span class="sc-num" id="att-tracked">…</span><div class="sc-lbl">Students Tracked</div></div></div>
-        <div class="sc sc-c"><div class="sc-ico ico-c">📊</div>
-          <div><span class="sc-num" id="att-avg">…</span><div class="sc-lbl">Avg Attendance</div></div></div>
-        <div class="sc sc-v"><div class="sc-ico ico-v">⚠️</div>
-          <div><span class="sc-num" id="att-low">…</span><div class="sc-lbl">Below 75%</div></div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">📅</div>Subject-wise Attendance</div>
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-          <button class="ftab act" id="at-all" onclick="setAttFilter('all',this)">All</button>
-          <button class="ftab"     id="at-eng" onclick="setAttFilter('eng',this)">🔧 Engineering</button>
-          <button class="ftab"     id="at-art" onclick="setAttFilter('art',this)">🎨 Arts</button>
-        </div>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Student</th><th>ID / Dept</th><th>Semester</th><th>Conducted</th><th>Attended</th><th>Overall %</th><th>Status</th></tr></thead>
-            <tbody id="attBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--faint)">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ MARKS ════════════════════════════════════ -->
-    <section class="sec" id="sec-marks">
-      <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="sc sc-v"><div class="sc-ico ico-v">📝</div>
-          <div><span class="sc-num" id="mrk-done">…</span><div class="sc-lbl">Entries Loaded</div></div></div>
-        <div class="sc sc-e"><div class="sc-ico ico-e">✅</div>
-          <div><span class="sc-num" id="mrk-above">…</span><div class="sc-lbl">Above Average</div></div></div>
-        <div class="sc sc-a"><div class="sc-ico ico-a">⚠️</div>
-          <div><span class="sc-num" id="mrk-below">…</span><div class="sc-lbl">Below 60%</div></div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">📊</div>Internal Marks Overview</div>
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-          <button class="ftab act" id="mk-all" onclick="setMrkFilter('all',this)">All</button>
-          <button class="ftab"     id="mk-eng" onclick="setMrkFilter('eng',this)">🔧 Engineering</button>
-          <button class="ftab"     id="mk-art" onclick="setMrkFilter('art',this)">🎨 Arts</button>
-        </div>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Student</th><th>ID / Dept</th><th>Subject</th><th>IA–1</th><th>IA–2</th><th>IA–3</th><th>Assign</th><th>Total /70</th><th>Grade</th></tr></thead>
-            <tbody id="marksBody"><tr><td colspan="9" style="text-align:center;padding:24px;color:var(--faint)">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ RESULTS ══════════════════════════════════ -->
-    <section class="sec" id="sec-results">
-      <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="sc sc-e"><div class="sc-ico ico-e">🎓</div>
-          <div><span class="sc-num" id="res-dist">…</span><div class="sc-lbl">Distinctions</div></div></div>
-        <div class="sc sc-c"><div class="sc-ico ico-c">📈</div>
-          <div><span class="sc-num" id="res-cgpa">…</span><div class="sc-lbl">Avg CGPA</div></div></div>
-        <div class="sc sc-v"><div class="sc-ico ico-v">⚠️</div>
-          <div><span class="sc-num" id="res-arrear">…</span><div class="sc-lbl">With Arrears</div></div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle"><div class="cicon">🏆</div>Results Summary</div>
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-          <button class="ftab act" id="rs-all" onclick="setResFilter('all',this)">All</button>
-          <button class="ftab"     id="rs-eng" onclick="setResFilter('eng',this)">🔧 Engineering</button>
-          <button class="ftab"     id="rs-art" onclick="setResFilter('art',this)">🎨 Arts</button>
-        </div>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Student</th><th>ID</th><th>Type</th><th>Department</th><th>Semester</th><th>CGPA</th><th>Status</th></tr></thead>
-            <tbody id="resBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--faint)">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-  </div><!-- /content -->
-</main>
-
-<!-- ══ STUDENT EDIT MODAL ═════════════════════════ -->
-<div class="modal-overlay" id="stuModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-head">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
-        <div>
-          <div class="modal-name" id="modal-name">—</div>
-          <div class="modal-meta" id="modal-meta">—</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-shrink:0">
-          <button class="modal-edit-btn" id="btnToggleEdit" onclick="toggleEditMode()">✏️ Edit</button>
-          <button class="modal-close" onclick="closeModal()">✕</button>
-        </div>
-      </div>
-      <!-- Tab bar -->
-      <div class="modal-tabs" id="modalTabs">
-        <button class="mtab act" onclick="switchTab('personal',this)">👤 Personal</button>
-        <button class="mtab"     onclick="switchTab('profile',this)">📝 Profile</button>
-        <button class="mtab"     onclick="switchTab('attendance',this)">📅 Attendance</button>
-        <button class="mtab"     onclick="switchTab('marks',this)">📊 Marks</button>
-        <button class="mtab"     onclick="switchTab('results',this)">🏆 Results</button>
-      </div>
-    </div>
-
-    <!-- Save bar (shown in edit mode) -->
-    <div id="savebar" style="display:none;padding:12px 0;margin-bottom:16px;display:none;align-items:center;justify-content:space-between;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:12px;padding:12px 18px;">
-      <span style="font-size:.82rem;color:var(--emerald);font-weight:600">✏️ Edit mode — make your changes then save</span>
-      <div style="display:flex;gap:8px">
-        <button class="sbtn-cancel" onclick="cancelEdit()">Cancel</button>
-        <button class="sbtn-save"   onclick="saveCurrentTab()">💾 Save Changes</button>
-      </div>
-    </div>
-
-    <!-- Save status message -->
-    <div id="saveMsg" style="display:none;padding:10px 16px;border-radius:10px;margin-bottom:14px;font-size:.83rem;font-weight:600"></div>
-
-    <!-- Tab content panels -->
-    <div id="tab-personal"   class="tabpanel act"></div>
-    <div id="tab-profile"    class="tabpanel"></div>
-    <div id="tab-attendance" class="tabpanel"></div>
-    <div id="tab-marks"      class="tabpanel"></div>
-    <div id="tab-results"    class="tabpanel"></div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════════
+  <!-- ══════════════════════════════════════════════════
      JAVASCRIPT — Fully API-connected
      Reads from Supabase via FastAPI (localhost:8000)
      Shows Engineering (ENG001–ENG160) + Arts (ART001–ART120)
 ══════════════════════════════════════════════════════ -->
-<script src="teacher_script.js"></script>
+  <script src="teacher_script.js"></script>
 </body>
+
 </html>

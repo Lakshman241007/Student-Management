@@ -46,6 +46,9 @@
         <div class="ni" onclick="go('marks')"><span class="ic">📊</span> Internal Marks</div>
         <div class="ni" onclick="go('results')"> <span class="ic">🏆</span> Exam Results</div>
 
+        <div class="nl">Services</div>
+        <div class="ni" onclick="go('od')"><span class="ic">📋</span> OD Request</div>
+
         <div class="nl">Account</div>
         <div class="ni" onclick="go('password')"> <span class="ic">🔐</span> Change Password</div>
         <div class="ni so" onclick="signOut()"> <span class="ic">🚪</span> Sign Out</div>
@@ -366,6 +369,135 @@
             </table>
           </div>
         </div>
+      </section>
+
+      <!-- ═══ OD REQUEST ══════════════════════════════ -->
+      <section class="sec" id="sec-od">
+
+        <div class="stat-row" style="margin-bottom:var(--sp-lg)">
+          <div class="sc sc-c">
+            <div class="sc-ico ico-c">📋</div>
+            <div><span class="sc-num" id="od-total">0</span>
+              <div class="sc-lbl">Total Requests</div>
+            </div>
+          </div>
+          <div class="sc sc-e">
+            <div class="sc-ico ico-e">✅</div>
+            <div><span class="sc-num" id="od-approved">0</span>
+              <div class="sc-lbl">Approved</div>
+            </div>
+          </div>
+          <div class="sc sc-v">
+            <div class="sc-ico ico-v">⏳</div>
+            <div><span class="sc-num" id="od-pending">0</span>
+              <div class="sc-lbl">Pending</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g2" style="align-items:start">
+
+          <!-- New OD Form -->
+          <div class="card">
+            <div class="ctitle">
+              <div class="cicon">📝</div>New OD Request
+            </div>
+
+            <div class="od-field">
+              <label class="od-label">Institution / College Name <span class="od-req">*</span></label>
+              <input class="od-input" id="od-college" type="text" placeholder="e.g. Anna University, MIT Chennai…"
+                oninput="odClearErr('od-college')">
+              <div class="od-err" id="err-college"></div>
+            </div>
+
+            <div class="od-field">
+              <label class="od-label">Event / Purpose <span class="od-req">*</span></label>
+              <div class="od-dropdown-wrap" id="odDropWrap">
+                <div class="od-search-box" onclick="odOpenDrop()">
+                  <span class="od-search-icon">🔍</span>
+                  <input class="od-search-input" id="od-event-search" type="text" placeholder="Search or select event…"
+                    oninput="odFilterEvents()" autocomplete="off">
+                  <span class="od-drop-arrow" id="od-drop-arrow">▾</span>
+                </div>
+                <div class="od-dropdown" id="od-dropdown">
+                  <div class="od-dd-inner" id="od-dd-inner"></div>
+                </div>
+                <input type="hidden" id="od-event-val">
+              </div>
+              <div class="od-err" id="err-event"></div>
+            </div>
+
+            <div class="g2" style="gap:12px">
+              <div class="od-field">
+                <label class="od-label">From Date <span class="od-req">*</span></label>
+                <input class="od-input" id="od-from" type="date" oninput="odClearErr('od-from')">
+                <div class="od-err" id="err-from"></div>
+              </div>
+              <div class="od-field">
+                <label class="od-label">To Date <span class="od-req">*</span></label>
+                <input class="od-input" id="od-to" type="date" oninput="odClearErr('od-to')">
+                <div class="od-err" id="err-to"></div>
+              </div>
+            </div>
+
+            <div class="od-field">
+              <label class="od-label">Certificate / Proof <span class="od-req">*</span></label>
+              <div class="od-upload-zone" id="od-upload-zone" onclick="document.getElementById('od-file').click()">
+                <input type="file" id="od-file" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
+                  onchange="odFileChange(event)">
+                <div class="od-upload-icon">📎</div>
+                <div class="od-upload-text" id="od-upload-text">
+                  <strong>Click to upload</strong> certificate or proof<br>
+                  <span class="od-upload-hint">PDF, JPG or PNG &middot; Max 500 KB</span>
+                </div>
+              </div>
+              <div class="od-err" id="err-file"></div>
+            </div>
+
+            <div class="od-field">
+              <label class="od-label">Additional Notes <span
+                  style="color:var(--faint);font-size:.75rem">(optional)</span></label>
+              <textarea class="od-textarea" id="od-notes" placeholder="Any extra details for your faculty…"
+                rows="3"></textarea>
+            </div>
+
+            <button class="od-submit-btn" id="od-submit-btn" onclick="odSubmit()">
+              <span>📤</span> Submit OD Request
+            </button>
+            <div class="od-form-msg" id="od-form-msg"></div>
+          </div>
+
+          <!-- My Requests history -->
+          <div class="card" style="min-height:360px">
+            <div class="ctitle">
+              <div class="cicon">📜</div>My OD Requests
+              <span style="margin-left:auto;font-size:.75rem;font-weight:400;color:var(--faint)"
+                id="od-hist-count"></span>
+            </div>
+            <div id="od-history">
+              <div style="color:var(--faint);font-size:.85rem;padding:20px 0;text-align:center">No OD requests yet.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Confirmation overlay -->
+        <div class="od-confirm-overlay" id="od-confirm-overlay">
+          <div class="od-confirm-box">
+            <div class="od-confirm-icon">📤</div>
+            <div class="od-confirm-title">Confirm Submission</div>
+            <div class="od-confirm-body" id="od-confirm-body">—</div>
+            <div class="od-confirm-note">
+              Once submitted, this request will be sent to your faculty for review. You cannot edit it after submission.
+            </div>
+            <div class="od-confirm-actions">
+              <button class="od-btn-no" onclick="odConfirmNo()">✏️ Edit</button>
+              <button class="od-btn-yes" onclick="odConfirmYes()">✅ Confirm &amp; Submit</button>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- ═══ PASSWORD ════════════════════════════════ -->

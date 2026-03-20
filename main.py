@@ -235,6 +235,26 @@ class AdminChangePasswordRequest(BaseModel):
     new_password:     str
 
 
+# ── OD (On-Duty) Request schemas ─────────────────────────────────────────────
+class ODRequest(BaseModel):
+    """Student submits an OD request."""
+    id:           Optional[str] = None
+    student_id:   str
+    name:         str
+    dept:         Optional[str] = None
+    college:      str
+    event:        str
+    from_date:    str           # YYYY-MM-DD
+    to_date:      str           # YYYY-MM-DD
+    notes:        Optional[str] = None
+    file_name:    Optional[str] = None
+    file_data:    Optional[str] = None   # base64 — stored separately / not in DB
+
+class ODActionRequest(BaseModel):
+    """Teacher approves or rejects an OD request."""
+    remarks: Optional[str] = None
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 #  HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1053,6 +1073,141 @@ async def admin_delete_teacher(user_id: str, request: Request, payload: dict = D
         return {"message": f"Teacher {uid} deleted"}
     except Exception as e:
         raise HTTPException(500, f"Failed: {str(e)}")
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  OD (ON-DUTY) REQUESTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.post("/api/od-request", tags=["OD"])
+async def submit_od_request(req: ODRequest, payload: dict = Depends(verify_token)):
+    """
+    Student submits an OD request.
+    - Stores in `od_requests` table (file_data is NOT stored in DB — only file_name).
+    - Routes to the correct department teacher automatically based on student_id prefix.
+    Supabase table required:
+        od_requests (id, student_id, name, dept, college, event, from_date, to_date,
+                     notes, file_name, status, submitted_at, reviewed_at, reviewed_by, remarks)
+    """
+    uid = payload["user_id"]
+    # Only the student themselves can submit
+    if payload["role"] == "student" and uid != req.student_id.upper():
+        raise HTTPException(status_code=403, detail="Cannot submit on behalf of another student")
+
+    import uuid
+    record = {
+        "id":           req.id or f"OD-{uuid.uuid4().hex[:10].upper()}",
+        "student_id":   req.student_id.upper(),
+        "name":         req.name,
+        "dept":         req.dept or ("Engineering" if req.student_id.upper().startswith("ENG") else "Arts"),
+        "college":      req.college,
+        "event":        req.event,
+        "from_date":    req.from_date,
+        "to_date":      req.to_date,
+        "notes":        req.notes or "",
+        "file_name":    req.file_name or "",
+        "status":       "pending",
+        "submitted_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    try:
+        supabase.table("od_requests").insert(record).execute()
+        logger.info(f"OD request submitted by {uid}: {record['id']}")
+        return {"message": "OD request submitted successfully", "id": record["id"]}
+    except Exception as e:
+        logger.error(f"OD submit error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to submit OD request: {str(e)}")
+
+
+@app.get("/api/od-request/{student_id}", tags=["OD"])
+async def get_student_od_requests(student_id: str, payload: dict = Depends(verify_token)):
+    """
+    Returns all OD requests for a given student.
+    Students can only fetch their own; teachers/admins can fetch any.
+    """
+    uid = student_id.strip().upper()
+    if payload["role"] == "student" and payload["user_id"] != uid:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    rows = _safe_query(
+        supabase.table("od_requests")
+        .select("*")
+        .eq("student_id", uid)
+        .order("submitted_at", desc=True)
+    )
+    return rows
+
+
+@app.get("/api/od-requests", tags=["OD"])
+async def get_all_od_requests(
+    dept: Optional[str] = Query(None, description="Filter by dept: eng or art"),
+    status: Optional[str] = Query(None, description="Filter by status: pending / approved / rejected"),
+    payload: dict = Depends(verify_token)
+):
+    """
+    Teacher/Admin fetches all OD requests (optionally filtered by dept and/or status).
+    Engineering teachers automatically receive only ENG student requests,
+    Arts teachers receive only ART student requests (based on their own department in token).
+    """
+    _require_teacher(payload)
+
+    query = supabase.table("od_requests").select("*").order("submitted_at", desc=True)
+
+    # Auto-filter by teacher's own department if not admin
+    if payload.get("role") == "teacher":
+        teacher_dept = (payload.get("department") or "").lower()
+        if "eng" in teacher_dept:
+            query = query.ilike("student_id", "ENG%")
+        elif "art" in teacher_dept:
+            query = query.ilike("student_id", "ART%")
+
+    # Additional manual filters from query params
+    if dept:
+        if dept.lower() == "eng":
+            query = query.ilike("student_id", "ENG%")
+        elif dept.lower() == "art":
+            query = query.ilike("student_id", "ART%")
+    if status:
+        query = query.eq("status", status.lower())
+
+    rows = _safe_query(query)
+    return rows
+
+
+@app.post("/api/od-request/{od_id}/approved", tags=["OD"])
+async def approve_od_request(od_id: str, payload: dict = Depends(verify_token)):
+    """Teacher approves an OD request."""
+    _require_teacher(payload)
+    return _od_action(od_id, "approved", payload["user_id"])
+
+
+@app.post("/api/od-request/{od_id}/rejected", tags=["OD"])
+async def reject_od_request(od_id: str, payload: dict = Depends(verify_token)):
+    """Teacher rejects an OD request."""
+    _require_teacher(payload)
+    return _od_action(od_id, "rejected", payload["user_id"])
+
+
+def _od_action(od_id: str, status: str, reviewed_by: str) -> dict:
+    """Shared helper: update OD request status."""
+    try:
+        result = supabase.table("od_requests").update({
+            "status":      status,
+            "reviewed_by": reviewed_by,
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+        }).eq("id", od_id).execute()
+
+        if not result.data:
+            raise HTTPException(status_code=404, detail=f"OD request {od_id} not found")
+
+        logger.info(f"OD {od_id} {status} by {reviewed_by}")
+        return {"message": f"OD request {status}", "id": od_id, "status": status}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"OD action error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update OD request: {str(e)}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

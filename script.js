@@ -1,5 +1,5 @@
 const API = 'https://student-management-production-a94b.up.railway.app';
-let   role = 'student';
+let role = 'student';
 
 /* ══════════════════════════════════════════════════════
    SERVER WAKE-UP MANAGER
@@ -8,12 +8,12 @@ let   role = 'student';
    — "Retry" button appears after 45s if still sleeping
    — Login queues itself and fires the moment server wakes
 ══════════════════════════════════════════════════════ */
-let serverAlive    = false;
-let wakeListeners  = [];
-let wakeInterval   = null;
+let serverAlive = false;
+let wakeListeners = [];
+let wakeInterval = null;
 let wakeBarVisible = false;
-let wakeStart      = null;
-const PING_EVERY   = 2500;
+let wakeStart = null;
+const PING_EVERY = 2500;
 
 function showWakeBar(msg) {
   const bar = document.getElementById('serverBar');
@@ -39,7 +39,7 @@ async function pingServer() {
     setTimeout(() => ctrl.abort(), 5000);
     const res = await fetch(`${API}/api/health`, { signal: ctrl.signal });
     if (res.ok) return true;
-  } catch (_) {}
+  } catch (_) { }
   return false;
 }
 
@@ -105,7 +105,7 @@ startWakeUp();
 function sw(r) {
   role = r;
   const s = r === 'student';
-  document.getElementById('tabS').className = 'rtab ' + (s  ? 'active-s' : '');
+  document.getElementById('tabS').className = 'rtab ' + (s ? 'active-s' : '');
   document.getElementById('tabT').className = 'rtab ' + (!s ? 'active-t' : '');
   document.getElementById('ltitle').innerHTML = s
     ? '<span class="tc">Student</span> Login'
@@ -130,14 +130,14 @@ function sw(r) {
 function hideErr() {
   const e = document.getElementById('errMsg');
   e.style.display = 'none';
-  e.textContent   = '';
+  e.textContent = '';
   clearFieldErr('fuid');
   clearFieldErr('fpwd');
 }
 
 function showErr(msg) {
   const e = document.getElementById('errMsg');
-  e.textContent   = '⚠  ' + msg;
+  e.textContent = '⚠  ' + msg;
   e.style.display = 'block';
   const card = document.querySelector('.login-card');
   card.style.animation = 'none';
@@ -157,22 +157,22 @@ function clearFieldErr(id) {
 function setBtn(state) {
   const btn = document.getElementById('btnLogin');
   const map = {
-    idle:    { text: 'Sign In →',              disabled: false, opacity: '1'   },
-    loading: { text: 'Signing in…',            disabled: true,  opacity: '.75' },
-    waiting: { text: '⏳ Waiting for server…', disabled: true,  opacity: '.75' },
-    success: { text: '✓ Redirecting…',         disabled: true,  opacity: '.9'  },
+    idle: { text: 'Sign In →', disabled: false, opacity: '1' },
+    loading: { text: 'Signing in…', disabled: true, opacity: '.75' },
+    waiting: { text: '⏳ Waiting for server…', disabled: true, opacity: '.75' },
+    success: { text: '✓ Redirecting…', disabled: true, opacity: '.9' },
   };
   const s = map[state] || map.idle;
-  btn.textContent   = s.text;
-  btn.disabled      = s.disabled;
+  btn.textContent = s.text;
+  btn.disabled = s.disabled;
   btn.style.opacity = s.opacity;
 }
 
 function resetPwdField() {
   const p = document.getElementById('fpwd');
   p.value = '';
-  p.type  = 'password';
-  document.getElementById('eyeOpen').style.display   = 'block';
+  p.type = 'password';
+  document.getElementById('eyeOpen').style.display = 'block';
   document.getElementById('eyeClosed').style.display = 'none';
 }
 
@@ -199,13 +199,13 @@ document.getElementById('fpwd').addEventListener('input', function () {
 
 /* ── Password toggle ──────────────────────────────── */
 function togglePwd() {
-  const input     = document.getElementById('fpwd');
-  const eyeOpen   = document.getElementById('eyeOpen');
+  const input = document.getElementById('fpwd');
+  const eyeOpen = document.getElementById('eyeOpen');
   const eyeClosed = document.getElementById('eyeClosed');
-  const eyeBtn    = document.getElementById('eyeBtn');
-  const isHidden  = input.type === 'password';
-  input.type      = isHidden ? 'text' : 'password';
-  eyeOpen.style.display   = isHidden ? 'none'  : 'block';
+  const eyeBtn = document.getElementById('eyeBtn');
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  eyeOpen.style.display = isHidden ? 'none' : 'block';
   eyeClosed.style.display = isHidden ? 'block' : 'none';
   eyeBtn.classList.toggle('t-mode', role === 'teacher');
 }
@@ -258,10 +258,10 @@ async function login() {
     setTimeout(() => ctrl.abort(), 15000);
 
     const res = await fetch(`${API}/api/login`, {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ user_id: uid, password: pwd, role }),
-      signal:  ctrl.signal,
+      body: JSON.stringify({ user_id: uid, password: pwd, role }),
+      signal: ctrl.signal,
     });
 
     if (res.status === 401) {
@@ -276,10 +276,10 @@ async function login() {
     }
 
     const data = await res.json();
-    sessionStorage.setItem('token',      data.token);
-    sessionStorage.setItem('userId',     data.user_id);
-    sessionStorage.setItem('role',       data.role);
-    sessionStorage.setItem('userName',   data.name);
+    sessionStorage.setItem('token', data.token);
+    sessionStorage.setItem('userId', data.user_id);
+    sessionStorage.setItem('role', data.role);
+    sessionStorage.setItem('userName', data.name);
     sessionStorage.setItem('department', data.department || '');
 
     setBtn('success');
@@ -295,4 +295,4 @@ async function login() {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-window.addEventListener('load',      () => { document.getElementById('fuid').focus(); });
+window.addEventListener('load', () => { document.getElementById('fuid').focus(); });
