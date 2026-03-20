@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VelsPortal — Admin Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050508;
+            --surface: #0d0707;
+            --s2: #130909;
+            --s3: #1a0a0a;
+            --border: rgba(239, 68, 68, .12);
+            --border2: rgba(239, 68, 68, .09);
+            --red: #ef4444;
+            --red2: #dc2626;
+            --rose: #fb7185;
+            --orange: #f97316;
+            --crimson: #b91c1c;
+            --cyan: #38bdf8;
+            --violet: #a78bfa;
+            --emerald: #34d399;
+            --amber: #fbbf24;
+            --text: #fff1f2;
+            --dim: rgba(255, 241, 242, .55);
+            --faint: rgba(255, 241, 242, .22);
+            --sb: 262px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(239, 68, 68, .04) 0%, transparent 70%);
+        }
+
+        /* ══ SIDEBAR ══ */
+        .sb {
+            width: var(--sb);
+            flex-shrink: 0;
+            background: rgba(13, 7, 7, .98);
+            border-right: 1px solid rgba(239, 68, 68, .1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            transition: transform .3s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .sb-scroll {
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sb-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .sb-scroll::-webkit-scrollbar-thumb {
+            background: rgba(239, 68, 68, .2);
+            border-radius: 4px;
+        }
+
+        .sb-top {
+            padding: 20px 16px 12px;
+        }
+
+        .sb-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(239, 68, 68, .08);
+        }
+
+        .sb-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 18px rgba(239, 68, 68, .35);
+            flex-shrink: 0;
+        }
+
+        .sb-bname {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .sb-bname em {
+            font-style: normal;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-card {
+            background: linear-gradient(135deg, rgba(239, 68, 68, .09), rgba(249, 115, 22, .05));
+            border: 1px solid rgba(239, 68, 68, .18);
+            border-radius: 13px;
+            padding: 13px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-av {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .95rem;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 3px 12px rgba(239, 68, 68, .3);
+        }
+
+        .admin-name {
+            font-size: .84rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .admin-role {
+            font-size: .66rem;
+            color: var(--rose);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: .4px;
+        }
+
+        nav {
+            padding: 8px 10px 20px;
+        }
+
+        .nl {
+            font-size: .58rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--faint);
+            padding: 14px 10px 5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ni {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: .83rem;
+            font-weight: 600;
+            color: var(--dim);
+            transition: all .2s;
+            margin-bottom: 2px;
+            user-select: none;
+        }
+
+        .ni:hover {
+            background: rgba(239, 68, 68, .07);
+            color: var(--text);
+        }
+
+        .ni.act {
+            background: linear-gradient(135deg, rgba(239, 68, 68, .16), rgba(249, 115, 22, .08));
+            color: var(--rose);
+            box-shadow: 0 0 0 1px rgba(239, 68, 68, .2);
+        }
+
+        .ni .ic {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .88rem;
+            flex-shrink: 0;
+        }
+
+        .ni.so {
+            color: rgba(248, 113, 113, .7);
+        }
+
+        .ni.so:hover {
+            background: rgba(239, 68, 68, .09);
+            color: var(--rose);
+        }
+
+        /* ══ MAIN ══ */
+        .main {
+            margin-left: var(--sb);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(5, 5, 8, .94);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(239, 68, 68, .08);
+            padding: 13px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-l {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--dim);
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ptitle {
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .tbadge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .67rem;
+            color: var(--faint);
+            background: rgba(239, 68, 68, .07);
+            border: 1px solid rgba(239, 68, 68, .12);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 26px;
+        }
+
+        /* ══ SECTIONS ══ */
+        .sec {
+            display: none;
+        }
+
+        .sec.act {
+            display: block;
+            animation: fadein .3s ease both;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* ══ WELCOME ══ */
+        .welcome {
+            background: linear-gradient(135deg, rgba(239, 68, 68, .08), rgba(249, 115, 22, .04));
+            border: 1px solid rgba(239, 68, 68, .16);
+            border-radius: 18px;
+            padding: 26px 30px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--red), var(--orange), transparent);
+        }
+
+        .welcome::after {
+            content: '🛡️';
+            position: absolute;
+            right: 26px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3.5rem;
+            opacity: .1;
+        }
+
+        .w-badge {
+            font-size: .62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--rose);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 7px;
+        }
+
+        .w-title {
+            font-size: clamp(1.3rem, 2.8vw, 1.85rem);
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 5px;
+            letter-spacing: -.3px;
+        }
+
+        .w-title .wn {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .w-sub {
+            font-size: .8rem;
+            color: var(--dim);
+        }
+
+        /* ══ STATS ══ */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .sc {
+            background: var(--surface);
+            border: 1px solid rgba(239, 68, 68, .08);
+            border-radius: 14px;
+            padding: 17px 18px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+        .sc:hover {
+            border-color: rgba(239, 68, 68, .22);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, .08);
+        }
+
+        .sc-ico {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+
+        .ico-r {
+            background: linear-gradient(135deg, rgba(239, 68, 68, .18), rgba(220, 38, 38, .1));
+        }
+
+        .ico-o {
+            background: rgba(249, 115, 22, .12);
+        }
+
+        .ico-v {
+            background: rgba(167, 139, 250, .1);
+        }
+
+        .ico-e {
+            background: rgba(52, 211, 153, .1);
+        }
+
+        .sc-num {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: var(--text);
+            display: block;
+            letter-spacing: -.5px;
+        }
+
+        .sc-lbl {
+            font-size: .7rem;
+            color: var(--dim);
+            margin-top: 2px;
+        }
+
+        /* ══ CARD ══ */
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(239, 68, 68, .08);
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 18px;
+        }
+
+        .ctitle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .93rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cicon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, .1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .84rem;
+        }
+
+        /* ══ TABLES ══ */
+        .tw {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, .09);
+        }
+
+        .tw table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tw th {
+            padding: 11px 13px;
+            text-align: left;
+            font-size: .65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--faint);
+            background: rgba(239, 68, 68, .03);
+            border-bottom: 1px solid rgba(239, 68, 68, .08);
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .tw td {
+            padding: 11px 13px;
+            font-size: .82rem;
+            color: var(--dim);
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+            vertical-align: middle;
+        }
+
+        .tw tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tw tr:hover td {
+            background: rgba(239, 68, 68, .03);
+            color: var(--text);
+        }
+
+        /* ══ BADGES ══ */
+        .b {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: .64rem;
+            font-weight: 700;
+            letter-spacing: .2px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .beng {
+            background: rgba(56, 189, 248, .1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, .18);
+        }
+
+        .bart {
+            background: rgba(167, 139, 250, .1);
+            color: #a78bfa;
+            border: 1px solid rgba(167, 139, 250, .18);
+        }
+
+        .bred {
+            background: rgba(239, 68, 68, .1);
+            color: #fb7185;
+            border: 1px solid rgba(239, 68, 68, .2);
+        }
+
+        /* ══ FILTER TABS ══ */
+        .ftab {
+            padding: 7px 14px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(239, 68, 68, .1);
+            border-radius: 8px;
+            color: var(--dim);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .77rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .ftab:hover {
+            background: rgba(239, 68, 68, .07);
+            border-color: rgba(239, 68, 68, .22);
+            color: var(--text);
+        }
+
+        .ftab.act {
+            background: linear-gradient(135deg, rgba(239, 68, 68, .16), rgba(249, 115, 22, .08));
+            border-color: rgba(239, 68, 68, .32);
+            color: var(--rose);
+        }
+
+        /* ══ SEARCH ══ */
+        .search {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(239, 68, 68, .1);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .83rem;
+            font-weight: 500;
+            outline: none;
+            margin-bottom: 13px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .1);
+        }
+
+        .search::placeholder {
+            color: var(--faint);
+        }
+
+        /* ══ STUDENT/TEACHER ROWS ══ */
+        .stu-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            cursor: default;
+            transition: background .2s;
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+        }
+
+        .stu-row:hover {
+            background: rgba(239, 68, 68, .04);
+        }
+
+        .stu-row:last-child {
+            border-bottom: none;
+        }
+
+        .sav {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            color: #fff;
+        }
+
+        .eng-av {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+        }
+
+        .art-av {
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+        }
+
+        .tch-av {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+
+        .sn {
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .sm {
+            font-size: .71rem;
+            color: var(--faint);
+            margin-top: 2px;
+        }
+
+        /* ══ ACTION BUTTONS ══ */
+        .edit-btn {
+            padding: 5px 11px;
+            background: rgba(239, 68, 68, .1);
+            border: 1px solid rgba(239, 68, 68, .22);
+            border-radius: 7px;
+            color: var(--rose);
+            font-size: .71rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .edit-btn:hover {
+            background: rgba(239, 68, 68, .2);
+            border-color: rgba(239, 68, 68, .4);
+        }
+
+        .del-btn {
+            padding: 5px 11px;
+            background: rgba(185, 28, 28, .12);
+            border: 1px solid rgba(185, 28, 28, .25);
+            border-radius: 7px;
+            color: #fca5a5;
+            font-size: .71rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .del-btn:hover {
+            background: rgba(185, 28, 28, .22);
+        }
+
+        /* ══ ADD FORM ══ */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 13px;
+        }
+
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fg.span2 {
+            grid-column: span 2;
+        }
+
+        .fl {
+            font-size: .61rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--faint);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .fi {
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(239, 68, 68, .1);
+            border-radius: 9px;
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .83rem;
+            font-weight: 500;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .fi:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .1);
+        }
+
+        .fi::placeholder {
+            color: var(--faint);
+        }
+
+        select.fi {
+            cursor: pointer;
+        }
+
+        .form-section-title {
+            font-size: .68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--rose);
+            font-family: 'JetBrains Mono', monospace;
+            margin: 18px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(239, 68, 68, .1);
+        }
+
+        .submit-row {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            padding: 11px 24px;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, .3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(239, 68, 68, .44);
+        }
+
+        .btn-secondary {
+            padding: 11px 24px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(239, 68, 68, .1);
+            border-radius: 10px;
+            color: var(--dim);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, .07);
+            color: var(--text);
+        }
+
+        /* ══ OVERLAY / MODAL ══ */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .78);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #0d0707;
+            border: 1px solid rgba(239, 68, 68, .18);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 0 1px rgba(239, 68, 68, .04), 0 50px 100px rgba(0, 0, 0, .8);
+        }
+
+        .modal::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .modal::-webkit-scrollbar-thumb {
+            background: rgba(239, 68, 68, .2);
+            border-radius: 4px;
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, .5), rgba(249, 115, 22, .3), transparent);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-head {
+            padding: 22px 24px 14px;
+            border-bottom: 1px solid rgba(239, 68, 68, .1);
+            position: sticky;
+            top: 0;
+            background: #0d0707;
+            z-index: 10;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .modal-subtitle {
+            font-size: .74rem;
+            color: var(--faint);
+            margin-top: 2px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: rgba(239, 68, 68, .08);
+            border: 1px solid rgba(239, 68, 68, .18);
+            color: var(--dim);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, .2);
+            color: var(--rose);
+        }
+
+        .modal-body {
+            padding: 20px 24px 24px;
+        }
+
+        /* ══ CONFIRM MODAL ══ */
+        .confirm-card {
+            background: #0d0707;
+            border: 1px solid rgba(239, 68, 68, .22);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 50px 80px rgba(0, 0, 0, .8);
+        }
+
+        .confirm-icon {
+            font-size: 2.5rem;
+            margin-bottom: 14px;
+        }
+
+        .confirm-title {
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .confirm-msg {
+            font-size: .81rem;
+            color: var(--dim);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .confirm-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* ══ TOAST ══ */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: #0d0707;
+            border: 1px solid rgba(52, 211, 153, .3);
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--emerald);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all .35s cubic-bezier(.16, 1, .3, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            border-color: rgba(239, 68, 68, .35);
+            color: #fca5a5;
+        }
+
+        .toast.warn {
+            border-color: rgba(249, 115, 22, .3);
+            color: var(--orange);
+        }
+
+        @media(max-width:900px) {
+            .sb {
+                transform: translateX(-100%);
+            }
+
+            .sb.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .menu-btn {
+                display: flex;
+            }
+
+            .stat-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid,
+            .form-grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .fg.span2 {
+                grid-column: span 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="sb" id="sb">
+        <div class="sb-scroll">
+            <div class="sb-top">
+                <div class="sb-brand">
+                    <div class="sb-icon">🛡️</div>
+                    <div>
+                        <div class="sb-bname">Vels<em>Admin</em></div>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <div class="admin-av" id="avInit">A</div>
+                    <div>
+                        <div class="admin-name" id="adminName">Administrator</div>
+                        <div class="admin-role" id="adminId">ADMIN001 · Full Access</div>
+                    </div>
+                </div>
+            </div>
+            <nav>
+                <div class="nl">Overview</div>
+                <div class="ni act" onclick="go('dashboard')"><span class="ic">🏠</span>Dashboard</div>
+                <div class="nl">Manage</div>
+                <div class="ni" onclick="go('students')"><span class="ic">👥</span>Students</div>
+                <div class="ni" onclick="go('teachers')"><span class="ic">👨‍🏫</span>Teachers</div>
+                <div class="nl">Add New</div>
+                <div class="ni" onclick="go('add-student')"><span class="ic">➕</span>Add Student</div>
+                <div class="ni" onclick="go('add-teacher')"><span class="ic">➕</span>Add Teacher</div>
+                <div class="nl">Account</div>
+                <div class="ni so" onclick="signOut()"><span class="ic">🚪</span>Sign Out</div>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN ══ -->
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-l">
+                <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">☰</button>
+                <h1 class="ptitle" id="ptitle">Admin Dashboard</h1>
+            </div>
+            <div class="tbadge" id="tbadge">—</div>
+        </header>
+
+        <div class="content">
+
+            <!-- ═ DASHBOARD ═ -->
+            <section class="sec act" id="sec-dashboard">
+                <div class="welcome">
+                    <div class="w-badge">🛡️ &nbsp;Admin Control Center</div>
+                    <h2 class="w-title">Welcome back, <span class="wn" id="wName">Administrator</span>!</h2>
+                    <p class="w-sub">VELS Institution Of Science, Technology &amp; Advanced Studies &nbsp;·&nbsp; Full
+                        Management Access</p>
+                </div>
+                <div class="stat-row">
+                    <div class="sc">
+                        <div class="sc-ico ico-r">👥</div>
+                        <div><span class="sc-num" id="stat-total">…</span>
+                            <div class="sc-lbl">Total Students</div>
+                        </div>
+                    </div>
+                    <div class="sc">
+                        <div class="sc-ico ico-v">🔧</div>
+                        <div><span class="sc-num" id="stat-eng">…</span>
+                            <div class="sc-lbl">Eng Students</div>
+                        </div>
+                    </div>
+                    <div class="sc">
+                        <div class="sc-ico ico-o">🎨</div>
+                        <div><span class="sc-num" id="stat-art">…</span>
+                            <div class="sc-lbl">Arts Students</div>
+                        </div>
+                    </div>
+                    <div class="sc">
+                        <div class="sc-ico ico-e">👨‍🏫</div>
+                        <div><span class="sc-num" id="stat-tch">…</span>
+                            <div class="sc-lbl">Total Teachers</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="ctitle">
+                        <div class="cicon">📋</div>System Overview
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+                        <div
+                            style="background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.1);border-radius:11px;padding:15px">
+                            <div
+                                style="font-size:.65rem;color:var(--faint);margin-bottom:6px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">
+                                Engineering Dept</div>
+                            <div style="font-size:.83rem;color:var(--dim)">ENG001–ENG160 &nbsp;·&nbsp; <span id="qe-cnt"
+                                    style="color:#38bdf8;font-weight:700">…</span> students</div>
+                        </div>
+                        <div
+                            style="background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.1);border-radius:11px;padding:15px">
+                            <div
+                                style="font-size:.65rem;color:var(--faint);margin-bottom:6px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">
+                                Arts Dept</div>
+                            <div style="font-size:.83rem;color:var(--dim)">ART001–ART120 &nbsp;·&nbsp; <span id="qa-cnt"
+                                    style="color:#a78bfa;font-weight:700">…</span> students</div>
+                        </div>
+                        <div
+                            style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.1);border-radius:11px;padding:15px">
+                            <div
+                                style="font-size:.65rem;color:var(--faint);margin-bottom:6px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">
+                                Faculty</div>
+                            <div style="font-size:.83rem;color:var(--dim)">TCH001–TCH010 &nbsp;·&nbsp; <span id="qt-cnt"
+                                    style="color:var(--rose);font-weight:700">…</span> teachers</div>
+                        </div>
+                        <div
+                            style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.1);border-radius:11px;padding:15px">
+                            <div
+                                style="font-size:.65rem;color:var(--faint);margin-bottom:6px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">
+                                System Status</div>
+                            <div style="font-size:.83rem;color:var(--emerald);font-weight:700">🟢 &nbsp;All systems
+                                operational</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═ STUDENTS ═ -->
+            <section class="sec" id="sec-students">
+                <div class="card">
+                    <div class="ctitle">
+                        <div class="cicon">👥</div>Student Management<span
+                            style="margin-left:auto;font-size:.76rem;font-weight:500;color:var(--dim)"
+                            id="stu-count"></span>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-bottom:13px;flex-wrap:wrap;">
+                        <button class="ftab act" id="sf-all" onclick="setStuFilter('all',this)">All Students</button>
+                        <button class="ftab" id="sf-eng" onclick="setStuFilter('eng',this)">🔧 Engineering</button>
+                        <button class="ftab" id="sf-art" onclick="setStuFilter('art',this)">🎨 Arts</button>
+                    </div>
+                    <input class="search" id="stuSearch" placeholder="🔍  Search by name, ID or department…"
+                        oninput="renderStudents()">
+                    <div id="stuList">
+                        <div style="text-align:center;padding:30px;color:var(--faint)">Loading students…</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═ TEACHERS ═ -->
+            <section class="sec" id="sec-teachers">
+                <div class="card">
+                    <div class="ctitle">
+                        <div class="cicon">👨‍🏫</div>Teacher Management<span
+                            style="margin-left:auto;font-size:.76rem;font-weight:500;color:var(--dim)"
+                            id="tch-count"></span>
+                    </div>
+                    <input class="search" id="tchSearch" placeholder="🔍  Search by name, ID or department…"
+                        oninput="renderTeachers()">
+                    <div id="tchList">
+                        <div style="text-align:center;padding:30px;color:var(--faint)">Loading teachers…</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═ ADD STUDENT ═ -->
+            <section class="sec" id="sec-add-student">
+                <div class="card">
+                    <div class="ctitle">
+                        <div class="cicon">➕</div>Add New Student
+                    </div>
+                    <div class="form-section-title">🔑 Account Details</div>
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">User ID *</label><input class="fi" id="ns_uid"
+                                placeholder="e.g. ENG161"></div>
+                        <div class="fg"><label class="fl">Password *</label><input class="fi" id="ns_pwd"
+                                type="password" placeholder="Set password"></div>
+                        <div class="fg"><label class="fl">Full Name *</label><input class="fi" id="ns_name"
+                                placeholder="Student full name"></div>
+                        <div class="fg"><label class="fl">Mobile</label><input class="fi" id="ns_mob"
+                                placeholder="+91 XXXXX XXXXX"></div>
+                        <div class="fg"><label class="fl">Email</label><input class="fi" id="ns_email"
+                                placeholder="student@email.com" type="email"></div>
+                        <div class="fg"><label class="fl">Date of Birth</label><input class="fi" id="ns_dob"
+                                type="date"></div>
+                        <div class="fg"><label class="fl">Gender</label><select class="fi" id="ns_gender">
+                                <option value="">Select…</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select></div>
+                        <div class="fg"><label class="fl">Blood Group</label><select class="fi" id="ns_blood">
+                                <option value="">Select…</option>
+                                <option>A+</option>
+                                <option>A-</option>
+                                <option>B+</option>
+                                <option>B-</option>
+                                <option>O+</option>
+                                <option>O-</option>
+                                <option>AB+</option>
+                                <option>AB-</option>
+                            </select></div>
+                        <div class="fg"><label class="fl">Nationality</label><input class="fi" id="ns_nat"
+                                placeholder="Indian"></div>
+                        <div class="fg"><label class="fl">Religion</label><input class="fi" id="ns_relig"
+                                placeholder="Religion"></div>
+                    </div>
+                    <div class="fg span2" style="margin-top:8px"><label class="fl">Address</label><input class="fi"
+                            id="ns_addr" placeholder="Full address"></div>
+
+                    <div class="form-section-title">📚 Academic Profile</div>
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">Department *</label><input class="fi" id="ns_dept"
+                                placeholder="e.g. B.E. Computer Science"></div>
+                        <div class="fg"><label class="fl">Degree</label><select class="fi" id="ns_deg">
+                                <option value="">Select…</option>
+                                <option>B.E.</option>
+                                <option>B.Tech</option>
+                                <option>B.Sc</option>
+                                <option>B.A.</option>
+                                <option>B.Com</option>
+                                <option>M.E.</option>
+                                <option>M.Tech</option>
+                                <option>M.Sc</option>
+                                <option>MBA</option>
+                            </select></div>
+                        <div class="fg"><label class="fl">Specialisation</label><input class="fi" id="ns_spec"
+                                placeholder="e.g. Computer Science"></div>
+                        <div class="fg"><label class="fl">Batch</label><input class="fi" id="ns_batch"
+                                placeholder="e.g. 2022–2026"></div>
+                        <div class="fg"><label class="fl">Admission Year</label><input class="fi" id="ns_adm"
+                                placeholder="e.g. 2022" type="number"></div>
+                        <div class="fg"><label class="fl">Current Semester</label><select class="fi" id="ns_sem">
+                                <option value="">Select…</option>
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+                            </select></div>
+                        <div class="fg"><label class="fl">Roll Number</label><input class="fi" id="ns_roll"
+                                placeholder="e.g. 22CS001"></div>
+                        <div class="fg"><label class="fl">Section</label><input class="fi" id="ns_sec"
+                                placeholder="e.g. A"></div>
+                        <div class="fg"><label class="fl">Advisor</label><input class="fi" id="ns_adv"
+                                placeholder="Advisor name"></div>
+                    </div>
+
+                    <div class="form-section-title">👪 Parent Details</div>
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">Father's Name</label><input class="fi" id="ns_father"
+                                placeholder="Father's name"></div>
+                        <div class="fg"><label class="fl">Mother's Name</label><input class="fi" id="ns_mother"
+                                placeholder="Mother's name"></div>
+                        <div class="fg"><label class="fl">Parent Mobile</label><input class="fi" id="ns_pmob"
+                                placeholder="Parent contact"></div>
+                    </div>
+
+                    <div class="form-section-title">🎓 Education Background</div>
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">10th Board</label><input class="fi" id="ns_b10"
+                                placeholder="e.g. State Board"></div>
+                        <div class="fg"><label class="fl">10th %</label><input class="fi" id="ns_p10"
+                                placeholder="e.g. 92.5" type="number"></div>
+                        <div class="fg"><label class="fl">12th Board</label><input class="fi" id="ns_b12"
+                                placeholder="e.g. CBSE"></div>
+                        <div class="fg"><label class="fl">12th %</label><input class="fi" id="ns_p12"
+                                placeholder="e.g. 88.0" type="number"></div>
+                        <div class="fg"><label class="fl">Entrance Exam</label><input class="fi" id="ns_ent"
+                                placeholder="e.g. JEE, TNEA"></div>
+                    </div>
+                    <div class="submit-row">
+                        <button class="btn-secondary" onclick="clearStuForm()">Clear Form</button>
+                        <button class="btn-primary" onclick="submitStudent()">Submit Student →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═ ADD TEACHER ═ -->
+            <section class="sec" id="sec-add-teacher">
+                <div class="card">
+                    <div class="ctitle">
+                        <div class="cicon">➕</div>Add New Teacher
+                    </div>
+                    <div class="form-section-title">🔑 Account Details</div>
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">Teacher ID *</label><input class="fi" id="nt_uid"
+                                placeholder="e.g. TCH011"></div>
+                        <div class="fg"><label class="fl">Password *</label><input class="fi" id="nt_pwd"
+                                type="password" placeholder="Set password"></div>
+                        <div class="fg"><label class="fl">Full Name *</label><input class="fi" id="nt_name"
+                                placeholder="Teacher full name"></div>
+                        <div class="fg"><label class="fl">Mobile</label><input class="fi" id="nt_mob"
+                                placeholder="+91 XXXXX XXXXX"></div>
+                        <div class="fg"><label class="fl">Email</label><input class="fi" id="nt_email"
+                                placeholder="teacher@vels.ac.in" type="email"></div>
+                        <div class="fg"><label class="fl">Date of Birth</label><input class="fi" id="nt_dob"
+                                type="date"></div>
+                        <div class="fg"><label class="fl">Gender</label><select class="fi" id="nt_gender">
+                                <option value="">Select…</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select></div>
+                        <div class="fg"><label class="fl">Blood Group</label><select class="fi" id="nt_blood">
+                                <option value="">Select…</option>
+                                <option>A+</option>
+                                <option>A-</option>
+                                <option>B+</option>
+                                <option>B-</option>
+                                <option>O+</option>
+                                <option>O-</option>
+                                <option>AB+</option>
+                                <option>AB-</option>
+                            </select></div>
+                    </div>
+                    <div class="form-section-title">🏫 Academic Profile</div>
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">Department *</label><input class="fi" id="nt_dept"
+                                placeholder="e.g. Computer Science Engineering"></div>
+                        <div class="fg"><label class="fl">Designation</label><input class="fi" id="nt_desg"
+                                placeholder="e.g. Assistant Professor"></div>
+                        <div class="fg"><label class="fl">Qualification</label><input class="fi" id="nt_qual"
+                                placeholder="e.g. M.E., Ph.D"></div>
+                        <div class="fg"><label class="fl">Experience (Years)</label><input class="fi" id="nt_exp"
+                                placeholder="e.g. 8" type="number"></div>
+                        <div class="fg"><label class="fl">Subjects Handled</label><input class="fi" id="nt_subj"
+                                placeholder="e.g. Data Structures, DBMS"></div>
+                        <div class="fg"><label class="fl">Employee ID</label><input class="fi" id="nt_empid"
+                                placeholder="e.g. VU-EMP-001"></div>
+                        <div class="fg"><label class="fl">Joining Year</label><input class="fi" id="nt_join"
+                                placeholder="e.g. 2018" type="number"></div>
+                        <div class="fg"><label class="fl">Category</label><select class="fi" id="nt_cat">
+                                <option value="">Select…</option>
+                                <option>Engineering</option>
+                                <option>Arts</option>
+                                <option>Science</option>
+                                <option>Management</option>
+                            </select></div>
+                    </div>
+                    <div class="submit-row">
+                        <button class="btn-secondary" onclick="clearTchForm()">Clear Form</button>
+                        <button class="btn-primary" onclick="submitTeacher()">Submit Teacher →</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ══ EDIT STUDENT MODAL ══ -->
+    <div class="overlay" id="editStuModal" onclick="if(event.target===this)closeEditStu()">
+        <div class="modal">
+            <div class="modal-head">
+                <div class="modal-title" id="esm-title">Edit Student</div>
+                <div class="modal-subtitle" id="esm-sub">—</div><button class="modal-close"
+                    onclick="closeEditStu()">✕</button>
+            </div>
+            <div class="modal-body" id="esm-body"></div>
+        </div>
+    </div>
+
+    <!-- ══ EDIT TEACHER MODAL ══ -->
+    <div class="overlay" id="editTchModal" onclick="if(event.target===this)closeEditTch()">
+        <div class="modal">
+            <div class="modal-head">
+                <div class="modal-title" id="etm-title">Edit Teacher</div>
+                <div class="modal-subtitle" id="etm-sub">—</div><button class="modal-close"
+                    onclick="closeEditTch()">✕</button>
+            </div>
+            <div class="modal-body" id="etm-body"></div>
+        </div>
+    </div>
+
+    <!-- ══ CONFIRM MODAL ══ -->
+    <div class="overlay" id="confirmModal">
+        <div class="confirm-card">
+            <div class="confirm-icon" id="conf-icon">⚠️</div>
+            <div class="confirm-title" id="conf-title">Confirm Action</div>
+            <div class="confirm-msg" id="conf-msg">Are you sure?</div>
+            <div class="confirm-btns">
+                <button class="btn-secondary" onclick="closeConfirm()">✗ Cancel</button>
+                <button class="btn-primary" id="conf-ok">✓ Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TOAST ══ -->
+    <div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg">Done!</span></div>
+
+    <script>
+        const API = 'https://student-management-production-a94b.up.railway.app';
+
+        /* ── Auth guard ── */
+        if (!sessionStorage.getItem('adminToken')) window.location.href = 'management_login.html';
+        const token = sessionStorage.getItem('token') || '';
+        const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
+
+        /* ── Identity ── */
+        const aName = sessionStorage.getItem('adminName') || 'Administrator';
+        const aId = sessionStorage.getItem('adminId') || 'ADMIN001';
+        document.getElementById('adminName').textContent = aName;
+        document.getElementById('adminId').textContent = aId + ' · Full Access';
+        document.getElementById('avInit').textContent = aName[0] || 'A';
+        document.getElementById('wName').textContent = aName.split(' ').slice(-1)[0] || aName;
+
+        /* ── Cache ── */
+        let ALL_STUDENTS = [], ALL_TEACHERS = [], _stuFilter = 'all';
+
+        /* ── API helper ── */
+        async function api(path, opts = {}) {
+            const r = await fetch(API + path, { ...opts, headers: H() });
+            if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.detail || `HTTP ${r.status}`); }
+            return r.json();
+        }
+
+        /* ── Clock ── */
+        function tick() { const n = new Date(); const el = document.getElementById('tbadge'); if (el) el.textContent = n.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '  ·  ' + n.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+        setInterval(tick, 1000); tick();
+
+        /* ── Toast ── */
+        function showToast(msg, type = 'ok') {
+            const t = document.getElementById('toast');
+            const icons = { ok: '✓', error: '✗', warn: '⚠' };
+            t.className = 'toast' + (type === 'ok' ? '' : ' ' + type);
+            document.getElementById('toast-icon').textContent = icons[type] || '✓';
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        /* ── Confirm ── */
+        let _confRes = null;
+        function openConfirm(icon, title, msg) {
+            document.getElementById('conf-icon').textContent = icon;
+            document.getElementById('conf-title').textContent = title;
+            document.getElementById('conf-msg').textContent = msg;
+            document.getElementById('confirmModal').classList.add('open');
+            return new Promise(res => { _confRes = res; document.getElementById('conf-ok').onclick = () => { closeConfirm(); res(true); }; });
+        }
+        function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); if (_confRes) { _confRes(false); _confRes = null; } }
+
+        /* ── Stats ── */
+        async function loadStats() {
+            try {
+                const s = await api('/api/admin/stats');
+                document.getElementById('stat-total').textContent = s.total_students ?? '—';
+                document.getElementById('stat-eng').textContent = s.engineering_students ?? '—';
+                document.getElementById('stat-art').textContent = s.arts_students ?? '—';
+                document.getElementById('stat-tch').textContent = s.total_teachers ?? '—';
+                document.getElementById('qe-cnt').textContent = s.engineering_students ?? '—';
+                document.getElementById('qa-cnt').textContent = s.arts_students ?? '—';
+                document.getElementById('qt-cnt').textContent = s.total_teachers ?? '—';
+            } catch (e) {
+                /* fallback to teacher stats */
+                try {
+                    const s = await api('/api/teacher/stats');
+                    document.getElementById('stat-total').textContent = s.total_students ?? '—';
+                    document.getElementById('stat-eng').textContent = s.engineering_students ?? '—';
+                    document.getElementById('stat-art').textContent = s.arts_students ?? '—';
+                    document.getElementById('stat-tch').textContent = s.total_teachers ?? '—';
+                    document.getElementById('qe-cnt').textContent = s.engineering_students ?? '—';
+                    document.getElementById('qa-cnt').textContent = s.arts_students ?? '—';
+                    document.getElementById('qt-cnt').textContent = s.total_teachers ?? '—';
+                } catch (_) { }
+            }
+        }
+
+        /* ── Load Students ── */
+        async function loadStudents() {
+            document.getElementById('stuList').innerHTML = `<div style="text-align:center;padding:30px;color:var(--faint)"><div style="width:22px;height:22px;border:2px solid rgba(239,68,68,.2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>Loading from Supabase…</div>`;
+            try { const d = await api('/api/teacher/students?limit=400'); ALL_STUDENTS = d?.students ?? []; renderStudents(); }
+            catch (e) { document.getElementById('stuList').innerHTML = `<div style="padding:20px;color:#fca5a5">Error: ${e.message}</div>`; }
+        }
+
+        function setStuFilter(type, btn) { _stuFilter = type; document.querySelectorAll('#sf-all,#sf-eng,#sf-art').forEach(b => b.classList.remove('act')); btn.classList.add('act'); renderStudents(); }
+
+        function renderStudents() {
+            let list = ALL_STUDENTS;
+            if (_stuFilter === 'eng') list = list.filter(s => s.user_id?.startsWith('ENG'));
+            if (_stuFilter === 'art') list = list.filter(s => s.user_id?.startsWith('ART'));
+            const q = (document.getElementById('stuSearch')?.value || '').toLowerCase();
+            if (q) list = list.filter(s => (s.name || '').toLowerCase().includes(q) || (s.user_id || '').toLowerCase().includes(q) || (s.department || '').toLowerCase().includes(q));
+            document.getElementById('stu-count').textContent = `${list.length} students`;
+            const el = document.getElementById('stuList');
+            if (!list.length) { el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--faint)">No students found.</div>`; return; }
+            el.innerHTML = list.map(s => {
+                const eng = s.user_id?.startsWith('ENG');
+                return `<div class="stu-row"><div class="sav ${eng ? 'eng-av' : 'art-av'}">${(s.name || '?')[0]}</div>
+    <div style="flex:1"><div class="sn">${s.name || s.user_id}</div><div class="sm">${s.user_id} · ${s.department || '—'} · Sem ${s.current_sem || '—'} · ${s.degree || '—'}</div></div>
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+      <span class="b ${eng ? 'beng' : 'bart'}">${eng ? 'ENG' : 'ART'}</span>
+      <button class="edit-btn" onclick="openEditStu('${s.user_id}')">✏️ Edit</button>
+      <button class="del-btn" onclick="deleteStu('${s.user_id}','${(s.name || '').replace(/'/g, "\\'")}')">🗑 Delete</button>
+    </div></div>`;
+            }).join('');
+        }
+
+        /* ── Load Teachers ── */
+        async function loadTeachers() {
+            document.getElementById('tchList').innerHTML = `<div style="text-align:center;padding:30px;color:var(--faint)"><div style="width:22px;height:22px;border:2px solid rgba(239,68,68,.2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>Loading teachers…</div>`;
+            try {
+                const d = await api('/api/admin/teachers');
+                ALL_TEACHERS = d?.teachers ?? [];
+                renderTeachers();
+            } catch (e) { document.getElementById('tchList').innerHTML = `<div style="padding:20px;color:#fca5a5">Error: ${e.message}<br><small style="color:var(--faint)">Make sure POST /api/admin/login and GET /api/admin/teachers are deployed.</small></div>`; }
+        }
+
+        function renderTeachers() {
+            let list = ALL_TEACHERS;
+            const q = (document.getElementById('tchSearch')?.value || '').toLowerCase();
+            if (q) list = list.filter(t => (t.name || '').toLowerCase().includes(q) || (t.user_id || '').toLowerCase().includes(q) || (t.department || '').toLowerCase().includes(q));
+            document.getElementById('tch-count').textContent = `${list.length} teachers`;
+            const el = document.getElementById('tchList');
+            if (!list.length) { el.innerHTML = `<div style="text-align:center;padding:28px;color:var(--faint)">No teachers found.</div>`; return; }
+            el.innerHTML = list.map(t => {
+                const uid = t.user_id || '—';
+                return `<div class="stu-row"><div class="sav tch-av">${(t.name || '?')[0]}</div>
+    <div style="flex:1"><div class="sn">${t.name || uid}</div><div class="sm">${uid} · ${t.department || '—'} · ${t.designation || 'Faculty'}</div></div>
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+      <span class="b bred">TCH</span>
+      <button class="edit-btn" onclick="openEditTch('${uid}')">✏️ Edit</button>
+      <button class="del-btn" onclick="deleteTch('${uid}','${(t.name || '').replace(/'/g, "\\'")}')">🗑 Delete</button>
+    </div></div>`;
+            }).join('');
+        }
+
+        /* ── gv helper ── */
+        function gv(id) { const e = document.getElementById(id); return e ? e.value.trim() || null : null; }
+
+        /* ── Edit Student Modal ── */
+        function openEditStu(uid) {
+            const s = ALL_STUDENTS.find(x => x.user_id === uid); if (!s) return;
+            document.getElementById('esm-title').textContent = `Edit: ${s.name || uid}`;
+            document.getElementById('esm-sub').textContent = `${uid} · ${s.department || '—'} · Sem ${s.current_sem || '—'}`;
+            document.getElementById('esm-body').innerHTML = `
+    <div class="form-section-title">👤 Personal Info</div>
+    <div class="form-grid">
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="es_name" value="${s.name || ''}"></div>
+      <div class="fg"><label class="fl">Mobile</label><input class="fi" id="es_mob" value="${s.mobile || ''}"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="es_email" value="${s.email || ''}" type="email"></div>
+      <div class="fg"><label class="fl">Date of Birth</label><input class="fi" id="es_dob" value="${s.dob || ''}" type="date"></div>
+      <div class="fg"><label class="fl">Gender</label><select class="fi" id="es_gender"><option value="">Select…</option>${['Male', 'Female', 'Other'].map(g => `<option ${s.gender === g ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Blood Group</label><select class="fi" id="es_blood"><option value="">Select…</option>${['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(b => `<option ${s.blood_group === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Father</label><input class="fi" id="es_father" value="${s.father_name || ''}"></div>
+      <div class="fg"><label class="fl">Mother</label><input class="fi" id="es_mother" value="${s.mother_name || ''}"></div>
+      <div class="fg"><label class="fl">Parent Mobile</label><input class="fi" id="es_pmob" value="${s.parent_mobile || ''}"></div>
+      <div class="fg"><label class="fl">Nationality</label><input class="fi" id="es_nat" value="${s.nationality || ''}"></div>
+    </div>
+    <div class="fg" style="margin-top:8px"><label class="fl">Address</label><input class="fi" id="es_addr" value="${s.address || ''}"></div>
+    <div class="form-section-title">📚 Academic</div>
+    <div class="form-grid">
+      <div class="fg"><label class="fl">Department</label><input class="fi" id="es_dept" value="${s.department || ''}"></div>
+      <div class="fg"><label class="fl">Degree</label><input class="fi" id="es_deg" value="${s.degree || ''}"></div>
+      <div class="fg"><label class="fl">Batch</label><input class="fi" id="es_batch" value="${s.batch || ''}"></div>
+      <div class="fg"><label class="fl">Semester</label><select class="fi" id="es_sem">${[1, 2, 3, 4, 5, 6, 7, 8].map(n => `<option ${s.current_sem == n ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Roll Number</label><input class="fi" id="es_roll" value="${s.roll_number || ''}"></div>
+      <div class="fg"><label class="fl">Advisor</label><input class="fi" id="es_adv" value="${s.advisor || ''}"></div>
+    </div>
+    <div class="submit-row">
+      <button class="btn-secondary" onclick="closeEditStu()">Cancel</button>
+      <button class="btn-primary" onclick="saveEditStu('${uid}')">💾 Save Changes</button>
+    </div>
+    <div id="esm-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:9px;font-size:.82rem;font-weight:600"></div>`;
+            document.getElementById('editStuModal').classList.add('open');
+        }
+        function closeEditStu() { document.getElementById('editStuModal').classList.remove('open'); }
+
+        async function saveEditStu(uid) {
+            const body = { name: gv('es_name'), mobile: gv('es_mob'), email: gv('es_email'), dob: gv('es_dob'), gender: gv('es_gender'), blood_group: gv('es_blood'), father_name: gv('es_father'), mother_name: gv('es_mother'), parent_mobile: gv('es_pmob'), nationality: gv('es_nat'), address: gv('es_addr'), department: gv('es_dept'), degree: gv('es_deg'), batch: gv('es_batch'), current_sem: gv('es_sem'), roll_number: gv('es_roll'), advisor: gv('es_adv') };
+            Object.keys(body).forEach(k => { if (!body[k]) delete body[k]; });
+            const msg = document.getElementById('esm-msg');
+            try {
+                const r = await fetch(`${API}/api/teacher/edit/personal/${uid}`, { method: 'PUT', headers: H(), body: JSON.stringify(body) });
+                const j = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(j.detail || `HTTP ${r.status}`);
+                const idx = ALL_STUDENTS.findIndex(s => s.user_id === uid); if (idx >= 0) Object.assign(ALL_STUDENTS[idx], body);
+                msg.style.cssText = 'display:block;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:#34d399;padding:10px 14px;border-radius:9px;font-size:.82rem;font-weight:600;margin-top:12px';
+                msg.textContent = '✓ Student updated in Supabase!';
+                showToast('Student updated successfully!'); renderStudents();
+                setTimeout(closeEditStu, 1500);
+            } catch (e) {
+                msg.style.cssText = 'display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5;padding:10px 14px;border-radius:9px;font-size:.82rem;font-weight:600;margin-top:12px';
+                msg.textContent = '✗ Error: ' + e.message;
+            }
+        }
+
+        async function deleteStu(uid, name) {
+            const ok = await openConfirm('🗑️', 'Delete Student', `Delete ${name} (${uid})? This cannot be undone.`);
+            if (!ok) return;
+            try {
+                const r = await fetch(`${API}/api/admin/student/${uid}`, { method: 'DELETE', headers: H() });
+                if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.detail || `HTTP ${r.status}`); }
+                ALL_STUDENTS = ALL_STUDENTS.filter(s => s.user_id !== uid); renderStudents(); loadStats();
+                showToast(`${name} deleted.`);
+            } catch (e) { showToast('Delete failed: ' + e.message, 'error'); }
+        }
+
+        /* ── Edit Teacher Modal ── */
+        function openEditTch(uid) {
+            const t = ALL_TEACHERS.find(x => x.user_id === uid);
+            document.getElementById('etm-title').textContent = `Edit: ${t?.name || uid}`;
+            document.getElementById('etm-sub').textContent = `${uid} · ${t?.department || '—'}`;
+            document.getElementById('etm-body').innerHTML = `
+    <div class="form-grid">
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="et_name" value="${t?.name || ''}"></div>
+      <div class="fg"><label class="fl">Mobile</label><input class="fi" id="et_mob" value="${t?.mobile || ''}"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="et_email" value="${t?.email || ''}" type="email"></div>
+      <div class="fg"><label class="fl">Department</label><input class="fi" id="et_dept" value="${t?.department || ''}"></div>
+      <div class="fg"><label class="fl">Designation</label><input class="fi" id="et_desg" value="${t?.designation || ''}"></div>
+      <div class="fg"><label class="fl">Qualification</label><input class="fi" id="et_qual" value="${t?.qualification || ''}"></div>
+      <div class="fg"><label class="fl">Experience (Yrs)</label><input class="fi" id="et_exp" value="${t?.experience || ''}" type="number"></div>
+      <div class="fg"><label class="fl">Subjects</label><input class="fi" id="et_subj" value="${t?.subjects || ''}"></div>
+    </div>
+    <div class="submit-row">
+      <button class="btn-secondary" onclick="closeEditTch()">Cancel</button>
+      <button class="btn-primary" onclick="saveEditTch('${uid}')">💾 Save Changes</button>
+    </div>
+    <div id="etm-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:9px;font-size:.82rem;font-weight:600"></div>`;
+            document.getElementById('editTchModal').classList.add('open');
+        }
+        function closeEditTch() { document.getElementById('editTchModal').classList.remove('open'); }
+
+        async function saveEditTch(uid) {
+            const body = { name: gv('et_name'), mobile: gv('et_mob'), email: gv('et_email'), department: gv('et_dept'), designation: gv('et_desg'), qualification: gv('et_qual'), experience: gv('et_exp') ? parseInt(gv('et_exp')) : null, subjects: gv('et_subj') };
+            Object.keys(body).forEach(k => { if (!body[k]) delete body[k]; });
+            const msg = document.getElementById('etm-msg');
+            try {
+                const r = await fetch(`${API}/api/admin/teacher/${uid}`, { method: 'PUT', headers: H(), body: JSON.stringify(body) });
+                const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.detail || `HTTP ${r.status}`);
+                const idx = ALL_TEACHERS.findIndex(t => t.user_id === uid); if (idx >= 0) Object.assign(ALL_TEACHERS[idx], body);
+                msg.style.cssText = 'display:block;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:#34d399;padding:10px 14px;border-radius:9px;font-size:.82rem;font-weight:600;margin-top:12px';
+                msg.textContent = '✓ Teacher updated!'; showToast('Teacher updated!'); renderTeachers(); setTimeout(closeEditTch, 1500);
+            } catch (e) {
+                msg.style.cssText = 'display:block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5;padding:10px 14px;border-radius:9px;font-size:.82rem;font-weight:600;margin-top:12px';
+                msg.textContent = '✗ Error: ' + e.message;
+            }
+        }
+
+        async function deleteTch(uid, name) {
+            const ok = await openConfirm('🗑️', 'Delete Teacher', `Delete ${name} (${uid})?`);
+            if (!ok) return;
+            try {
+                const r = await fetch(`${API}/api/admin/teacher/${uid}`, { method: 'DELETE', headers: H() });
+                if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.detail || `HTTP ${r.status}`); }
+                ALL_TEACHERS = ALL_TEACHERS.filter(t => t.user_id !== uid); renderTeachers(); loadStats();
+                showToast(`${name} deleted.`);
+            } catch (e) { showToast('Delete failed: ' + e.message, 'error'); }
+        }
+
+        /* ── Add Student ── */
+        function clearStuForm() { ['ns_uid', 'ns_pwd', 'ns_name', 'ns_mob', 'ns_email', 'ns_dob', 'ns_nat', 'ns_relig', 'ns_addr', 'ns_dept', 'ns_spec', 'ns_batch', 'ns_roll', 'ns_sec', 'ns_adv', 'ns_father', 'ns_mother', 'ns_pmob', 'ns_b10', 'ns_p10', 'ns_b12', 'ns_p12', 'ns_ent'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });['ns_gender', 'ns_blood', 'ns_deg', 'ns_sem'].forEach(id => { const e = document.getElementById(id); if (e) e.selectedIndex = 0; }); }
+
+        async function submitStudent() {
+            const uid = document.getElementById('ns_uid')?.value.trim().toUpperCase();
+            const name = document.getElementById('ns_name')?.value.trim();
+            const pwd = document.getElementById('ns_pwd')?.value;
+            if (!uid || !name || !pwd) { showToast('User ID, Name and Password are required!', 'warn'); return; }
+            if (!/^(ENG|ART)\d+$/i.test(uid)) { showToast('ID must be ENG### or ART###', 'warn'); return; }
+            const payload = { user_id: uid, password: pwd, name, role: 'student', mobile: gv('ns_mob'), email: gv('ns_email'), dob: gv('ns_dob'), gender: gv('ns_gender'), blood_group: gv('ns_blood'), nationality: gv('ns_nat'), religion: gv('ns_relig'), address: gv('ns_addr'), department: gv('ns_dept'), degree: gv('ns_deg'), specialisation: gv('ns_spec'), batch: gv('ns_batch'), admission_year: gv('ns_adm') ? parseInt(gv('ns_adm')) : null, current_sem: gv('ns_sem') ? parseInt(gv('ns_sem')) : null, roll_number: gv('ns_roll'), section: gv('ns_sec'), advisor: gv('ns_adv'), father_name: gv('ns_father'), mother_name: gv('ns_mother'), parent_mobile: gv('ns_pmob'), edu10_board: gv('ns_b10'), edu10_pct: gv('ns_p10') ? parseFloat(gv('ns_p10')) : null, edu12_board: gv('ns_b12'), edu12_pct: gv('ns_p12') ? parseFloat(gv('ns_p12')) : null, entrance_exam: gv('ns_ent') };
+            Object.keys(payload).forEach(k => { if (payload[k] === null || payload[k] === '') delete payload[k]; });
+            const ok = await openConfirm('👤', 'Add Student', `Add ${name} (${uid}) to the database?`);
+            if (!ok) return;
+            try {
+                const r = await fetch(`${API}/api/admin/add-student`, { method: 'POST', headers: H(), body: JSON.stringify(payload) });
+                const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.detail || `HTTP ${r.status}`);
+                showToast(`✓ ${name} added to Supabase!`); clearStuForm(); ALL_STUDENTS = []; loadStats();
+            } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+        }
+
+        /* ── Add Teacher ── */
+        function clearTchForm() { ['nt_uid', 'nt_pwd', 'nt_name', 'nt_mob', 'nt_email', 'nt_dob', 'nt_dept', 'nt_desg', 'nt_qual', 'nt_exp', 'nt_subj', 'nt_empid', 'nt_join'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });['nt_gender', 'nt_blood', 'nt_cat'].forEach(id => { const e = document.getElementById(id); if (e) e.selectedIndex = 0; }); }
+
+        async function submitTeacher() {
+            const uid = document.getElementById('nt_uid')?.value.trim().toUpperCase();
+            const name = document.getElementById('nt_name')?.value.trim();
+            const pwd = document.getElementById('nt_pwd')?.value;
+            if (!uid || !name || !pwd) { showToast('Teacher ID, Name and Password are required!', 'warn'); return; }
+            if (!/^TCH\d+$/i.test(uid)) { showToast('Teacher ID must be TCH### format', 'warn'); return; }
+            const payload = { user_id: uid, password: pwd, name, role: 'teacher', mobile: gv('nt_mob'), email: gv('nt_email'), dob: gv('nt_dob'), gender: gv('nt_gender'), blood_group: gv('nt_blood'), department: gv('nt_dept'), designation: gv('nt_desg'), qualification: gv('nt_qual'), experience: gv('nt_exp') ? parseInt(gv('nt_exp')) : null, subjects: gv('nt_subj'), employee_id: gv('nt_empid'), joining_year: gv('nt_join') ? parseInt(gv('nt_join')) : null, category: gv('nt_cat') };
+            Object.keys(payload).forEach(k => { if (payload[k] === null || payload[k] === '') delete payload[k]; });
+            const ok = await openConfirm('👨‍🏫', 'Add Teacher', `Add ${name} (${uid}) as faculty?`);
+            if (!ok) return;
+            try {
+                const r = await fetch(`${API}/api/admin/add-teacher`, { method: 'POST', headers: H(), body: JSON.stringify(payload) });
+                const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.detail || `HTTP ${r.status}`);
+                showToast(`✓ ${name} added as faculty!`); clearTchForm(); ALL_TEACHERS = []; loadStats();
+            } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+        }
+
+        /* ── Navigation ── */
+        const TITLES = { 'dashboard': 'Admin Dashboard', 'students': 'Student Management', 'teachers': 'Teacher Management', 'add-student': 'Add New Student', 'add-teacher': 'Add New Teacher' };
+        const LOADERS = { 'dashboard': loadStats, 'students': loadStudents, 'teachers': loadTeachers };
+        const _loaded = {};
+        function go(name) {
+            document.querySelectorAll('.sec').forEach(s => s.classList.remove('act'));
+            document.getElementById('sec-' + name).classList.add('act');
+            document.querySelectorAll('.ni').forEach(el => el.classList.remove('act'));
+            document.querySelectorAll('.ni').forEach(el => { if (el.getAttribute('onclick')?.includes(`'${name}'`)) el.classList.add('act'); });
+            document.getElementById('ptitle').textContent = TITLES[name] || name;
+            document.getElementById('sb').classList.remove('open');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (!_loaded[name] && LOADERS[name]) { _loaded[name] = true; LOADERS[name](); }
+        }
+        function signOut() { sessionStorage.removeItem('adminToken'); sessionStorage.removeItem('adminId'); sessionStorage.removeItem('adminName'); window.location.href = 'management_login.html'; }
+
+        /* ── Boot ── */
+        _loaded['dashboard'] = true; loadStats();
+    </script>
+</body>
+
+</html>

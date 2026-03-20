@@ -1,16 +1,17 @@
 """
-VelsPortal v3  ·  Python + FastAPI Backend
+VelsPortal v4  ·  Python + FastAPI Backend
 ==========================================
 Supports:
   • Engineering Dept: 8 sems × 20 students = 160 students (ENG001–ENG160)
   • Arts Dept:        6 sems × 20 students = 120 students (ART001–ART120)
-  • Teachers: 10 (TCH001–TCH010)
+  • Teachers: TCH001–TCH010+
+  • Admin:    ADMIN001+ (full CRUD over students & teachers)
 
 Install:
     pip install fastapi uvicorn "supabase>=2.0" python-dotenv PyJWT
 
 Run:
-    uvicorn api:app --reload --port 8000
+    uvicorn main:app --reload --port 8000
 
 Swagger docs: http://localhost:8000/docs
 """
@@ -22,7 +23,7 @@ from typing import Optional
 
 import jwt
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -58,8 +59,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # ─────────────────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="VelsPortal API",
-    version="3.0",
-    description="Academic Management System — Engineering (8 sem) + Arts (6 sem)",
+    version="4.0",
+    description="Academic Management System — Engineering + Arts + Admin Panel",
 )
 
 app.add_middleware(
@@ -81,6 +82,10 @@ class LoginRequest(BaseModel):
     user_id:  str
     password: str
     role:     str
+
+class AdminLoginRequest(BaseModel):
+    admin_id: str
+    password: str
 
 class ChangePasswordRequest(BaseModel):
     user_id:          str
@@ -107,9 +112,9 @@ class NoticeCreateRequest(BaseModel):
     body:    str
     type:    Optional[str] = "info"
 
-# ── NEW: Edit schemas for teacher to update student data ─────────────────────
+# ── Edit schemas for teacher to update student data ──────────────────────────
 class EditPersonalRequest(BaseModel):
-    """Teacher can update any field in student_personal table."""
+    name:           Optional[str] = None
     dob:            Optional[str] = None
     gender:         Optional[str] = None
     blood_group:    Optional[str] = None
@@ -123,7 +128,6 @@ class EditPersonalRequest(BaseModel):
     parent_mobile:  Optional[str] = None
 
 class EditProfileRequest(BaseModel):
-    """Teacher can update any field in student_profile table."""
     roll_number:    Optional[str] = None
     department:     Optional[str] = None
     degree:         Optional[str] = None
@@ -140,20 +144,95 @@ class EditProfileRequest(BaseModel):
     entrance_exam:  Optional[str] = None
 
 class EditAttendanceRequest(BaseModel):
-    """Teacher updates attendance for one subject row."""
     subject_code: str
     conducted:    int
     attended:     int
     semester:     Optional[str] = None
 
 class EditMarksRequest(BaseModel):
-    """Teacher updates marks for one subject row."""
     subject_code: str
     ia1:          int
     ia2:          int
     ia3:          int
     assignment:   int
     semester:     Optional[str] = None
+
+# ── NEW: Admin schemas ────────────────────────────────────────────────────────
+class AddStudentRequest(BaseModel):
+    """Admin adds a brand-new student (users + student_personal + student_profile)."""
+    user_id:        str
+    password:       str
+    name:           str
+    role:           str = "student"
+    # personal
+    mobile:         Optional[str] = None
+    email:          Optional[str] = None
+    dob:            Optional[str] = None
+    gender:         Optional[str] = None
+    blood_group:    Optional[str] = None
+    nationality:    Optional[str] = None
+    religion:       Optional[str] = None
+    address:        Optional[str] = None
+    father_name:    Optional[str] = None
+    mother_name:    Optional[str] = None
+    parent_mobile:  Optional[str] = None
+    # profile
+    department:     Optional[str] = None
+    degree:         Optional[str] = None
+    specialisation: Optional[str] = None
+    batch:          Optional[str] = None
+    admission_year: Optional[int] = None
+    current_sem:    Optional[int] = None
+    roll_number:    Optional[str] = None
+    section:        Optional[str] = None
+    advisor:        Optional[str] = None
+    edu10_board:    Optional[str] = None
+    edu10_pct:      Optional[float] = None
+    edu12_board:    Optional[str] = None
+    edu12_pct:      Optional[float] = None
+    entrance_exam:  Optional[str] = None
+
+class AddTeacherRequest(BaseModel):
+    """Admin adds a brand-new teacher (users + teacher_profile)."""
+    user_id:        str
+    password:       str
+    name:           str
+    role:           str = "teacher"
+    mobile:         Optional[str] = None
+    email:          Optional[str] = None
+    dob:            Optional[str] = None
+    gender:         Optional[str] = None
+    blood_group:    Optional[str] = None
+    department:     Optional[str] = None
+    designation:    Optional[str] = None
+    qualification:  Optional[str] = None
+    experience:     Optional[int] = None
+    subjects:       Optional[str] = None
+    employee_id:    Optional[str] = None
+    joining_year:   Optional[int] = None
+    category:       Optional[str] = None
+
+class EditTeacherRequest(BaseModel):
+    """Admin edits a teacher's profile fields."""
+    name:           Optional[str] = None
+    mobile:         Optional[str] = None
+    email:          Optional[str] = None
+    department:     Optional[str] = None
+    designation:    Optional[str] = None
+    qualification:  Optional[str] = None
+    experience:     Optional[int] = None
+    subjects:       Optional[str] = None
+    employee_id:    Optional[str] = None
+    joining_year:   Optional[int] = None
+    category:       Optional[str] = None
+    dob:            Optional[str] = None
+    gender:         Optional[str] = None
+    blood_group:    Optional[str] = None
+
+class AdminChangePasswordRequest(BaseModel):
+    admin_id:         str
+    current_password: str
+    new_password:     str
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -180,8 +259,13 @@ def verify_token(
 
 
 def _require_teacher(payload: dict):
-    if payload.get("role") != "teacher":
-        raise HTTPException(status_code=403, detail="Teacher access required")
+    if payload.get("role") not in ("teacher", "admin"):
+        raise HTTPException(status_code=403, detail="Teacher/Admin access required")
+
+
+def _require_admin(payload: dict):
+    if payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
 
 
 def _guard_student(payload: dict, user_id: str):
@@ -204,6 +288,22 @@ def _safe_query(query) -> list:
     except Exception as e:
         logger.error(f"Query error: {e}")
         return []
+
+
+def _audit(admin_id: str, action: str, target_type: str = None,
+           target_id: str = None, details: dict = None, ip: str = None):
+    """Write one row to admin_audit_log — fire-and-forget, never raises."""
+    try:
+        supabase.table("admin_audit_log").insert({
+            "admin_id":    admin_id,
+            "action":      action,
+            "target_type": target_type,
+            "target_id":   target_id,
+            "details":     details or {},
+            "ip_address":  ip,
+        }).execute()
+    except Exception as e:
+        logger.warning(f"Audit log failed: {e}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -236,15 +336,53 @@ async def login(req: LoginRequest):
     }
 
 
+@app.post("/api/admin/login", tags=["Admin"])
+async def admin_login(req: AdminLoginRequest, request: Request):
+    """
+    Dedicated admin login — checks admin_users table (not users table).
+    Returns a JWT with role='admin'.
+    """
+    aid = req.admin_id.strip().upper()
+    admin = _safe_single(
+        supabase.table("admin_users")
+        .select("admin_id, password, name, email, is_active")
+        .eq("admin_id", aid)
+    )
+    if not admin:
+        raise HTTPException(status_code=401, detail="Invalid Admin ID or Password")
+    if not admin.get("is_active", True):
+        raise HTTPException(status_code=403, detail="Admin account is disabled")
+    if admin.get("password") != req.password:
+        raise HTTPException(status_code=401, detail="Invalid Admin ID or Password")
+
+    # Update last_login and login_count
+    try:
+        supabase.table("admin_users").update({
+            "last_login":  datetime.now(timezone.utc).isoformat(),
+            "login_count": (admin.get("login_count") or 0) + 1,
+        }).eq("admin_id", aid).execute()
+    except Exception:
+        pass
+
+    ip = request.client.host if request.client else None
+    _audit(aid, "LOGIN", details={"name": admin["name"]}, ip=ip)
+
+    token = create_token({"user_id": aid, "role": "admin", "name": admin["name"]})
+    return {
+        "token":    token,
+        "admin_id": aid,
+        "name":     admin["name"],
+        "role":     "admin",
+    }
+
+
 @app.post("/api/change-password", tags=["Auth"])
 async def change_password(req: ChangePasswordRequest, payload: dict = Depends(verify_token)):
     uid = req.user_id.strip().upper()
     if payload["user_id"] != uid:
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    user = _safe_single(
-        supabase.table("users").select("password").eq("user_id", uid)
-    )
+    user = _safe_single(supabase.table("users").select("password").eq("user_id", uid))
     if not user or user.get("password") != req.current_password:
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     if len(req.new_password) < 8:
@@ -388,7 +526,7 @@ async def get_all_students(
     semester:   Optional[str] = Query(None),
     dept_type:  Optional[str] = Query(None),
     search:     Optional[str] = Query(None),
-    limit:      int           = Query(50, ge=1, le=300),
+    limit:      int           = Query(50, ge=1, le=400),
     offset:     int           = Query(0,  ge=0),
     payload:    dict          = Depends(verify_token),
 ):
@@ -467,7 +605,7 @@ async def get_departments(payload: dict = Depends(verify_token)):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TEACHER WRITE — existing
+#  TEACHER WRITE
 # ─────────────────────────────────────────────────────────────────────────────
 @app.put("/api/teacher/attendance/{user_id}", tags=["Teacher"])
 async def update_attendance(
@@ -514,7 +652,7 @@ async def delete_notice(notice_id: int, payload: dict = Depends(verify_token)):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  TEACHER WRITE — NEW: Edit student personal & profile details
+#  TEACHER WRITE — Edit student personal & profile details
 # ─────────────────────────────────────────────────────────────────────────────
 @app.put("/api/teacher/edit/personal/{user_id}", tags=["Teacher - Edit"])
 async def edit_personal(
@@ -522,24 +660,19 @@ async def edit_personal(
     req:     EditPersonalRequest,
     payload: dict = Depends(verify_token),
 ):
-    """
-    Teacher updates a student's personal details.
-    Only non-None fields are written — so sending just mobile
-    will only update mobile, leaving everything else untouched.
-    """
     _require_teacher(payload)
     uid = user_id.strip().upper()
-
-    # Build update dict — only include fields that were actually sent
     update_data = {k: v for k, v in req.dict().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields provided to update")
-
     try:
-        # Use upsert so it works whether the row exists or not.
-        # on_conflict="user_id" means: if row exists → update; if not → insert.
-        upsert_data = {"user_id": uid, **update_data}
-        supabase.table("student_personal").upsert(upsert_data, on_conflict="user_id").execute()
+        # Sync name to users table if provided
+        if "name" in update_data:
+            supabase.table("users").update({"name": update_data["name"]}).eq("user_id", uid).execute()
+        personal_data = {k: v for k, v in update_data.items() if k != "name"}
+        if personal_data:
+            upsert_data = {"user_id": uid, **personal_data}
+            supabase.table("student_personal").upsert(upsert_data, on_conflict="user_id").execute()
         logger.info(f"Personal upserted for {uid}: {list(update_data.keys())}")
         return {"message": "Personal details updated", "updated_fields": list(update_data.keys())}
     except Exception as e:
@@ -553,21 +686,14 @@ async def edit_profile(
     req:     EditProfileRequest,
     payload: dict = Depends(verify_token),
 ):
-    """
-    Teacher updates a student's academic profile.
-    Also syncs department to the users table if changed.
-    """
     _require_teacher(payload)
     uid = user_id.strip().upper()
-
     update_data = {k: v for k, v in req.dict().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields provided to update")
-
     try:
         upsert_data = {"user_id": uid, **update_data}
         supabase.table("student_profile").upsert(upsert_data, on_conflict="user_id").execute()
-        # If department was changed, keep users table in sync too
         if "department" in update_data:
             supabase.table("users").update({"department": update_data["department"]}).eq("user_id", uid).execute()
         logger.info(f"Profile upserted for {uid}: {list(update_data.keys())}")
@@ -583,30 +709,19 @@ async def edit_attendance(
     req:     EditAttendanceRequest,
     payload: dict = Depends(verify_token),
 ):
-    """Teacher edits attendance for a specific subject."""
     _require_teacher(payload)
     uid = user_id.strip().upper()
-
     if req.attended > req.conducted:
         raise HTTPException(status_code=400, detail="Attended cannot exceed conducted classes")
-
-    update_data = {
-        "conducted":  req.conducted,
-        "attended":   req.attended,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
-    }
+    update_data = {"conducted": req.conducted, "attended": req.attended,
+                   "updated_at": datetime.now(timezone.utc).isoformat()}
     if req.semester:
         update_data["semester"] = req.semester
-
     try:
         supabase.table("attendance").update(update_data)\
-            .eq("user_id", uid)\
-            .eq("subject_code", req.subject_code)\
-            .execute()
-        logger.info(f"Attendance edited for {uid} / {req.subject_code}")
+            .eq("user_id", uid).eq("subject_code", req.subject_code).execute()
         return {"message": "Attendance updated successfully"}
     except Exception as e:
-        logger.error(f"Edit attendance error {uid}: {e}")
         raise HTTPException(status_code=500, detail="Failed to update attendance")
 
 
@@ -616,38 +731,328 @@ async def edit_marks(
     req:     EditMarksRequest,
     payload: dict = Depends(verify_token),
 ):
-    """Teacher edits internal marks for a specific subject."""
     _require_teacher(payload)
     uid = user_id.strip().upper()
-
-    # Validate ranges
-    if not (0 <= req.ia1 <= 20):
-        raise HTTPException(status_code=400, detail="IA1 must be between 0 and 20")
-    if not (0 <= req.ia2 <= 20):
-        raise HTTPException(status_code=400, detail="IA2 must be between 0 and 20")
-    if not (0 <= req.ia3 <= 20):
-        raise HTTPException(status_code=400, detail="IA3 must be between 0 and 20")
-    if not (0 <= req.assignment <= 10):
-        raise HTTPException(status_code=400, detail="Assignment must be between 0 and 10")
-
+    if not (0 <= req.ia1 <= 20): raise HTTPException(400, "IA1 must be 0–20")
+    if not (0 <= req.ia2 <= 20): raise HTTPException(400, "IA2 must be 0–20")
+    if not (0 <= req.ia3 <= 20): raise HTTPException(400, "IA3 must be 0–20")
+    if not (0 <= req.assignment <= 10): raise HTTPException(400, "Assignment must be 0–10")
     total = req.ia1 + req.ia2 + req.ia3 + req.assignment
-    update_data = {
-        "ia1": req.ia1, "ia2": req.ia2, "ia3": req.ia3,
-        "assignment": req.assignment, "total": total,
-    }
+    update_data = {"ia1": req.ia1, "ia2": req.ia2, "ia3": req.ia3,
+                   "assignment": req.assignment, "total": total}
     if req.semester:
         update_data["semester"] = req.semester
-
     try:
         supabase.table("internal_marks").update(update_data)\
-            .eq("user_id", uid)\
-            .eq("subject_code", req.subject_code)\
-            .execute()
-        logger.info(f"Marks edited for {uid} / {req.subject_code} total={total}")
+            .eq("user_id", uid).eq("subject_code", req.subject_code).execute()
         return {"message": "Marks updated successfully", "total": total}
     except Exception as e:
-        logger.error(f"Edit marks error {uid}: {e}")
         raise HTTPException(status_code=500, detail="Failed to update marks")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — READ
+# ─────────────────────────────────────────────────────────────────────────────
+@app.get("/api/admin/teachers", tags=["Admin"])
+async def admin_get_teachers(payload: dict = Depends(verify_token)):
+    """Return all teachers with their profile data."""
+    _require_admin(payload)
+    users = _safe_query(
+        supabase.table("users").select("user_id, name, department").eq("role", "teacher").order("user_id")
+    )
+    uids = [u["user_id"] for u in users]
+    profiles = {}
+    if uids:
+        prof_rows = _safe_query(supabase.table("teacher_profile").select("*").in_("user_id", uids))
+        profiles = {p["user_id"]: p for p in prof_rows}
+    for u in users:
+        p = profiles.get(u["user_id"], {})
+        u.update({
+            "designation":   p.get("designation"),
+            "qualification": p.get("qualification"),
+            "experience":    p.get("experience"),
+            "subjects":      p.get("subjects"),
+            "employee_id":   p.get("employee_id"),
+            "joining_year":  p.get("joining_year"),
+            "category":      p.get("category"),
+            "mobile":        p.get("mobile"),
+            "email":         p.get("email"),
+        })
+    return {"total": len(users), "teachers": users}
+
+
+@app.get("/api/admin/stats", tags=["Admin"])
+async def admin_stats(payload: dict = Depends(verify_token)):
+    """Admin-level stats (same as teacher stats but with admin role check)."""
+    _require_admin(payload)
+    total_students = len(_safe_query(supabase.table("users").select("user_id").eq("role", "student")))
+    total_teachers = len(_safe_query(supabase.table("users").select("user_id").eq("role", "teacher")))
+    eng_count      = len(_safe_query(supabase.table("users").select("user_id").eq("role","student").like("user_id","ENG%")))
+    art_count      = len(_safe_query(supabase.table("users").select("user_id").eq("role","student").like("user_id","ART%")))
+    return {
+        "total_students":       total_students,
+        "engineering_students": eng_count,
+        "arts_students":        art_count,
+        "total_teachers":       total_teachers,
+    }
+
+
+@app.get("/api/admin/audit-log", tags=["Admin"])
+async def admin_audit(
+    limit:  int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    payload: dict = Depends(verify_token),
+):
+    """Return admin audit log entries (newest first)."""
+    _require_admin(payload)
+    rows = _safe_query(
+        supabase.table("admin_audit_log")
+        .select("*")
+        .order("created_at", desc=True)
+        .range(offset, offset + limit - 1)
+    )
+    return {"total": len(rows), "logs": rows}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — WRITE: ADD STUDENT
+# ─────────────────────────────────────────────────────────────────────────────
+@app.post("/api/admin/add-student", tags=["Admin"])
+async def admin_add_student(req: AddStudentRequest, request: Request, payload: dict = Depends(verify_token)):
+    """
+    Admin creates a new student:
+      1. Insert into users table
+      2. Upsert into student_personal
+      3. Upsert into student_profile
+    """
+    _require_admin(payload)
+    uid = req.user_id.strip().upper()
+
+    # Check duplicate
+    existing = _safe_single(supabase.table("users").select("user_id").eq("user_id", uid))
+    if existing:
+        raise HTTPException(status_code=409, detail=f"User ID {uid} already exists")
+
+    try:
+        # 1. users
+        supabase.table("users").insert({
+            "user_id":    uid,
+            "password":   req.password,
+            "role":       "student",
+            "name":       req.name,
+            "department": req.department or "",
+        }).execute()
+
+        # 2. student_personal
+        personal = {k: v for k, v in {
+            "user_id":      uid,
+            "mobile":       req.mobile,
+            "email":        req.email,
+            "dob":          req.dob,
+            "gender":       req.gender,
+            "blood_group":  req.blood_group,
+            "nationality":  req.nationality,
+            "religion":     req.religion,
+            "address":      req.address,
+            "father_name":  req.father_name,
+            "mother_name":  req.mother_name,
+            "parent_mobile": req.parent_mobile,
+        }.items() if v is not None}
+        if len(personal) > 1:  # more than just user_id
+            supabase.table("student_personal").upsert(personal, on_conflict="user_id").execute()
+
+        # 3. student_profile
+        profile = {k: v for k, v in {
+            "user_id":       uid,
+            "department":    req.department,
+            "degree":        req.degree,
+            "specialisation": req.specialisation,
+            "batch":         req.batch,
+            "admission_year": str(req.admission_year) if req.admission_year else None,
+            "current_sem":   str(req.current_sem) if req.current_sem else None,
+            "roll_number":   req.roll_number,
+            "section":       req.section,
+            "advisor":       req.advisor,
+            "edu10_board":   req.edu10_board,
+            "edu10_pct":     str(req.edu10_pct) if req.edu10_pct else None,
+            "edu12_board":   req.edu12_board,
+            "edu12_pct":     str(req.edu12_pct) if req.edu12_pct else None,
+            "entrance_exam": req.entrance_exam,
+        }.items() if v is not None}
+        if len(profile) > 1:
+            supabase.table("student_profile").upsert(profile, on_conflict="user_id").execute()
+
+        ip = request.client.host if request.client else None
+        _audit(payload["user_id"], "ADD_STUDENT", "student", uid,
+               {"name": req.name, "department": req.department}, ip)
+        logger.info(f"Admin {payload['user_id']} added student {uid}")
+        return {"message": f"Student {uid} ({req.name}) added successfully", "user_id": uid}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Add student error: {e}")
+        # Rollback users row if profile insert failed
+        try: supabase.table("users").delete().eq("user_id", uid).execute()
+        except: pass
+        raise HTTPException(status_code=500, detail=f"Failed to add student: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — WRITE: ADD TEACHER
+# ─────────────────────────────────────────────────────────────────────────────
+@app.post("/api/admin/add-teacher", tags=["Admin"])
+async def admin_add_teacher(req: AddTeacherRequest, request: Request, payload: dict = Depends(verify_token)):
+    """
+    Admin creates a new teacher:
+      1. Insert into users table
+      2. Upsert into teacher_profile
+    """
+    _require_admin(payload)
+    uid = req.user_id.strip().upper()
+
+    existing = _safe_single(supabase.table("users").select("user_id").eq("user_id", uid))
+    if existing:
+        raise HTTPException(status_code=409, detail=f"User ID {uid} already exists")
+
+    try:
+        supabase.table("users").insert({
+            "user_id":    uid,
+            "password":   req.password,
+            "role":       "teacher",
+            "name":       req.name,
+            "department": req.department or "",
+        }).execute()
+
+        prof = {k: v for k, v in {
+            "user_id":      uid,
+            "department":   req.department,
+            "designation":  req.designation,
+            "qualification": req.qualification,
+            "experience":   req.experience,
+            "subjects":     req.subjects,
+            "employee_id":  req.employee_id,
+            "joining_year": req.joining_year,
+            "category":     req.category,
+            "mobile":       req.mobile,
+            "email":        req.email,
+            "dob":          req.dob,
+            "gender":       req.gender,
+            "blood_group":  req.blood_group,
+        }.items() if v is not None}
+        if len(prof) > 1:
+            supabase.table("teacher_profile").upsert(prof, on_conflict="user_id").execute()
+
+        ip = request.client.host if request.client else None
+        _audit(payload["user_id"], "ADD_TEACHER", "teacher", uid,
+               {"name": req.name, "department": req.department}, ip)
+        logger.info(f"Admin {payload['user_id']} added teacher {uid}")
+        return {"message": f"Teacher {uid} ({req.name}) added successfully", "user_id": uid}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Add teacher error: {e}")
+        try: supabase.table("users").delete().eq("user_id", uid).execute()
+        except: pass
+        raise HTTPException(status_code=500, detail=f"Failed to add teacher: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — WRITE: EDIT STUDENT
+# ─────────────────────────────────────────────────────────────────────────────
+@app.put("/api/admin/student/{user_id}", tags=["Admin"])
+async def admin_edit_student(
+    user_id: str, req: EditPersonalRequest, request: Request, payload: dict = Depends(verify_token)
+):
+    """Admin edits a student's personal fields + name."""
+    _require_admin(payload)
+    uid = user_id.strip().upper()
+    update_data = {k: v for k, v in req.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(400, "No fields provided")
+    try:
+        if "name" in update_data:
+            supabase.table("users").update({"name": update_data.pop("name")}).eq("user_id", uid).execute()
+        if update_data:
+            supabase.table("student_personal").upsert({"user_id": uid, **update_data}, on_conflict="user_id").execute()
+        ip = request.client.host if request.client else None
+        _audit(payload["user_id"], "EDIT_STUDENT", "student", uid, {"fields": list(update_data.keys())}, ip)
+        return {"message": "Student updated", "user_id": uid}
+    except HTTPException: raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — WRITE: DELETE STUDENT
+# ─────────────────────────────────────────────────────────────────────────────
+@app.delete("/api/admin/student/{user_id}", tags=["Admin"])
+async def admin_delete_student(user_id: str, request: Request, payload: dict = Depends(verify_token)):
+    """
+    Admin deletes a student and ALL related data:
+      users, student_personal, student_profile, attendance, internal_marks, exam_results, notices
+    """
+    _require_admin(payload)
+    uid = user_id.strip().upper()
+    try:
+        for table in ["notices","exam_results","internal_marks","attendance","student_profile","student_personal","users"]:
+            supabase.table(table).delete().eq("user_id", uid).execute()
+        ip = request.client.host if request.client else None
+        _audit(payload["user_id"], "DELETE_STUDENT", "student", uid, {}, ip)
+        logger.info(f"Admin {payload['user_id']} deleted student {uid}")
+        return {"message": f"Student {uid} and all related data deleted"}
+    except Exception as e:
+        logger.error(f"Delete student error {uid}: {e}")
+        raise HTTPException(500, f"Failed to delete student: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — WRITE: EDIT TEACHER
+# ─────────────────────────────────────────────────────────────────────────────
+@app.put("/api/admin/teacher/{user_id}", tags=["Admin"])
+async def admin_edit_teacher(
+    user_id: str, req: EditTeacherRequest, request: Request, payload: dict = Depends(verify_token)
+):
+    """Admin edits a teacher's profile."""
+    _require_admin(payload)
+    uid = user_id.strip().upper()
+    update_data = {k: v for k, v in req.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(400, "No fields provided")
+    try:
+        if "name" in update_data:
+            supabase.table("users").update({"name": update_data["name"]}).eq("user_id", uid).execute()
+        if "department" in update_data:
+            supabase.table("users").update({"department": update_data["department"]}).eq("user_id", uid).execute()
+        prof_data = {k: v for k, v in update_data.items() if k not in ("name",)}
+        if prof_data:
+            supabase.table("teacher_profile").upsert({"user_id": uid, **prof_data}, on_conflict="user_id").execute()
+        ip = request.client.host if request.client else None
+        _audit(payload["user_id"], "EDIT_TEACHER", "teacher", uid, {"fields": list(update_data.keys())}, ip)
+        return {"message": "Teacher updated", "user_id": uid}
+    except HTTPException: raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  ADMIN — WRITE: DELETE TEACHER
+# ─────────────────────────────────────────────────────────────────────────────
+@app.delete("/api/admin/teacher/{user_id}", tags=["Admin"])
+async def admin_delete_teacher(user_id: str, request: Request, payload: dict = Depends(verify_token)):
+    """Admin deletes a teacher from users + teacher_profile."""
+    _require_admin(payload)
+    uid = user_id.strip().upper()
+    try:
+        supabase.table("teacher_profile").delete().eq("user_id", uid).execute()
+        supabase.table("users").delete().eq("user_id", uid).execute()
+        ip = request.client.host if request.client else None
+        _audit(payload["user_id"], "DELETE_TEACHER", "teacher", uid, {}, ip)
+        logger.info(f"Admin {payload['user_id']} deleted teacher {uid}")
+        return {"message": f"Teacher {uid} deleted"}
+    except Exception as e:
+        raise HTTPException(500, f"Failed: {str(e)}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -657,7 +1062,7 @@ async def edit_marks(
 async def health():
     return {
         "status":    "ok",
-        "version":   "3.1",
+        "version":   "4.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 

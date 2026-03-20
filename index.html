@@ -1,126 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VelsPortal — Login</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VelsPortal — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- BG -->
-<div class="bg-layer">
-  <div class="bg-mesh"></div>
-  <div class="bg-dots"></div>
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-</div>
+  <!-- BG -->
+  <div class="bg-layer">
+    <div class="bg-mesh"></div>
+    <div class="bg-dots"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-<!-- ── INSTITUTION HEADER ────────────────────────── -->
-<header class="inst-header">
-  <div class="inst-pill">🏛 &nbsp; NAAC Accredited · Grade A++</div>
-  <h1 class="inst-name">VELS Institution Of Science, Technology <span class="hi">&amp; Advanced Studies</span></h1>
-  <p class="inst-sub">Deemed to the University &nbsp; Estd. u/s 3 of the UGC Act, 1956</p>
-</header>
+  <!-- ── INSTITUTION HEADER ────────────────────────── -->
+  <header class="inst-header">
+    <div class="inst-pill">🏛 &nbsp; NAAC Accredited · Grade A++</div>
+    <h1 class="inst-name">VELS Institution Of Science, Technology <span class="hi">&amp; Advanced Studies</span></h1>
+    <p class="inst-sub">Deemed to the University &nbsp; Estd. u/s 3 of the UGC Act, 1956</p>
+  </header>
 
-<!-- ── LOGIN CARD ────────────────────────────────── -->
-<div class="page-body">
-  <div class="login-card">
+  <!-- ── LOGIN CARD ────────────────────────────────── -->
+  <div class="page-body">
+    <div class="login-card">
 
-    <!-- LEFT -->
-    <div class="panel-l">
-      <div>
-        <div class="brand">
-          <div class="brand-icon">🎓</div>
-          <div class="brand-name">Vels<em>Portal</em></div>
+      <!-- LEFT -->
+      <div class="panel-l">
+        <div>
+          <div class="brand">
+            <div class="brand-icon">🎓</div>
+            <div class="brand-name">Vels<em>Portal</em></div>
+          </div>
+        </div>
+
+        <p class="tagline"><strong>Your academic life,</strong><br>beautifully organised.</p>
+
+        <div class="features">
+          <div class="feat">
+            <div class="feat-icon fi-c">📋</div>
+            <div class="feat-body"><strong>Academic Records</strong>Semester subjects &amp; results</div>
+          </div>
+          <div class="feat">
+            <div class="feat-icon fi-v">📊</div>
+            <div class="feat-body"><strong>Live Analytics</strong>Marks, CGPA &amp; attendance</div>
+          </div>
+          <div class="feat">
+            <div class="feat-icon fi-p">🔒</div>
+            <div class="feat-body"><strong>Secure Roles</strong>Student &amp; faculty access</div>
+          </div>
+          <div class="feat">
+            <div class="feat-icon fi-e">🏫</div>
+            <div class="feat-body"><strong>Centralised Portal</strong>Everything in one place</div>
+          </div>
         </div>
       </div>
 
-      <p class="tagline"><strong>Your academic life,</strong><br>beautifully organised.</p>
+      <!-- RIGHT -->
+      <div class="panel-r">
 
-      <div class="features">
-        <div class="feat">
-          <div class="feat-icon fi-c">📋</div>
-          <div class="feat-body"><strong>Academic Records</strong>Semester subjects &amp; results</div>
+        <div class="role-tabs">
+          <button class="rtab active-s" id="tabS" onclick="sw('student')">🎓 &nbsp; Student</button>
+          <button class="rtab" id="tabT" onclick="sw('teacher')">👨‍🏫 &nbsp; Teacher</button>
         </div>
-        <div class="feat">
-          <div class="feat-icon fi-v">📊</div>
-          <div class="feat-body"><strong>Live Analytics</strong>Marks, CGPA &amp; attendance</div>
+
+        <div class="login-head">
+          <h2 class="login-title" id="ltitle"><span class="tc">Student</span> Login</h2>
+          <p class="login-sub" id="lsub">Access your academic dashboard</p>
         </div>
-        <div class="feat">
-          <div class="feat-icon fi-p">🔒</div>
-          <div class="feat-body"><strong>Secure Roles</strong>Student &amp; faculty access</div>
+
+        <div class="form-group">
+          <label class="form-label" for="fuid">User ID</label>
+          <input class="form-input" id="fuid" type="text" placeholder="e.g. ENG001 or ART001" autocomplete="off">
         </div>
-        <div class="feat">
-          <div class="feat-icon fi-e">🏫</div>
-          <div class="feat-body"><strong>Centralised Portal</strong>Everything in one place</div>
+
+        <div class="form-group">
+          <label class="form-label" for="fpwd">Password</label>
+          <div class="pwd-wrap">
+            <input class="form-input" id="fpwd" type="password" placeholder="Enter your password">
+            <button class="eye-btn" id="eyeBtn" type="button" onclick="togglePwd()" tabindex="-1"
+              aria-label="Toggle password visibility">
+              <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
         </div>
+
+        <button class="btn-submit s-btn" id="btnLogin" onclick="login()">Sign In →</button>
+
+        <div class="err-msg" id="errMsg">⚠ &nbsp;Invalid credentials. Please try again.</div>
+
+        <div class="hint-box">
+          <p>
+            <span class="hint-s">Eng Students :</span> ENG001 – ENG160 &nbsp;/&nbsp; student@123<br>
+            <span class="hint-t">Arts Students:</span> ART001 – ART120 &nbsp;/&nbsp; student@123<br><span
+              class="hint-t">Teachers &nbsp;:</span> TCH001 – TCH010 &nbsp;/&nbsp; teacher@123
+          </p>
+        </div>
+
       </div>
     </div>
+  </div>
 
-    <!-- RIGHT -->
-    <div class="panel-r">
-
-      <div class="role-tabs">
-        <button class="rtab active-s" id="tabS" onclick="sw('student')">🎓 &nbsp; Student</button>
-        <button class="rtab"          id="tabT" onclick="sw('teacher')">👨‍🏫 &nbsp; Teacher</button>
+  <!-- Server wake-up status bar -->
+  <div id="serverBar"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(10,12,28,.95);border-top:1px solid rgba(167,139,250,.2);padding:10px 20px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;color:rgba(238,242,255,.7);">
+    <span id="serverBarText">⏳ &nbsp;Server is starting up, please wait…</span>
+    <div style="margin-top:6px;height:3px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">
+      <div id="serverBarFill"
+        style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#ec4899);border-radius:4px;transition:width .4s ease;">
       </div>
-
-      <div class="login-head">
-        <h2 class="login-title" id="ltitle"><span class="tc">Student</span> Login</h2>
-        <p  class="login-sub"   id="lsub">Access your academic dashboard</p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="fuid">User ID</label>
-        <input class="form-input" id="fuid" type="text" placeholder="e.g. ENG001 or ART001" autocomplete="off">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="fpwd">Password</label>
-        <div class="pwd-wrap">
-          <input class="form-input" id="fpwd" type="password" placeholder="Enter your password">
-          <button class="eye-btn" id="eyeBtn" type="button" onclick="togglePwd()" tabindex="-1" aria-label="Toggle password visibility">
-            <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <button class="btn-submit s-btn" id="btnLogin" onclick="login()">Sign In →</button>
-
-      <div class="err-msg" id="errMsg">⚠ &nbsp;Invalid credentials. Please try again.</div>
-
-      <div class="hint-box">
-        <p>
-          <span class="hint-s">Eng Students :</span> ENG001 – ENG160 &nbsp;/&nbsp; student@123<br>
-          <span class="hint-t">Arts Students:</span> ART001 – ART120 &nbsp;/&nbsp; student@123<br><span class="hint-t">Teachers &nbsp;:</span> TCH001 – TCH010 &nbsp;/&nbsp; teacher@123
-        </p>
-      </div>
-
     </div>
   </div>
-</div>
 
-<!-- Server wake-up status bar -->
-<div id="serverBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(10,12,28,.95);border-top:1px solid rgba(167,139,250,.2);padding:10px 20px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;color:rgba(238,242,255,.7);">
-  <span id="serverBarText">⏳ &nbsp;Server is starting up, please wait…</span>
-  <div style="margin-top:6px;height:3px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">
-    <div id="serverBarFill" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#ec4899);border-radius:4px;transition:width .4s ease;"></div>
+  <script src="script.js"></script>
+
+  <!-- ── ADMIN PANEL BUTTON ── -->
+  <div style="position:fixed;bottom:20px;right:20px;z-index:998;">
+    <a href="management_login.html"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(185,28,28,.07));border:1px solid rgba(239,68,68,.28);border-radius:50px;padding:10px 18px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.74rem;font-weight:700;color:#fb7185;text-decoration:none;box-shadow:0 4px 20px rgba(239,68,68,.15);backdrop-filter:blur(10px);transition:all .25s;letter-spacing:.2px;"
+      onmouseover="this.style.background='linear-gradient(135deg,rgba(239,68,68,.22),rgba(185,28,28,.14))';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(239,68,68,.32)'"
+      onmouseout="this.style.background='linear-gradient(135deg,rgba(239,68,68,.12),rgba(185,28,28,.07))';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(239,68,68,.15)'">🛡️
+      <script src="script.js"></script>nbsp;Admin Panel
+    </a>
   </div>
-</div>
-
-<script src="script.js"></script>
 
 </body>
+
 </html>
