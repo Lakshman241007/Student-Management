@@ -881,6 +881,7 @@ function go(name) {
   document.getElementById('sb').classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (!_loaded[name] && LOADERS[name]) { _loaded[name] = true; LOADERS[name](); }
+  if (name === 'od-requests') loadOdRequests();
 }
 
 function signOut() { sessionStorage.clear(); window.location.href = 'index.html'; }
@@ -1086,13 +1087,6 @@ async function odAction(id, idx, action) {
   else if (_odTFilter === 'eng') filtered = _odAllReqs.filter(r => (r.student_id || '').startsWith('ENG'));
   else if (_odTFilter === 'art') filtered = _odAllReqs.filter(r => (r.student_id || '').startsWith('ART'));
   odRenderTeacherList(filtered);
-}
-
-/* ── Hook into teacher go() ───────────────────────────────────────────────── */
-const _tOrigGo = go;
-function go(name) {
-  _tOrigGo(name);
-  if (name === 'od-requests') loadOdRequests();
 }
 
 /* Update TITLES */

@@ -304,6 +304,7 @@ function go(name) {
   document.getElementById('ptitle').textContent = TITLES[name] || name;
   document.getElementById('sb').classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'od') odInit();
 }
 
 /* ── Change Password via API ─────────────────────────────────── */
@@ -746,13 +747,6 @@ function odUpdateStats(reqs) {
   document.getElementById('od-total').textContent = reqs.length;
   document.getElementById('od-approved').textContent = reqs.filter(r => r.status === 'approved').length;
   document.getElementById('od-pending').textContent = reqs.filter(r => !r.status || r.status === 'pending').length;
-}
-
-/* ── Hook into existing go() nav ──────────────────────────────────────────── */
-const _origGo = go;
-function go(name) {
-  _origGo(name);
-  if (name === 'od') odInit();
 }
 
 /* Update TITLES map */
