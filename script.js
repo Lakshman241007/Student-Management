@@ -1,4 +1,4 @@
-const API  = 'https://student-management-9ryk.onrender.com';
+const API = 'https://student-management-production-a94b.up.railway.app';
 let   role = 'student';
 
 /* ══════════════════════════════════════════════════════
