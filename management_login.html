@@ -398,28 +398,49 @@
         }
 
         @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0)
-            }
-
-            20% {
-                transform: translateX(-6px)
-            }
-
-            40% {
-                transform: translateX(6px)
-            }
-
-            60% {
-                transform: translateX(-4px)
-            }
-
-            80% {
-                transform: translateX(4px)
-            }
+            0%,100% { transform: translateX(0) }
+            20%     { transform: translateX(-6px) }
+            40%     { transform: translateX(6px) }
+            60%     { transform: translateX(-4px) }
+            80%     { transform: translateX(4px) }
         }
+
+        /* ── STEP PROGRESS ────────────────────────────── */
+        .login-steps {
+            display: flex; align-items: center; justify-content: center;
+            gap: 7px; margin-top: 13px; min-height: 18px;
+            opacity: 0; transition: opacity .3s;
+        }
+        .login-steps.show { opacity: 1; }
+        .ls-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(239,68,68,.18);
+            transition: background .3s, transform .3s;
+        }
+        .ls-dot.done { background: var(--red); transform: scale(1.3); }
+        .ls-dot.act  { background: var(--rose); animation: ls-beat .65s ease-in-out infinite; }
+        @keyframes ls-beat { 0%,100%{opacity:.35;transform:scale(1)} 50%{opacity:1;transform:scale(1.5)} }
+        .ls-label {
+            font-size: .63rem; color: rgba(255,241,242,.32);
+            font-family: 'JetBrains Mono', monospace; letter-spacing: .5px; margin-left: 4px;
+        }
+        /* Progress fill bar inside button */
+        .btn-bar {
+            position: absolute; bottom: 0; left: 0; height: 2px; width: 0%;
+            background: rgba(255,255,255,.4);
+            border-radius: 0 0 11px 11px;
+            transition: width .45s cubic-bezier(.4,0,.2,1);
+        }
+        /* Card goes green on success */
+        .card.success-flash {
+            border-color: rgba(52,211,153,.28) !important;
+            box-shadow: 0 0 0 1px rgba(52,211,153,.12),
+                        0 50px 100px rgba(0,0,0,.8),
+                        0 0 50px rgba(52,211,153,.08) inset !important;
+            transition: border-color .4s ease, box-shadow .4s ease;
+        }
+        /* Label tints red on input focus */
+        .fg:focus-within .fl { color: var(--rose); transition: color .2s; }
     </style>
 </head>
 
@@ -459,7 +480,16 @@
                     </button>
                 </div>
             </div>
-            <button class="btn" id="loginBtn" onclick="doLogin()">Access Admin Panel →</button>
+            <button class="btn" id="loginBtn" onclick="doLogin()">
+                Access Admin Panel →
+                <div class="btn-bar" id="btnBar"></div>
+            </button>
+            <div class="login-steps" id="loginSteps">
+                <div class="ls-dot" id="lsd0"></div>
+                <div class="ls-dot" id="lsd1"></div>
+                <div class="ls-dot" id="lsd2"></div>
+                <span class="ls-label" id="lsLabel"></span>
+            </div>
             <div class="err-box" id="errBox"></div>
             <div class="sec-note">🔒 &nbsp;Secured session · All actions are logged to Supabase</div>
         </div>
@@ -518,6 +548,27 @@
         function toggleEye() { const i = document.getElementById('apwd'), h = i.type === 'password'; i.type = h ? 'text' : 'password'; document.getElementById('eyeO').style.display = h ? 'none' : 'block'; document.getElementById('eyeC').style.display = h ? 'block' : 'none'; }
 
         const API = 'https://student-management-production-a94b.up.railway.app';
+        /* ── Step-progress helpers ── */
+        function setSteps(step, label) {
+            const steps = document.getElementById('loginSteps');
+            steps.classList.add('show');
+            document.getElementById('lsLabel').textContent = label || '';
+            [0, 1, 2].forEach(i => {
+                const d = document.getElementById('lsd' + i);
+                d.className = 'ls-dot';
+                if      (i < step)   d.classList.add('done');
+                else if (i === step) d.classList.add('act');
+            });
+            const bar = document.getElementById('btnBar');
+            if (bar) bar.style.width = ['12%', '55%', '88%', '100%'][Math.min(step, 3)];
+        }
+        function clearSteps() {
+            const steps = document.getElementById('loginSteps');
+            if (steps) steps.classList.remove('show');
+            const bar = document.getElementById('btnBar');
+            if (bar) bar.style.width = '0%';
+        }
+
         async function doLogin() {
             const uid = document.getElementById('auid').value.trim().toUpperCase();
             const pwd = document.getElementById('apwd').value;
@@ -528,21 +579,47 @@
             ['auid', 'apwd'].forEach(id => document.getElementById(id).classList.remove('err'));
             if (!uid) { showErr('Please enter your Admin ID.'); document.getElementById('auid').classList.add('err'); return; }
             if (!pwd) { showErr('Please enter your password.'); document.getElementById('apwd').classList.add('err'); return; }
-            btn.textContent = 'Verifying…'; btn.disabled = true;
+
+            btn.textContent = 'Connecting…'; btn.disabled = true;
+            setSteps(0, 'Connecting');
+
             try {
-                const res = await fetch(`${API}/api/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ admin_id: uid, password: pwd }) });
+                setSteps(1, 'Verifying');
+                btn.textContent = 'Verifying credentials…';
+                const res = await fetch(`${API}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id: uid, password: pwd })
+                });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok) {
+                    clearSteps();
                     ['auid', 'apwd'].forEach(id => document.getElementById(id).classList.add('err'));
                     document.getElementById('apwd').value = '';
                     showErr(data.detail || '❌ Invalid Admin ID or Password.');
-                    card.style.animation = 'none'; requestAnimationFrame(() => { card.style.animation = 'shake .4s ease'; }); setTimeout(() => card.style.animation = '', 450);
-                    btn.textContent = 'Access Admin Panel →'; btn.disabled = false; document.getElementById('auid').focus(); return;
+                    card.style.animation = 'none';
+                    requestAnimationFrame(() => { card.style.animation = 'shake .4s ease'; });
+                    setTimeout(() => card.style.animation = '', 450);
+                    btn.textContent = 'Access Admin Panel →'; btn.disabled = false;
+                    document.getElementById('auid').focus(); return;
                 }
-                sessionStorage.setItem('adminToken', data.token); sessionStorage.setItem('adminId', data.admin_id); sessionStorage.setItem('adminName', data.name); sessionStorage.setItem('token', data.token);
-                btn.textContent = '✓ Access Granted — Redirecting…';
-                setTimeout(() => window.location.href = 'management.html', 600);
-            } catch (e) { showErr('Connection failed. Is the server running?'); btn.textContent = 'Access Admin Panel →'; btn.disabled = false; }
+                setSteps(2, 'Authenticated');
+                btn.textContent = 'Loading dashboard…';
+                sessionStorage.setItem('adminToken', data.token);
+                sessionStorage.setItem('adminId',    data.admin_id);
+                sessionStorage.setItem('adminName',  data.name);
+                sessionStorage.setItem('token',      data.token);
+                setTimeout(() => {
+                    setSteps(3, '');
+                    card.classList.add('success-flash');
+                    btn.textContent = '✓ Access Granted — Redirecting…';
+                    setTimeout(() => window.location.href = 'management.html', 700);
+                }, 300);
+            } catch (e) {
+                clearSteps();
+                showErr('Connection failed. Is the server running?');
+                btn.textContent = 'Access Admin Panel →'; btn.disabled = false;
+            }
         }
         function showErr(msg) { const e = document.getElementById('errBox'); e.textContent = msg; e.style.display = 'block'; }
         document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });

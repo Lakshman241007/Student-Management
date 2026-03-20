@@ -1,149 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VelsPortal — Login</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VelsPortal — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ══ SIGN-IN PROGRESS OVERLAY ══════════════════════════════════ */
+.signin-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(5,8,16,0);
+  backdrop-filter: blur(0px) saturate(1);
+  pointer-events: none;
+  transition: background .45s ease, backdrop-filter .45s ease;
+}
+.signin-overlay.active {
+  background: rgba(5,8,16,.88);
+  backdrop-filter: blur(14px) saturate(1.4);
+  pointer-events: all;
+}
 
+.sp-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  opacity: 0; transform: scale(.9) translateY(14px);
+  transition: opacity .4s ease, transform .45s cubic-bezier(.16,1,.3,1);
+}
+.signin-overlay.active .sp-wrap { opacity: 1; transform: scale(1) translateY(0); }
+
+/* Spinner */
+.sp-ring { position: relative; width: 68px; height: 68px; }
+.sp-ring svg { width: 100%; height: 100%; animation: sp-spin 1.3s linear infinite; }
+.sp-ring circle {
+  fill: none; stroke-width: 2.8; stroke-linecap: round;
+  stroke-dasharray: 120; stroke-dashoffset: 90;
+  animation: sp-dash 1.3s ease-in-out infinite;
+}
+.sp-ring.s circle { stroke: #38bdf8; filter: drop-shadow(0 0 6px rgba(56,189,248,.6)); }
+.sp-ring.t circle { stroke: #a78bfa; filter: drop-shadow(0 0 6px rgba(167,139,250,.6)); }
+@keyframes sp-spin { to { transform: rotate(360deg); } }
+@keyframes sp-dash { 0%{stroke-dashoffset:115} 50%{stroke-dashoffset:25} 100%{stroke-dashoffset:115} }
+
+/* Checkmark */
+.sp-check {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; font-weight: 700;
+  transform: scale(0) rotate(-20deg);
+  transition: transform .5s cubic-bezier(.34,1.56,.64,1);
+}
+.sp-check.show { transform: scale(1) rotate(0deg); }
+.sp-check.s { background: rgba(56,189,248,.12); border: 1.5px solid rgba(56,189,248,.4); color: #38bdf8; box-shadow: 0 0 30px rgba(56,189,248,.25); }
+.sp-check.t { background: rgba(167,139,250,.12); border: 1.5px solid rgba(167,139,250,.4); color: #a78bfa; box-shadow: 0 0 30px rgba(167,139,250,.25); }
+
+.sp-label { font-size: .98rem; font-weight: 700; color: rgba(238,242,255,.9); letter-spacing: .1px; }
+.sp-sub   { font-size: .72rem; color: rgba(238,242,255,.38); font-family: 'JetBrains Mono',monospace; margin-top:-10px; }
+
+/* Step dots */
+.sp-dots { display: flex; gap: 8px; margin-top: 2px; }
+.sp-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(238,242,255,.12);
+  transition: background .3s, transform .3s, width .3s;
+}
+.sp-dot.act { background: rgba(238,242,255,.45); animation: dot-beat .75s ease-in-out infinite; }
+.sp-dot.done-s { background: #38bdf8; transform: scale(1.15); }
+.sp-dot.done-t { background: #a78bfa; transform: scale(1.15); }
+@keyframes dot-beat { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.35)} }
+
+/* ══ ADMIN FAB ══════════════════════════════════════════════════ */
+.admin-fab {
+  position: fixed; bottom: 24px; right: 24px; z-index: 998;
+  display: inline-flex; align-items: center; gap: 9px;
+  background: linear-gradient(135deg, rgba(239,68,68,.13), rgba(185,28,28,.08));
+  border: 1px solid rgba(239,68,68,.3);
+  border-radius: 100px; padding: 11px 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .74rem; font-weight: 700; color: #fb7185;
+  text-decoration: none; letter-spacing: .2px;
+  box-shadow: 0 4px 24px rgba(239,68,68,.18);
+  backdrop-filter: blur(14px);
+  transition: background .25s, transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+  animation: fab-rise .9s cubic-bezier(.16,1,.3,1) 1.2s both;
+}
+@keyframes fab-rise {
+  from { opacity:0; transform:translateY(20px) scale(.85); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+.admin-fab:hover {
+  background: linear-gradient(135deg, rgba(239,68,68,.24), rgba(185,28,28,.16));
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 32px rgba(239,68,68,.35), 0 0 0 4px rgba(239,68,68,.08);
+}
+.admin-fab:active { transform: translateY(-1px) scale(1); }
+.admin-fab-blink {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #fb7185;
+  box-shadow: 0 0 6px rgba(251,113,133,.8);
+  animation: admin-blink 2s steps(1) infinite;
+}
+@keyframes admin-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+/* ══ MISC POLISH ════════════════════════════════════════════════ */
+/* Smooth focus ring on inputs */
+.form-input { transition: border-color .2s, background .2s, box-shadow .25s; }
+
+/* Animated underline on form-label */
+.form-label { transition: color .2s; }
+.form-group:focus-within .form-label { color: var(--cyan); }
+.form-group.t-focus .form-label { color: var(--violet) !important; }
+
+/* Hint rows even spacing */
+.hint-box p { line-height: 2.1; }
+
+/* Button press micro-feedback */
+.btn-submit:active { transform: translateY(1px) !important; }
+</style>
+</head>
 <body>
 
-  <!-- BG -->
-  <div class="bg-layer">
-    <div class="bg-mesh"></div>
-    <div class="bg-dots"></div>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+<!-- BG -->
+<div class="bg-layer">
+  <div class="bg-mesh"></div>
+  <div class="bg-dots"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- ══ SIGN-IN OVERLAY ══ -->
+<div class="signin-overlay" id="signinOverlay">
+  <div class="sp-wrap">
+    <!-- spinner shown during loading -->
+    <div id="spSpinWrap">
+      <div class="sp-ring s" id="spRing">
+        <svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20"/></svg>
+      </div>
+    </div>
+    <!-- check shown on success -->
+    <div id="spChkWrap" style="display:none">
+      <div class="sp-check s" id="spCheck">✓</div>
+    </div>
+
+    <div class="sp-label" id="spLabel">Signing in…</div>
+    <div class="sp-sub"   id="spSub">Contacting server</div>
+
+    <div class="sp-dots">
+      <div class="sp-dot act" id="spd0"></div>
+      <div class="sp-dot"     id="spd1"></div>
+      <div class="sp-dot"     id="spd2"></div>
+    </div>
   </div>
+</div>
 
-  <!-- ── INSTITUTION HEADER ────────────────────────── -->
-  <header class="inst-header">
-    <div class="inst-pill">🏛 &nbsp; NAAC Accredited · Grade A++</div>
-    <h1 class="inst-name">VELS Institution Of Science, Technology <span class="hi">&amp; Advanced Studies</span></h1>
-    <p class="inst-sub">Deemed to the University &nbsp; Estd. u/s 3 of the UGC Act, 1956</p>
-  </header>
+<!-- ── INSTITUTION HEADER ── -->
+<header class="inst-header">
+  <div class="inst-pill">🏛 &nbsp; NAAC Accredited · Grade A++</div>
+  <h1 class="inst-name">VELS Institution Of Science, Technology <span class="hi">&amp; Advanced Studies</span></h1>
+  <p class="inst-sub">Deemed to the University &nbsp; Estd. u/s 3 of the UGC Act, 1956</p>
+</header>
 
-  <!-- ── LOGIN CARD ────────────────────────────────── -->
-  <div class="page-body">
-    <div class="login-card">
+<!-- ── LOGIN CARD ── -->
+<div class="page-body">
+  <div class="login-card">
 
-      <!-- LEFT -->
-      <div class="panel-l">
-        <div>
-          <div class="brand">
-            <div class="brand-icon">🎓</div>
-            <div class="brand-name">Vels<em>Portal</em></div>
-          </div>
-        </div>
-
-        <p class="tagline"><strong>Your academic life,</strong><br>beautifully organised.</p>
-
-        <div class="features">
-          <div class="feat">
-            <div class="feat-icon fi-c">📋</div>
-            <div class="feat-body"><strong>Academic Records</strong>Semester subjects &amp; results</div>
-          </div>
-          <div class="feat">
-            <div class="feat-icon fi-v">📊</div>
-            <div class="feat-body"><strong>Live Analytics</strong>Marks, CGPA &amp; attendance</div>
-          </div>
-          <div class="feat">
-            <div class="feat-icon fi-p">🔒</div>
-            <div class="feat-body"><strong>Secure Roles</strong>Student &amp; faculty access</div>
-          </div>
-          <div class="feat">
-            <div class="feat-icon fi-e">🏫</div>
-            <div class="feat-body"><strong>Centralised Portal</strong>Everything in one place</div>
-          </div>
+    <!-- LEFT -->
+    <div class="panel-l">
+      <div>
+        <div class="brand">
+          <div class="brand-icon">🎓</div>
+          <div class="brand-name">Vels<em>Portal</em></div>
         </div>
       </div>
 
-      <!-- RIGHT -->
-      <div class="panel-r">
+      <p class="tagline"><strong>Your academic life,</strong><br>beautifully organised.</p>
 
-        <div class="role-tabs">
-          <button class="rtab active-s" id="tabS" onclick="sw('student')">🎓 &nbsp; Student</button>
-          <button class="rtab" id="tabT" onclick="sw('teacher')">👨‍🏫 &nbsp; Teacher</button>
+      <div class="features">
+        <div class="feat">
+          <div class="feat-icon fi-c">📋</div>
+          <div class="feat-body"><strong>Academic Records</strong>Semester subjects &amp; results</div>
         </div>
-
-        <div class="login-head">
-          <h2 class="login-title" id="ltitle"><span class="tc">Student</span> Login</h2>
-          <p class="login-sub" id="lsub">Access your academic dashboard</p>
+        <div class="feat">
+          <div class="feat-icon fi-v">📊</div>
+          <div class="feat-body"><strong>Live Analytics</strong>Marks, CGPA &amp; attendance</div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="fuid">User ID</label>
-          <input class="form-input" id="fuid" type="text" placeholder="e.g. ENG001 or ART001" autocomplete="off">
+        <div class="feat">
+          <div class="feat-icon fi-p">🔒</div>
+          <div class="feat-body"><strong>Secure Roles</strong>Student &amp; faculty access</div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="fpwd">Password</label>
-          <div class="pwd-wrap">
-            <input class="form-input" id="fpwd" type="password" placeholder="Enter your password">
-            <button class="eye-btn" id="eyeBtn" type="button" onclick="togglePwd()" tabindex="-1"
-              aria-label="Toggle password visibility">
-              <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                style="display:none">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                <line x1="1" y1="1" x2="23" y2="23" />
-              </svg>
-            </button>
-          </div>
+        <div class="feat">
+          <div class="feat-icon fi-e">🏫</div>
+          <div class="feat-body"><strong>Centralised Portal</strong>Everything in one place</div>
         </div>
+      </div>
+    </div>
 
-        <button class="btn-submit s-btn" id="btnLogin" onclick="login()">Sign In →</button>
+    <!-- RIGHT -->
+    <div class="panel-r">
+      <div class="role-tabs">
+        <button class="rtab active-s" id="tabS" onclick="sw('student')">🎓 &nbsp; Student</button>
+        <button class="rtab"          id="tabT" onclick="sw('teacher')">👨‍🏫 &nbsp; Teacher</button>
+      </div>
 
-        <div class="err-msg" id="errMsg">⚠ &nbsp;Invalid credentials. Please try again.</div>
+      <div class="login-head">
+        <h2 class="login-title" id="ltitle"><span class="tc">Student</span> Login</h2>
+        <p  class="login-sub"   id="lsub">Access your academic dashboard</p>
+      </div>
 
-        <div class="hint-box">
-          <p>
-            <span class="hint-s">Eng Students :</span> ENG001 – ENG160 &nbsp;/&nbsp; student@123<br>
-            <span class="hint-t">Arts Students:</span> ART001 – ART120 &nbsp;/&nbsp; student@123<br><span
-              class="hint-t">Teachers &nbsp;:</span> TCH001 – TCH010 &nbsp;/&nbsp; teacher@123
-          </p>
+      <div class="form-group" id="fgUid">
+        <label class="form-label" for="fuid">User ID</label>
+        <input class="form-input" id="fuid" type="text"
+               placeholder="e.g. ENG001 or ART001"
+               autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="form-group" id="fgPwd">
+        <label class="form-label" for="fpwd">Password</label>
+        <div class="pwd-wrap">
+          <input class="form-input" id="fpwd" type="password"
+                 placeholder="Enter your password"
+                 autocomplete="current-password">
+          <button class="eye-btn" id="eyeBtn" type="button"
+                  onclick="togglePwd()" tabindex="-1" aria-label="Toggle password visibility">
+            <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
         </div>
+      </div>
 
+      <button class="btn-submit s-btn" id="btnLogin" onclick="login()">Sign In →</button>
+
+      <div class="err-msg" id="errMsg"></div>
+
+      <div class="hint-box">
+        <p>
+          <span class="hint-s">Eng Students :</span> ENG001 – ENG160 &nbsp;/&nbsp; student@123<br>
+          <span class="hint-t">Arts Students:</span> ART001 – ART120 &nbsp;/&nbsp; student@123<br>
+          <span class="hint-t">Teachers &nbsp;&nbsp;:</span> TCH001 – TCH010 &nbsp;/&nbsp; teacher@123
+        </p>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Server wake-up status bar -->
-  <div id="serverBar"
-    style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(10,12,28,.95);border-top:1px solid rgba(167,139,250,.2);padding:10px 20px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;color:rgba(238,242,255,.7);">
-    <span id="serverBarText">⏳ &nbsp;Server is starting up, please wait…</span>
-    <div style="margin-top:6px;height:3px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">
-      <div id="serverBarFill"
-        style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#ec4899);border-radius:4px;transition:width .4s ease;">
-      </div>
-    </div>
+<!-- Server wake-up bar -->
+<div id="serverBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(10,12,28,.95);border-top:1px solid rgba(167,139,250,.2);padding:10px 20px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;color:rgba(238,242,255,.7);">
+  <span id="serverBarText">⏳ &nbsp;Server is starting up, please wait…</span>
+  <div style="margin-top:6px;height:3px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">
+    <div id="serverBarFill" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#ec4899);border-radius:4px;transition:width .4s ease;"></div>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<!-- ══ ADMIN FAB ══ -->
+<a class="admin-fab" href="management_login.html">
+  <div class="admin-fab-blink"></div>
+  🛡️ Admin Panel
+</a>
 
-  <!-- ── ADMIN PANEL BUTTON ── -->
-  <div style="position:fixed;bottom:20px;right:20px;z-index:998;">
-    <a href="management_login.html"
-      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(185,28,28,.07));border:1px solid rgba(239,68,68,.28);border-radius:50px;padding:10px 18px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.74rem;font-weight:700;color:#fb7185;text-decoration:none;box-shadow:0 4px 20px rgba(239,68,68,.15);backdrop-filter:blur(10px);transition:all .25s;letter-spacing:.2px;"
-      onmouseover="this.style.background='linear-gradient(135deg,rgba(239,68,68,.22),rgba(185,28,28,.14))';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(239,68,68,.32)'"
-      onmouseout="this.style.background='linear-gradient(135deg,rgba(239,68,68,.12),rgba(185,28,28,.07))';this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(239,68,68,.15)'">🛡️
-      <script src="script.js"></script>nbsp;Admin Panel
-    </a>
-  </div>
+<script src="script.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════
+   SIGN-IN OVERLAY CONTROLLER
+   Hooks into script.js without modifying it — patches
+   setBtn() to drive the overlay at each login stage.
+══════════════════════════════════════════════════════ */
 
+/* Colour palette keyed to role */
+const ROLE_COLOURS = {
+  student: { done: 'done-s', ring: 's', check: 's' },
+  teacher: { done: 'done-t', ring: 't', check: 't' },
+};
+
+/* Track current role (sw() updates this) */
+let _overlayRole = 'student';
+const _origSw = window.sw;
+window.sw = function(r) {
+  _overlayRole = r;
+  /* Update ring + check colours immediately */
+  document.getElementById('spRing').className  = 'sp-ring '  + ROLE_COLOURS[r].ring;
+  document.getElementById('spCheck').className = 'sp-check ' + ROLE_COLOURS[r].check;
+  _origSw(r);
+};
+
+/* Dot state helper */
+function setDots(step) {
+  const dc = ROLE_COLOURS[_overlayRole].done;
+  [0,1,2].forEach(i => {
+    const d = document.getElementById('spd'+i);
+    d.className = 'sp-dot';
+    if      (i < step)  d.classList.add(dc);
+    else if (i === step) d.classList.add('act');
+  });
+}
+
+/* Show overlay with spinner */
+function overlaySpinner(label, sub, step) {
+  document.getElementById('spSpinWrap').style.display = 'block';
+  document.getElementById('spChkWrap').style.display  = 'none';
+  document.getElementById('spLabel').textContent = label;
+  document.getElementById('spSub').textContent   = sub;
+  setDots(step);
+  document.getElementById('signinOverlay').classList.add('active');
+}
+
+/* Show overlay with success check */
+function overlaySuccess(label) {
+  document.getElementById('spSpinWrap').style.display = 'none';
+  document.getElementById('spChkWrap').style.display  = 'block';
+  document.getElementById('spLabel').textContent = label;
+  document.getElementById('spSub').textContent   = 'Loading your dashboard…';
+  setDots(3); /* all done */
+  const chk = document.getElementById('spCheck');
+  chk.className = 'sp-check ' + ROLE_COLOURS[_overlayRole].check;
+  requestAnimationFrame(() => setTimeout(() => chk.classList.add('show'), 30));
+}
+
+/* Hide overlay and reset for next use */
+function overlayHide() {
+  const ov = document.getElementById('signinOverlay');
+  ov.classList.remove('active');
+  setTimeout(() => {
+    document.getElementById('spSpinWrap').style.display = 'block';
+    document.getElementById('spChkWrap').style.display  = 'none';
+    document.getElementById('spCheck').classList.remove('show');
+    setDots(0);
+  }, 420);
+}
+
+/* ── Patch setBtn() — script.js calls this at every login stage ── */
+const _origSetBtn = window.setBtn;
+window.setBtn = function(state) {
+  _origSetBtn(state); /* always let original run first */
+
+  switch(state) {
+    case 'waiting':
+      overlaySpinner('Waking server…', 'First load can take ~60 seconds', 0);
+      break;
+    case 'loading':
+      overlaySpinner('Verifying credentials…', 'Checking your ID & password', 1);
+      break;
+    case 'success':
+      overlaySuccess(_overlayRole === 'student' ? '✓ Welcome back!' : '✓ Welcome, Faculty!');
+      break;
+    case 'idle':
+      /* Only hide if it was visible (on error) */
+      overlayHide();
+      break;
+  }
+};
+
+/* ── Show overlay immediately when login() is called with valid input ──
+   We intercept the button click to show step-0 instantly,
+   before any async happens, so there's zero delay feel.             */
+const loginBtn = document.getElementById('btnLogin');
+loginBtn.addEventListener('click', () => {
+  const uid = document.getElementById('fuid').value.trim();
+  const pwd = document.getElementById('fpwd').value;
+  /* Only show overlay if basic validation will pass */
+  if (uid && pwd) {
+    const isStudentId = /^(ENG|ART)\d{3}$/i.test(uid);
+    const isTeacherId = /^TCH\d{3}$/i.test(uid);
+    if ((isStudentId || isTeacherId) &&
+        !(_overlayRole === 'teacher' && isStudentId) &&
+        !(_overlayRole === 'student' && isTeacherId)) {
+      overlaySpinner('Connecting…', 'Reaching the server', 0);
+    }
+  }
+}, true); /* capture phase — fires before onclick */
+
+/* ── form-group teacher label tint ── */
+const origSw2 = window.sw;
+window.sw = function(r) {
+  origSw2(r);
+  document.querySelectorAll('.form-group').forEach(fg => {
+    fg.classList.toggle('t-focus', r === 'teacher');
+  });
+};
+
+/* ── Keyboard: Enter key hides overlay on error ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') overlayHide();
+});
+</script>
 </body>
-
 </html>
