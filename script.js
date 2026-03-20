@@ -3,24 +3,22 @@ let   role = 'student';
 
 /* ══════════════════════════════════════════════════════
    SERVER WAKE-UP MANAGER
-   Pings /api/health every 2s on page load.
-   Shows a bottom bar with progress.
-   Once server is alive → bar disappears silently.
-   If login is attempted while server is still sleeping →
-   waits for it to wake then submits automatically.
+   — Pings every 2s, no hard timeout (Render can take 2–3min)
+   — Progress bar animates with a shimmer while waiting
+   — "Retry" button appears after 45s if still sleeping
+   — Login queues itself and fires the moment server wakes
 ══════════════════════════════════════════════════════ */
 let serverAlive    = false;
-let wakeListeners  = [];   // callbacks to fire once server is up
-let wakeProgress   = 0;
+let wakeListeners  = [];
 let wakeInterval   = null;
 let wakeBarVisible = false;
-const WAKE_TIMEOUT = 60000; // give up after 60s
-const PING_EVERY   = 2000;
+let wakeStart      = null;
+const PING_EVERY   = 2500;
 
 function showWakeBar(msg) {
   const bar = document.getElementById('serverBar');
   if (bar) { bar.style.display = 'block'; wakeBarVisible = true; }
-  setWakeMsg(msg || '⏳ &nbsp;Server is starting up, please wait…');
+  setWakeMsg(msg);
 }
 function hideWakeBar() {
   const bar = document.getElementById('serverBar');
@@ -32,68 +30,73 @@ function setWakeMsg(msg) {
 }
 function setWakeFill(pct) {
   const el = document.getElementById('serverBarFill');
-  if (el) el.style.width = Math.min(pct, 98) + '%';
+  if (el) el.style.width = Math.min(pct, 100) + '%';
 }
 
 async function pingServer() {
   try {
     const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 4000);
+    setTimeout(() => ctrl.abort(), 5000);
     const res = await fetch(`${API}/api/health`, { signal: ctrl.signal });
     if (res.ok) return true;
   } catch (_) {}
   return false;
 }
 
+function onServerAlive() {
+  clearInterval(wakeInterval);
+  serverAlive = true;
+  setWakeFill(100);
+  setWakeMsg('✅ &nbsp;Server is ready!');
+  setTimeout(hideWakeBar, 1400);
+  wakeListeners.forEach(fn => fn());
+  wakeListeners = [];
+}
+
 async function startWakeUp() {
-  /* Quick first ping */
   const alive = await pingServer();
-  if (alive) {
-    serverAlive = true;
-    return; /* Server already awake — nothing to show */
-  }
+  if (alive) { serverAlive = true; return; }
 
-  /* Server is sleeping — show bar and keep pinging */
-  showWakeBar('⏳ &nbsp;Server is starting up, please wait…');
-  const startTime = Date.now();
+  /* Server sleeping — show bar */
+  wakeStart = Date.now();
+  showWakeBar('⏳ &nbsp;Server is starting up — this may take up to 2 minutes on first load…');
 
+  /* Shimmer progress: crawls to 90% over ~90s, never reaches 100 until truly alive */
   wakeInterval = setInterval(async () => {
-    const elapsed = Date.now() - startTime;
-    wakeProgress  = Math.min((elapsed / WAKE_TIMEOUT) * 100, 95);
-    setWakeFill(wakeProgress);
+    const elapsed = Date.now() - wakeStart;
+    /* Logarithmic fill — fast at first, slows down, caps at 88% */
+    const pct = Math.min(88, Math.log1p(elapsed / 1000) / Math.log1p(120) * 88);
+    setWakeFill(pct);
 
-    if (elapsed > WAKE_TIMEOUT) {
-      clearInterval(wakeInterval);
-      setWakeMsg('⚠ &nbsp;Server taking too long. Try refreshing the page.');
-      return;
+    /* Show retry hint after 45s */
+    if (elapsed > 45000 && elapsed < 47500) {
+      setWakeMsg(
+        '⏳ &nbsp;Still starting up… &nbsp;' +
+        '<button onclick="retryNow()" style="background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.4);' +
+        'color:#c4b5fd;padding:2px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit">Retry now</button>'
+      );
     }
 
     const ok = await pingServer();
-    if (ok) {
-      clearInterval(wakeInterval);
-      serverAlive = true;
-      setWakeFill(100);
-      setWakeMsg('✅ &nbsp;Server is ready!');
-      setTimeout(hideWakeBar, 1200);
-
-      /* Fire any login attempts that were queued */
-      wakeListeners.forEach(fn => fn());
-      wakeListeners = [];
-    }
+    if (ok) onServerAlive();
   }, PING_EVERY);
 }
 
-/* Wait for server to be alive, or resolve immediately if already up */
+async function retryNow() {
+  setWakeMsg('⏳ &nbsp;Trying to connect…');
+  const ok = await pingServer();
+  if (ok) { onServerAlive(); }
+  else { setWakeMsg('⏳ &nbsp;Still starting… please wait a little longer.'); }
+}
+
 function waitForServer() {
   return new Promise(resolve => {
     if (serverAlive) { resolve(); return; }
     wakeListeners.push(resolve);
-    /* Make sure wake-up bar is visible if not already */
-    if (!wakeBarVisible) showWakeBar('⏳ &nbsp;Waiting for server to wake up…');
+    if (!wakeBarVisible) showWakeBar('⏳ &nbsp;Waiting for server — your login will fire automatically…');
   });
 }
 
-/* Start pinging immediately on page load */
 startWakeUp();
 
 /* ══════════════════════════════════════════════════════
@@ -154,10 +157,10 @@ function clearFieldErr(id) {
 function setBtn(state) {
   const btn = document.getElementById('btnLogin');
   const map = {
-    idle:    { text: 'Sign In →',         disabled: false, opacity: '1'   },
-    loading: { text: 'Signing in…',       disabled: true,  opacity: '.75' },
-    waiting: { text: 'Waiting for server…', disabled: true, opacity: '.75' },
-    success: { text: '✓ Redirecting…',    disabled: true,  opacity: '.9'  },
+    idle:    { text: 'Sign In →',              disabled: false, opacity: '1'   },
+    loading: { text: 'Signing in…',            disabled: true,  opacity: '.75' },
+    waiting: { text: '⏳ Waiting for server…', disabled: true,  opacity: '.75' },
+    success: { text: '✓ Redirecting…',         disabled: true,  opacity: '.9'  },
   };
   const s = map[state] || map.idle;
   btn.textContent   = s.text;
@@ -180,7 +183,7 @@ function resetAllFields() {
   clearFieldErr('fpwd');
 }
 
-/* ── Input listeners ─────────────────────────────── */
+/* ── Input listeners ──────────────────────────────── */
 document.getElementById('fuid').addEventListener('input', function () {
   const pos = this.selectionStart;
   const val = this.value.toUpperCase().replace(/\s/g, '');
@@ -189,13 +192,12 @@ document.getElementById('fuid').addEventListener('input', function () {
   clearFieldErr('fuid');
   hideErr();
 });
-
 document.getElementById('fpwd').addEventListener('input', function () {
   clearFieldErr('fpwd');
   hideErr();
 });
 
-/* ── Password visibility toggle ─────────────────── */
+/* ── Password toggle ──────────────────────────────── */
 function togglePwd() {
   const input     = document.getElementById('fpwd');
   const eyeOpen   = document.getElementById('eyeOpen');
@@ -217,48 +219,35 @@ async function login() {
 
   hideErr();
 
-  /* Client-side validation — no network needed */
   if (!uid) {
-    fieldErr('fuid');
-    showErr('Please enter your User ID.');
-    document.getElementById('fuid').focus();
-    return;
+    fieldErr('fuid'); showErr('Please enter your User ID.');
+    document.getElementById('fuid').focus(); return;
   }
   if (!pwd) {
-    fieldErr('fpwd');
-    showErr('Please enter your password.');
-    document.getElementById('fpwd').focus();
-    return;
+    fieldErr('fpwd'); showErr('Please enter your password.');
+    document.getElementById('fpwd').focus(); return;
   }
 
   const isStudentId = /^(ENG|ART)\d{3}$/i.test(uid);
   const isTeacherId = /^TCH\d{3}$/i.test(uid);
 
   if (!isStudentId && !isTeacherId) {
-    fieldErr('fuid');
-    showErr('ID format invalid. Use ENG001, ART001, or TCH001.');
-    document.getElementById('fuid').focus();
-    return;
+    fieldErr('fuid'); showErr('ID format invalid. Use ENG001, ART001, or TCH001.');
+    document.getElementById('fuid').focus(); return;
   }
   if (role === 'teacher' && isStudentId) {
-    fieldErr('fuid');
-    showErr('That looks like a student ID — switch to the Student tab.');
-    document.getElementById('fuid').focus();
-    return;
+    fieldErr('fuid'); showErr('That looks like a student ID — switch to the Student tab.');
+    document.getElementById('fuid').focus(); return;
   }
   if (role === 'student' && isTeacherId) {
-    fieldErr('fuid');
-    showErr('That looks like a teacher ID — switch to the Teacher tab.');
-    document.getElementById('fuid').focus();
-    return;
+    fieldErr('fuid'); showErr('That looks like a teacher ID — switch to the Teacher tab.');
+    document.getElementById('fuid').focus(); return;
   }
 
-  /* If server is still waking up, queue the login */
+  /* Queue login if server still waking */
   if (!serverAlive) {
     setBtn('waiting');
-    showWakeBar('⏳ &nbsp;Server is waking up — your login will submit automatically…');
     await waitForServer();
-    /* Server is now alive — proceed */
     hideErr();
   }
 
@@ -276,16 +265,13 @@ async function login() {
     });
 
     if (res.status === 401) {
-      fieldErr('fuid');
-      fieldErr('fpwd');
+      fieldErr('fuid'); fieldErr('fpwd');
       resetAllFields();
       throw new Error('Incorrect User ID or Password. Please try again.');
     }
-
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      resetPwdField();
-      fieldErr('fpwd');
+      resetPwdField(); fieldErr('fpwd');
       throw new Error(body.detail || `Server error (${res.status}). Please try again.`);
     }
 
@@ -302,11 +288,7 @@ async function login() {
     }, 350);
 
   } catch (e) {
-    showErr(
-      e.name === 'AbortError'
-        ? 'Request timed out. Please try again.'
-        : e.message
-    );
+    showErr(e.name === 'AbortError' ? 'Request timed out. Please try again.' : e.message);
     setBtn('idle');
     document.getElementById('fuid').focus();
   }
