@@ -1,4 +1,4 @@
-  /* ── TOKENS ─────────────────────────────────── */
+/* ── TOKENS ─────────────────────────────────── */
   :root {
       --bg: #050810;
       --surface: #0c1124;
@@ -616,3 +616,58 @@
           transform: translateX(4px);
       }
   }
+/* ── PASSWORD VISIBILITY TOGGLE ─────────────────── */
+.pwd-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pwd-wrap .form-input {
+    padding-right: 48px;  /* room for the eye icon */
+}
+
+.eye-btn {
+    position: absolute;
+    right: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--faint);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color .2s, background .2s;
+    line-height: 0;
+}
+
+.eye-btn:hover {
+    color: var(--cyan);
+    background: rgba(56, 189, 248, .08);
+}
+
+.eye-btn:active {
+    transform: scale(.9);
+}
+
+.eye-btn.t-mode:hover {
+    color: var(--violet);
+    background: rgba(167, 139, 250, .08);
+}
+/* ── FIELD ERROR STATE ───────────────────────────── */
+.form-input.input-error {
+    border-color: var(--red) !important;
+    background: rgba(248, 113, 113, .06) !important;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, .12) !important;
+    animation: field-pulse .35s ease;
+}
+
+@keyframes field-pulse {
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(-4px); }
+    50%  { transform: translateX(4px); }
+    75%  { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
