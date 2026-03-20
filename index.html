@@ -112,6 +112,14 @@
   </div>
 </div>
 
+<!-- Server wake-up status bar -->
+<div id="serverBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:rgba(10,12,28,.95);border-top:1px solid rgba(167,139,250,.2);padding:10px 20px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;color:rgba(238,242,255,.7);">
+  <span id="serverBarText">⏳ &nbsp;Server is starting up, please wait…</span>
+  <div style="margin-top:6px;height:3px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;">
+    <div id="serverBarFill" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#ec4899);border-radius:4px;transition:width .4s ease;"></div>
+  </div>
+</div>
+
 <script src="script.js"></script>
 
 </body>

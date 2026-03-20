@@ -1,32 +1,104 @@
 const API  = 'https://student-management-9ryk.onrender.com';
 let   role = 'student';
 
-(function warmUp() {
-  fetch(`${API}/api/health`, { method: 'GET' }).catch(() => {});
-})();
+/* ══════════════════════════════════════════════════════
+   SERVER WAKE-UP MANAGER
+   Pings /api/health every 2s on page load.
+   Shows a bottom bar with progress.
+   Once server is alive → bar disappears silently.
+   If login is attempted while server is still sleeping →
+   waits for it to wake then submits automatically.
+══════════════════════════════════════════════════════ */
+let serverAlive    = false;
+let wakeListeners  = [];   // callbacks to fire once server is up
+let wakeProgress   = 0;
+let wakeInterval   = null;
+let wakeBarVisible = false;
+const WAKE_TIMEOUT = 60000; // give up after 60s
+const PING_EVERY   = 2000;
 
-async function fetchWithRetry(url, options, timeoutMs = 18000, retries = 1) {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController();
-    const timer      = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const res = await fetch(url, { ...options, signal: controller.signal });
-      clearTimeout(timer);
-      return res;
-    } catch (err) {
-      clearTimeout(timer);
-      const isLast = attempt === retries;
-      if (isLast) {
-        if (err.name === 'AbortError') {
-          throw new Error('Server is waking up — please wait a moment and try again.');
-        }
-        throw new Error('Could not reach the server. Check your internet and try again.');
-      }
-      await new Promise(r => setTimeout(r, 1500));
-    }
-  }
+function showWakeBar(msg) {
+  const bar = document.getElementById('serverBar');
+  if (bar) { bar.style.display = 'block'; wakeBarVisible = true; }
+  setWakeMsg(msg || '⏳ &nbsp;Server is starting up, please wait…');
+}
+function hideWakeBar() {
+  const bar = document.getElementById('serverBar');
+  if (bar) { bar.style.display = 'none'; wakeBarVisible = false; }
+}
+function setWakeMsg(msg) {
+  const el = document.getElementById('serverBarText');
+  if (el) el.innerHTML = msg;
+}
+function setWakeFill(pct) {
+  const el = document.getElementById('serverBarFill');
+  if (el) el.style.width = Math.min(pct, 98) + '%';
 }
 
+async function pingServer() {
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 4000);
+    const res = await fetch(`${API}/api/health`, { signal: ctrl.signal });
+    if (res.ok) return true;
+  } catch (_) {}
+  return false;
+}
+
+async function startWakeUp() {
+  /* Quick first ping */
+  const alive = await pingServer();
+  if (alive) {
+    serverAlive = true;
+    return; /* Server already awake — nothing to show */
+  }
+
+  /* Server is sleeping — show bar and keep pinging */
+  showWakeBar('⏳ &nbsp;Server is starting up, please wait…');
+  const startTime = Date.now();
+
+  wakeInterval = setInterval(async () => {
+    const elapsed = Date.now() - startTime;
+    wakeProgress  = Math.min((elapsed / WAKE_TIMEOUT) * 100, 95);
+    setWakeFill(wakeProgress);
+
+    if (elapsed > WAKE_TIMEOUT) {
+      clearInterval(wakeInterval);
+      setWakeMsg('⚠ &nbsp;Server taking too long. Try refreshing the page.');
+      return;
+    }
+
+    const ok = await pingServer();
+    if (ok) {
+      clearInterval(wakeInterval);
+      serverAlive = true;
+      setWakeFill(100);
+      setWakeMsg('✅ &nbsp;Server is ready!');
+      setTimeout(hideWakeBar, 1200);
+
+      /* Fire any login attempts that were queued */
+      wakeListeners.forEach(fn => fn());
+      wakeListeners = [];
+    }
+  }, PING_EVERY);
+}
+
+/* Wait for server to be alive, or resolve immediately if already up */
+function waitForServer() {
+  return new Promise(resolve => {
+    if (serverAlive) { resolve(); return; }
+    wakeListeners.push(resolve);
+    /* Make sure wake-up bar is visible if not already */
+    if (!wakeBarVisible) showWakeBar('⏳ &nbsp;Waiting for server to wake up…');
+  });
+}
+
+/* Start pinging immediately on page load */
+startWakeUp();
+
+/* ══════════════════════════════════════════════════════
+   TAB SWITCHER
+══════════════════════════════════════════════════════ */
 function sw(r) {
   role = r;
   const s = r === 'student';
@@ -49,6 +121,9 @@ function sw(r) {
   uid.focus();
 }
 
+/* ══════════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════════ */
 function hideErr() {
   const e = document.getElementById('errMsg');
   e.style.display = 'none';
@@ -79,10 +154,10 @@ function clearFieldErr(id) {
 function setBtn(state) {
   const btn = document.getElementById('btnLogin');
   const map = {
-    idle:    { text: 'Sign In →',      disabled: false, opacity: '1'   },
-    loading: { text: 'Signing in…',    disabled: true,  opacity: '.75' },
-    waking:  { text: 'Waking server…', disabled: true,  opacity: '.75' },
-    success: { text: '✓ Redirecting…', disabled: true,  opacity: '.9'  },
+    idle:    { text: 'Sign In →',         disabled: false, opacity: '1'   },
+    loading: { text: 'Signing in…',       disabled: true,  opacity: '.75' },
+    waiting: { text: 'Waiting for server…', disabled: true, opacity: '.75' },
+    success: { text: '✓ Redirecting…',    disabled: true,  opacity: '.9'  },
   };
   const s = map[state] || map.idle;
   btn.textContent   = s.text;
@@ -105,6 +180,7 @@ function resetAllFields() {
   clearFieldErr('fpwd');
 }
 
+/* ── Input listeners ─────────────────────────────── */
 document.getElementById('fuid').addEventListener('input', function () {
   const pos = this.selectionStart;
   const val = this.value.toUpperCase().replace(/\s/g, '');
@@ -119,6 +195,7 @@ document.getElementById('fpwd').addEventListener('input', function () {
   hideErr();
 });
 
+/* ── Password visibility toggle ─────────────────── */
 function togglePwd() {
   const input     = document.getElementById('fpwd');
   const eyeOpen   = document.getElementById('eyeOpen');
@@ -131,12 +208,16 @@ function togglePwd() {
   eyeBtn.classList.toggle('t-mode', role === 'teacher');
 }
 
+/* ══════════════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════════════ */
 async function login() {
   const uid = document.getElementById('fuid').value.trim().toUpperCase();
   const pwd = document.getElementById('fpwd').value;
 
   hideErr();
 
+  /* Client-side validation — no network needed */
   if (!uid) {
     fieldErr('fuid');
     showErr('Please enter your User ID.');
@@ -172,20 +253,27 @@ async function login() {
     return;
   }
 
+  /* If server is still waking up, queue the login */
+  if (!serverAlive) {
+    setBtn('waiting');
+    showWakeBar('⏳ &nbsp;Server is waking up — your login will submit automatically…');
+    await waitForServer();
+    /* Server is now alive — proceed */
+    hideErr();
+  }
+
   setBtn('loading');
-  const wakingTimer = setTimeout(() => setBtn('waking'), 3000);
 
   try {
-    const res = await fetchWithRetry(
-      `${API}/api/login`,
-      {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ user_id: uid, password: pwd, role }),
-      }
-    );
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 15000);
 
-    clearTimeout(wakingTimer);
+    const res = await fetch(`${API}/api/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ user_id: uid, password: pwd, role }),
+      signal:  ctrl.signal,
+    });
 
     if (res.status === 401) {
       fieldErr('fuid');
@@ -214,12 +302,15 @@ async function login() {
     }, 350);
 
   } catch (e) {
-    clearTimeout(wakingTimer);
-    showErr(e.message);
+    showErr(
+      e.name === 'AbortError'
+        ? 'Request timed out. Please try again.'
+        : e.message
+    );
     setBtn('idle');
     document.getElementById('fuid').focus();
   }
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-window.addEventListener('load', () => { document.getElementById('fuid').focus(); });
+window.addEventListener('load',      () => { document.getElementById('fuid').focus(); });
