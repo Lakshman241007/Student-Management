@@ -209,9 +209,9 @@ async function loadAttendance() {
   spin('attBody', 7);
 
   const sample = ALL_STUDENTS.slice(0, 25);
-  const results = await Promise.all(sample.map(s => api(`/api/student/${s.user_id}/attendance`)));
+  const results = await Promise.all(sample.map(s => api(`/api/teacher/students/${s.user_id}`)));
 
-  _attCache = sample.map((s, i) => ({ s, att: results[i] || [] }));
+  _attCache = sample.map((s, i) => ({ s, att: results[i]?.attendance || [] }));
 
   /* Stat cards */
   const pcts = _attCache.map(({att}) => {
@@ -270,10 +270,10 @@ async function loadMarks() {
   spin('marksBody', 9);
 
   const sample = ALL_STUDENTS.slice(0, 20);
-  const results = await Promise.all(sample.map(s => api(`/api/student/${s.user_id}/marks`)));
+  const results = await Promise.all(sample.map(s => api(`/api/teacher/students/${s.user_id}`)));
 
   _marksCache = [];
-  sample.forEach((s,i) => (results[i]||[]).forEach(m => _marksCache.push({s, m})));
+  sample.forEach((s,i) => (results[i]?.marks||[]).forEach(m => _marksCache.push({s, m})));
 
   /* Stat cards */
   const totals = _marksCache.map(r => r.m.total ?? 0);
@@ -319,8 +319,13 @@ async function loadResults() {
   spin('resBody', 7);
 
   const sample = ALL_STUDENTS.slice(0, 25);
-  const results = await Promise.all(sample.map(s => api(`/api/student/${s.user_id}/results`)));
-  _resCache = sample.map((s,i) => ({ s, wrap: results[i]||{subjects:[],overall_cgpa:0} }));
+  const results = await Promise.all(sample.map(s => api(`/api/teacher/students/${s.user_id}`)));
+  _resCache = sample.map((s,i) => {
+    const resRows = results[i]?.results || [];
+    const cgpaVals = resRows.map(r => parseFloat(r.cgpa)).filter(Boolean);
+    const overallCgpa = cgpaVals.length ? (cgpaVals.reduce((a,b)=>a+b,0)/cgpaVals.length).toFixed(2) : 0;
+    return { s, wrap: { subjects: resRows, overall_cgpa: overallCgpa } };
+  });
 
   /* Stat cards */
   const stats = await api('/api/teacher/stats');
@@ -398,18 +403,23 @@ async function openStudent(uid) {
   // Switch to personal tab
   switchTab('personal', document.querySelector('.mtab'));
 
-  // Fetch all data in parallel
-  const [personal, profile, att, marks, results] = await Promise.all([
-    api(`/api/student/${uid}/personal`),
-    api(`/api/student/${uid}/profile`),
-    api(`/api/student/${uid}/attendance`),
-    api(`/api/student/${uid}/marks`),
-    api(`/api/student/${uid}/results`),
-  ]);
+  // Fetch all data in parallel using teacher endpoint (avoids student-only guard)
+  const detail = await api(`/api/teacher/students/${uid}`);
+  const personal   = detail?.personal   || {};
+  const profile    = detail?.profile    || {};
+  const att        = detail?.attendance || [];
+  const marks      = detail?.marks      || [];
+  const resRows    = detail?.results    || [];
+  // Build results wrapper same shape as student endpoint
+  const cgpaVals   = resRows.map(r => parseFloat(r.cgpa)).filter(Boolean);
+  const overallCgpa = cgpaVals.length ? (cgpaVals.reduce((a,b)=>a+b,0)/cgpaVals.length).toFixed(2) : 0;
+  const results    = { subjects: resRows, overall_cgpa: overallCgpa };
+  // Enrich personal with name from users list
+  if (!personal.name) personal.name = ALL_STUDENTS.find(s=>s.user_id===uid)?.name || uid;
 
-  _modalData = { personal, profile, att: att||[], marks: marks||[], results };
+  _modalData = { personal, profile, att, marks, results };
 
-  const name = personal?.name || uid;
+  const name = ALL_STUDENTS.find(s => s.user_id === uid)?.name || uid;
   document.getElementById('modal-name').innerHTML = `${name} &nbsp;${deptBadge(uid)}`;
   document.getElementById('modal-meta').textContent =
     `${uid}  ·  ${profile?.department||'—'}  ·  Sem ${profile?.current_sem||'—'}  ·  ${profile?.degree||'—'}`;
