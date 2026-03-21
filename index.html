@@ -434,7 +434,7 @@
     </div>
   </div>
 
-  <!-- ══ ADMIN FAB ══ -->
+  <!--  ADMIN FAB  -->
   <a class="admin-fab" href="management_login.html">
     <div class="admin-fab-blink"></div>
     🛡️ Admin Panel
@@ -442,11 +442,6 @@
 
   <script src="script.js"></script>
   <script>
-    /* ══════════════════════════════════════════════════════
-       SIGN-IN OVERLAY CONTROLLER
-       Hooks into script.js without modifying it — patches
-       setBtn() to drive the overlay at each login stage.
-    ══════════════════════════════════════════════════════ */
 
     /* Colour palette keyed to role */
     const ROLE_COLOURS = {
@@ -532,9 +527,9 @@
       }
     };
 
-    /* ── Show overlay immediately when login() is called with valid input ──
+    /* Show overlay immediately when login() is called with valid input
        We intercept the button click to show step-0 instantly,
-       before any async happens, so there's zero delay feel.             */
+       before any async happens, so there's zero delay feel.*/
     const loginBtn = document.getElementById('btnLogin');
     loginBtn.addEventListener('click', () => {
       const uid = document.getElementById('fuid').value.trim();
@@ -549,9 +544,9 @@
           overlaySpinner('Connecting…', 'Reaching the server', 0);
         }
       }
-    }, true); /* capture phase — fires before onclick */
+    }, true); /* capture phase fires before onclick */
 
-    /* ── form-group teacher label tint ── */
+    /*  form-group teacher label tint*/
     const origSw2 = window.sw;
     window.sw = function (r) {
       origSw2(r);
@@ -560,7 +555,7 @@
       });
     };
 
-    /* ── Keyboard: Enter key hides overlay on error ── */
+    /*  Keyboard: Enter key hides overlay on error  */
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') overlayHide();
     });

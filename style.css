@@ -574,7 +574,7 @@ body {
     font-weight: 600;
 }
 
-/* ── RESPONSIVE ─────────────────────────────── */
+/*  RESPONSIVE */
 @media (max-width: 780px) {
     .login-card {
         grid-template-columns: 1fr;
@@ -617,7 +617,7 @@ body {
     }
 }
 
-/* ── PASSWORD VISIBILITY TOGGLE ─────────────────── */
+/* PASSWORD VISIBILITY TOGGLE */
 .pwd-wrap {
     position: relative;
     display: flex;
@@ -659,7 +659,7 @@ body {
     background: rgba(167, 139, 250, .08);
 }
 
-/* ── FIELD ERROR STATE ───────────────────────────── */
+/*  FIELD ERROR STATE */
 .form-input.input-error {
     border-color: var(--red) !important;
     background: rgba(248, 113, 113, .06) !important;

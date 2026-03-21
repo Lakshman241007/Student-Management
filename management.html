@@ -54,7 +54,7 @@
             background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(239, 68, 68, .04) 0%, transparent 70%);
         }
 
-        /* ══ SIDEBAR ══ */
+        /*  SIDEBAR */
         .sb {
             width: var(--sb);
             flex-shrink: 0;
@@ -222,7 +222,7 @@
             color: var(--rose);
         }
 
-        /* ══ MAIN ══ */
+        /*  MAIN */
         .main {
             margin-left: var(--sb);
             flex: 1;
@@ -285,7 +285,7 @@
             padding: 26px;
         }
 
-        /* ══ SECTIONS ══ */
+        /*  SECTIONS  */
         .sec {
             display: none;
         }
@@ -307,7 +307,7 @@
             }
         }
 
-        /* ══ WELCOME ══ */
+        /*  WELCOME  */
         .welcome {
             background: linear-gradient(135deg, rgba(239, 68, 68, .08), rgba(249, 115, 22, .04));
             border: 1px solid rgba(239, 68, 68, .16);
@@ -367,7 +367,7 @@
             color: var(--dim);
         }
 
-        /* ══ STATS ══ */
+        /*  STATS  */
         .stat-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -432,7 +432,7 @@
             margin-top: 2px;
         }
 
-        /* ══ CARD ══ */
+        /*  CARD */
         .card {
             background: var(--surface);
             border: 1px solid rgba(239, 68, 68, .08);
@@ -462,7 +462,7 @@
             font-size: .84rem;
         }
 
-        /* ══ TABLES ══ */
+        /*  TABLES  */
         .tw {
             overflow-x: auto;
             border-radius: 12px;
@@ -505,7 +505,7 @@
             color: var(--text);
         }
 
-        /* ══ BADGES ══ */
+        /*  BADGES */
         .b {
             display: inline-flex;
             align-items: center;
@@ -535,7 +535,7 @@
             border: 1px solid rgba(239, 68, 68, .2);
         }
 
-        /* ══ FILTER TABS ══ */
+        /*  FILTER TABS  */
         .ftab {
             padding: 7px 14px;
             background: rgba(255, 255, 255, .04);
@@ -561,7 +561,7 @@
             color: var(--rose);
         }
 
-        /* ══ SEARCH ══ */
+        /*  SEARCH */
         .search {
             width: 100%;
             padding: 10px 14px;
@@ -586,7 +586,7 @@
             color: var(--faint);
         }
 
-        /* ══ STUDENT/TEACHER ROWS ══ */
+        /*  STUDENT/TEACHER ROWS */
         .stu-row {
             display: flex;
             align-items: center;
@@ -643,7 +643,7 @@
             margin-top: 2px;
         }
 
-        /* ══ ACTION BUTTONS ══ */
+        /*  ACTION BUTTONS */
         .edit-btn {
             padding: 5px 11px;
             background: rgba(239, 68, 68, .1);
@@ -679,7 +679,7 @@
             background: rgba(185, 28, 28, .22);
         }
 
-        /* ══ ADD FORM ══ */
+        /*  ADD FORM  */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -793,7 +793,7 @@
             color: var(--text);
         }
 
-        /* ══ OVERLAY / MODAL ══ */
+        /* OVERLAY / MODAL */
         .overlay {
             position: fixed;
             inset: 0;
@@ -891,7 +891,7 @@
             padding: 20px 24px 24px;
         }
 
-        /* ══ CONFIRM MODAL ══ */
+        /*  CONFIRM MODAL */
         .confirm-card {
             background: #0d0707;
             border: 1px solid rgba(239, 68, 68, .22);
@@ -928,7 +928,7 @@
             justify-content: center;
         }
 
-        /* ══ TOAST ══ */
+        /* TOAST */
         .toast {
             position: fixed;
             bottom: 28px;
@@ -1006,7 +1006,7 @@
 
 <body>
 
-    <!-- ══ SIDEBAR ══ -->
+    <!-- SIDEBAR -->
     <aside class="sb" id="sb">
         <div class="sb-scroll">
             <div class="sb-top">
@@ -1039,7 +1039,7 @@
         </div>
     </aside>
 
-    <!-- ══ MAIN ══ -->
+    <!-- MAIN -->
     <main class="main">
         <header class="topbar">
             <div class="topbar-l">
@@ -1051,7 +1051,7 @@
 
         <div class="content">
 
-            <!-- ═ DASHBOARD ═ -->
+            <!-- DASHBOARD  -->
             <section class="sec act" id="sec-dashboard">
                 <div class="welcome">
                     <div class="w-badge">🛡️ &nbsp;Admin Control Center</div>
@@ -1126,7 +1126,7 @@
                 </div>
             </section>
 
-            <!-- ═ STUDENTS ═ -->
+            <!-- STUDENTS -->
             <section class="sec" id="sec-students">
                 <div class="card">
                     <div class="ctitle">
@@ -1147,7 +1147,7 @@
                 </div>
             </section>
 
-            <!-- ═ TEACHERS ═ -->
+            <!--TEACHERS -->
             <section class="sec" id="sec-teachers">
                 <div class="card">
                     <div class="ctitle">
@@ -1163,7 +1163,7 @@
                 </div>
             </section>
 
-            <!-- ═ ADD STUDENT ═ -->
+            <!-- ADD STUDENT -->
             <section class="sec" id="sec-add-student">
                 <div class="card">
                     <div class="ctitle">
@@ -1279,7 +1279,7 @@
                 </div>
             </section>
 
-            <!-- ═ ADD TEACHER ═ -->
+            <!--ADD TEACHER-->
             <section class="sec" id="sec-add-teacher">
                 <div class="card">
                     <div class="ctitle">
@@ -1351,7 +1351,7 @@
         </div>
     </main>
 
-    <!-- ══ EDIT STUDENT MODAL ══ -->
+    <!-- EDIT STUDENT MODAL -->
     <div class="overlay" id="editStuModal" onclick="if(event.target===this)closeEditStu()">
         <div class="modal">
             <div class="modal-head">
@@ -1363,7 +1363,7 @@
         </div>
     </div>
 
-    <!-- ══ EDIT TEACHER MODAL ══ -->
+    <!--EDIT TEACHER MODAL-->
     <div class="overlay" id="editTchModal" onclick="if(event.target===this)closeEditTch()">
         <div class="modal">
             <div class="modal-head">
@@ -1375,7 +1375,7 @@
         </div>
     </div>
 
-    <!-- ══ CONFIRM MODAL ══ -->
+    <!--CONFIRM MODAL-->
     <div class="overlay" id="confirmModal">
         <div class="confirm-card">
             <div class="confirm-icon" id="conf-icon">⚠️</div>
@@ -1388,18 +1388,18 @@
         </div>
     </div>
 
-    <!-- ══ TOAST ══ -->
+    <!-- TOAST -->
     <div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg">Done!</span></div>
 
     <script>
         const API = 'https://student-management-production-a94b.up.railway.app';
 
-        /* ── Auth guard ── */
+        /* Auth guard */
         if (!sessionStorage.getItem('adminToken')) window.location.href = 'management_login.html';
         const token = sessionStorage.getItem('token') || '';
         const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
 
-        /* ── Identity ── */
+        /* Identity */
         const aName = sessionStorage.getItem('adminName') || 'Administrator';
         const aId = sessionStorage.getItem('adminId') || 'ADMIN001';
         document.getElementById('adminName').textContent = aName;
@@ -1407,21 +1407,21 @@
         document.getElementById('avInit').textContent = aName[0] || 'A';
         document.getElementById('wName').textContent = aName.split(' ').slice(-1)[0] || aName;
 
-        /* ── Cache ── */
+        /* Cache */
         let ALL_STUDENTS = [], ALL_TEACHERS = [], _stuFilter = 'all';
 
-        /* ── API helper ── */
+        /* API helper*/
         async function api(path, opts = {}) {
             const r = await fetch(API + path, { ...opts, headers: H() });
             if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.detail || `HTTP ${r.status}`); }
             return r.json();
         }
 
-        /* ── Clock ── */
+        /* Clock */
         function tick() { const n = new Date(); const el = document.getElementById('tbadge'); if (el) el.textContent = n.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '  ·  ' + n.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
         setInterval(tick, 1000); tick();
 
-        /* ── Toast ── */
+        /* Toast*/
         function showToast(msg, type = 'ok') {
             const t = document.getElementById('toast');
             const icons = { ok: '✓', error: '✗', warn: '⚠' };
@@ -1431,7 +1431,7 @@
             t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        /* ── Confirm ── */
+        /* Confirm*/
         let _confRes = null;
         function openConfirm(icon, title, msg) {
             document.getElementById('conf-icon').textContent = icon;
@@ -1442,7 +1442,7 @@
         }
         function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); if (_confRes) { _confRes(false); _confRes = null; } }
 
-        /* ── Stats ── */
+        /* Stats */
         async function loadStats() {
             try {
                 const s = await api('/api/admin/stats');
@@ -1468,7 +1468,7 @@
             }
         }
 
-        /* ── Load Students ── */
+        /*Load Students */
         async function loadStudents() {
             document.getElementById('stuList').innerHTML = `<div style="text-align:center;padding:30px;color:var(--faint)"><div style="width:22px;height:22px;border:2px solid rgba(239,68,68,.2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>Loading from Supabase…</div>`;
             try { const d = await api('/api/teacher/students?limit=400'); ALL_STUDENTS = d?.students ?? []; renderStudents(); }
@@ -1498,7 +1498,7 @@
             }).join('');
         }
 
-        /* ── Load Teachers ── */
+        /* Load Teachers */
         async function loadTeachers() {
             document.getElementById('tchList').innerHTML = `<div style="text-align:center;padding:30px;color:var(--faint)"><div style="width:22px;height:22px;border:2px solid rgba(239,68,68,.2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px"></div>Loading teachers…</div>`;
             try {
@@ -1527,10 +1527,10 @@
             }).join('');
         }
 
-        /* ── gv helper ── */
+        /* gv helper*/
         function gv(id) { const e = document.getElementById(id); return e ? e.value.trim() || null : null; }
 
-        /* ── Edit Student Modal ── */
+        /* Edit Student Modal*/
         function openEditStu(uid) {
             const s = ALL_STUDENTS.find(x => x.user_id === uid); if (!s) return;
             document.getElementById('esm-title').textContent = `Edit: ${s.name || uid}`;
@@ -1598,7 +1598,7 @@
             } catch (e) { showToast('Delete failed: ' + e.message, 'error'); }
         }
 
-        /* ── Edit Teacher Modal ── */
+        /* Edit Teacher Modal*/
         function openEditTch(uid) {
             const t = ALL_TEACHERS.find(x => x.user_id === uid);
             document.getElementById('etm-title').textContent = `Edit: ${t?.name || uid}`;
@@ -1650,7 +1650,7 @@
             } catch (e) { showToast('Delete failed: ' + e.message, 'error'); }
         }
 
-        /* ── Add Student ── */
+        /* Add Student */
         function clearStuForm() { ['ns_uid', 'ns_pwd', 'ns_name', 'ns_mob', 'ns_email', 'ns_dob', 'ns_nat', 'ns_relig', 'ns_addr', 'ns_dept', 'ns_spec', 'ns_batch', 'ns_roll', 'ns_sec', 'ns_adv', 'ns_father', 'ns_mother', 'ns_pmob', 'ns_b10', 'ns_p10', 'ns_b12', 'ns_p12', 'ns_ent'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });['ns_gender', 'ns_blood', 'ns_deg', 'ns_sem'].forEach(id => { const e = document.getElementById(id); if (e) e.selectedIndex = 0; }); }
 
         async function submitStudent() {
@@ -1670,7 +1670,7 @@
             } catch (e) { showToast('Failed: ' + e.message, 'error'); }
         }
 
-        /* ── Add Teacher ── */
+        /* Add Teacher */
         function clearTchForm() { ['nt_uid', 'nt_pwd', 'nt_name', 'nt_mob', 'nt_email', 'nt_dob', 'nt_dept', 'nt_desg', 'nt_qual', 'nt_exp', 'nt_subj', 'nt_empid', 'nt_join'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });['nt_gender', 'nt_blood', 'nt_cat'].forEach(id => { const e = document.getElementById(id); if (e) e.selectedIndex = 0; }); }
 
         async function submitTeacher() {
@@ -1690,7 +1690,7 @@
             } catch (e) { showToast('Failed: ' + e.message, 'error'); }
         }
 
-        /* ── Navigation ── */
+        /* Navigation  */
         const TITLES = { 'dashboard': 'Admin Dashboard', 'students': 'Student Management', 'teachers': 'Teacher Management', 'add-student': 'Add New Student', 'add-teacher': 'Add New Teacher' };
         const LOADERS = { 'dashboard': loadStats, 'students': loadStudents, 'teachers': loadTeachers };
         const _loaded = {};
@@ -1706,7 +1706,7 @@
         }
         function signOut() { sessionStorage.removeItem('adminToken'); sessionStorage.removeItem('adminId'); sessionStorage.removeItem('adminName'); window.location.href = 'management_login.html'; }
 
-        /* ── Boot ── */
+        /* Boot */
         _loaded['dashboard'] = true; loadStats();
     </script>
 </body>

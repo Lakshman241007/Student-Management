@@ -8,7 +8,7 @@ if (!tId || !token) { window.location.href = 'index.html'; }
 
 const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
 
-/* ── Cached data ────────────────────────────────── */
+/* Cached data */
 let ALL_STUDENTS = [];
 let ENG_STUDENTS = [];
 let ART_STUDENTS = [];
@@ -20,7 +20,7 @@ let _attFilter = 'all';
 let _mrkFilter = 'all';
 let _resFilter = 'all';
 
-/* ── API fetch helper ───────────────────────────── */
+/* API fetch helper */
 async function api(path) {
   try {
     const r = await fetch(API + path, { headers: H() });
@@ -30,7 +30,7 @@ async function api(path) {
   } catch (e) { console.error('API error:', path, e); return null; }
 }
 
-/* ── Helpers ────────────────────────────────────── */
+/*Helpers*/
 function isEng(uid) { return (uid || '').startsWith('ENG'); }
 function deptBadge(uid) {
   return isEng(uid)
@@ -60,14 +60,14 @@ function spin(id, cols) {
     Loading from Supabase…</td></tr>`;
 }
 
-/* ══ SIDEBAR IDENTITY ═════════════════════════════ */
+/* SIDEBAR IDENTITY */
 const tInit = tName.split(' ').filter(w => /^[A-Z]/.test(w)).map(w => w[0]).join('').slice(0, 2) || 'TC';
 document.getElementById('tAv').textContent = tInit;
 document.getElementById('tName').textContent = tName;
 document.getElementById('tId').textContent = tId;
 document.getElementById('wName').textContent = tName.split(' ').slice(-1)[0];
 
-/* ══ LOAD ALL STUDENTS (ENG + ART) ════════════════ */
+/*  LOAD ALL STUDENTS (ENG + ART) */
 async function loadAllStudents() {
   if (ALL_STUDENTS.length) return;
   const data = await api('/api/teacher/students?limit=300');
@@ -76,7 +76,7 @@ async function loadAllStudents() {
   ART_STUDENTS = ALL_STUDENTS.filter(s => !isEng(s.user_id));
 }
 
-/* ══ DASHBOARD ════════════════════════════════════ */
+/*  DASHBOARD */
 async function loadDashboard() {
   /* Stats */
   const stats = await api('/api/teacher/stats');
@@ -112,7 +112,7 @@ async function loadDashboard() {
     : `<div style="color:var(--faint);grid-column:span 3;padding:10px">No students loaded. Check API.</div>`;
 }
 
-/* ══ STUDENT DIRECTORY ════════════════════════════ */
+/*  STUDENT DIRECTORY */
 async function loadDirectory() {
   if (!ALL_STUDENTS.length) await loadAllStudents();
   renderDir();
@@ -154,14 +154,14 @@ function renderDir() {
     </div>`).join('');
 }
 
-/* ══ ENGINEERING SECTION ══════════════════════════ */
+/* ENGINEERING SECTION */
 async function loadEng() {
   if (!ENG_STUDENTS.length) await loadAllStudents();
   document.getElementById('eng-count').textContent = `${ENG_STUDENTS.length} students · Semesters 1–8`;
   renderDeptList('engList', ENG_STUDENTS);
 }
 
-/* ══ ARTS SECTION ══════════════════════════════════ */
+/* ARTS SECTION */
 async function loadArts() {
   if (!ART_STUDENTS.length) await loadAllStudents();
   document.getElementById('art-count').textContent = `${ART_STUDENTS.length} students · Semesters 1–6`;
@@ -203,7 +203,7 @@ function renderDeptList(containerId, list) {
     }).join('');
 }
 
-/* ══ ATTENDANCE ════════════════════════════════════ */
+/* ATTENDANCE */
 async function loadAttendance() {
   if (!ALL_STUDENTS.length) await loadAllStudents();
   spin('attBody', 7);
@@ -263,7 +263,7 @@ function renderAttTable() {
   }).join('');
 }
 
-/* ══ INTERNAL MARKS ════════════════════════════════ */
+/*INTERNAL MARKS*/
 async function loadMarks() {
   if (!ALL_STUDENTS.length) await loadAllStudents();
   spin('marksBody', 9);
@@ -311,7 +311,7 @@ function renderMarksTable() {
   }).join('');
 }
 
-/* ══ RESULTS ═══════════════════════════════════════ */
+/*RESULTS*/
 async function loadResults() {
   if (!ALL_STUDENTS.length) await loadAllStudents();
   spin('resBody', 7);
@@ -369,15 +369,12 @@ function renderResTable() {
   }).join('');
 }
 
-/* ══ STUDENT DETAIL MODAL ══════════════════════════ */
-/* ══ STUDENT MODAL — VIEW + EDIT ══════════════════
-   currentUid  — student being viewed
-   editMode    — true = fields are editable
-   _data       — cached fetched data for current student
-══════════════════════════════════════════════════ */
+/*STUDENT DETAIL MODAL*/
+/*STUDENT MODAL — VIEW + EDIT */
+
 let currentUid = null;
 let editMode = false;
-let _modalData = {};   // { personal, profile, attendance, marks, results }
+let _modalData = {};   
 let _activeTab = 'personal';
 
 async function openStudent(uid) {
@@ -424,7 +421,7 @@ async function openStudent(uid) {
   renderAllTabs(false);
 }
 
-/* ── Render all tab content ─────────────────────── */
+/*Render all tab content*/
 function renderAllTabs(editing) {
   renderPersonalTab(editing);
   renderProfileTab(editing);
@@ -433,7 +430,7 @@ function renderAllTabs(editing) {
   renderResultsTab();
 }
 
-/* ─ PERSONAL TAB ─────────────────────────────────── */
+/*PERSONAL TAB*/
 function renderPersonalTab(editing) {
   const p = _modalData.personal || {};
   const f = (id, val) => editing
@@ -490,7 +487,7 @@ function renderPersonalTab(editing) {
     </div>`;
 }
 
-/* ─ PROFILE TAB ──────────────────────────────────── */
+/*PROFILE TAB*/
 function renderProfileTab(editing) {
   const p = _modalData.profile || {};
   const f = (id, val) => editing
@@ -523,7 +520,7 @@ function renderProfileTab(editing) {
     </div>`;
 }
 
-/* ─ ATTENDANCE TAB ───────────────────────────────── */
+/*ATTENDANCE TAB*/
 function renderAttTab(editing) {
   const rows = _modalData.att || [];
   if (!rows.length) {
@@ -568,7 +565,7 @@ function renderAttTab(editing) {
     </div>`;
 }
 
-/* ─ MARKS TAB ────────────────────────────────────── */
+/*MARKS TAB*/
 function renderMarksTab(editing) {
   const rows = _modalData.marks || [];
   if (!rows.length) {
@@ -612,7 +609,7 @@ function renderMarksTab(editing) {
     </div>`;
 }
 
-/* ─ RESULTS TAB (read-only always) ──────────────── */
+/*RESULTS TAB (read-only always)*/
 function renderResultsTab() {
   const wrap = _modalData.results || {};
   const subs = wrap.subjects || [];
@@ -638,7 +635,7 @@ function renderResultsTab() {
     </div>`;
 }
 
-/* ══ EDIT MODE TOGGLE ══════════════════════════════ */
+/*EDIT MODE TOGGLE*/
 function toggleEditMode() {
   editMode = !editMode;
   const btn = document.getElementById('btnToggleEdit');
@@ -662,7 +659,7 @@ function cancelEdit() {
   document.getElementById('tab-' + _activeTab).classList.add('act');
 }
 
-/* ══ TAB SWITCHER ══════════════════════════════════ */
+/*TAB SWITCHER*/
 function switchTab(name, btn) {
   _activeTab = name;
   document.querySelectorAll('.mtab').forEach(b => b.classList.remove('act'));
@@ -671,7 +668,7 @@ function switchTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('act');
 }
 
-/* ══ SAVE — dispatches to correct endpoint ═════════ */
+/*SAVE — dispatches to correct endpoint*/
 async function saveCurrentTab() {
   const btn = document.querySelector('.sbtn-save');
   btn.textContent = 'Saving…'; btn.disabled = true;
@@ -692,7 +689,7 @@ async function saveCurrentTab() {
   btn.textContent = '💾 Save Changes'; btn.disabled = false;
 }
 
-/* ─ Save personal ────────────────────────────────── */
+/*Save personal*/
 async function savePersonal() {
   const body = {
     dob: gv('e_dob'),
@@ -722,7 +719,7 @@ async function savePersonal() {
   renderPersonalTab(true);
 }
 
-/* ─ Save profile ─────────────────────────────────── */
+/* Save profile */
 async function saveProfile() {
   const body = {
     roll_number: gv('ep_roll'),
@@ -756,7 +753,7 @@ async function saveProfile() {
   renderProfileTab(true);
 }
 
-/* ─ Save attendance ──────────────────────────────── */
+/*Save attendance*/
 async function saveAttendance() {
   const rows = _modalData.att || [];
   const errors = [];
@@ -787,7 +784,7 @@ async function saveAttendance() {
   renderAttTab(true);
 }
 
-/* ─ Save marks ───────────────────────────────────── */
+/*Save marks*/
 async function saveMarks() {
   const rows = _modalData.marks || [];
   const errors = [];
@@ -822,7 +819,7 @@ async function saveMarks() {
   renderMarksTab(true);
 }
 
-/* ── Helpers ──────────────────────────────────────── */
+/*Helpers*/
 function gv(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : null;
@@ -837,7 +834,7 @@ function showSaveMsg(msg, type) {
   };
   el.style.cssText = `display:block;padding:10px 16px;border-radius:10px;margin-bottom:14px;font-size:.83rem;font-weight:600;${styles[type] || styles.ok}`;
   el.textContent = msg;
-  // Auto-hide after 5s
+  // Auto-hide
   setTimeout(() => hideSaveMsg(), 5000);
 }
 
@@ -853,7 +850,7 @@ function closeModal() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-/* ══ NAVIGATION ════════════════════════════════════ */
+/*NAVIGATION*/
 const TITLES = {
   dashboard: 'Faculty Dashboard', students: 'Student Directory',
   eng: 'Engineering Department', arts: 'Arts Department',
@@ -886,7 +883,7 @@ function go(name) {
 
 function signOut() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
-/* ── Clock ─────────────────────────────────────── */
+/* Clock */
 function tick() {
   const n = new Date();
   const el = document.getElementById('tbadge');
@@ -894,12 +891,10 @@ function tick() {
 }
 setInterval(tick, 1000); tick();
 
-/* ── Boot ──────────────────────────────────────── */
+/* Boot */
 _loaded['dashboard'] = true;
 loadDashboard();
-/* ═══════════════════════════════════════════════════════════════════════════
-   OD REQUEST MANAGEMENT — TEACHER SIDE
-   ═══════════════════════════════════════════════════════════════════════════ */
+/*OD REQUEST MANAGEMENT — TEACHER SIDE */
 
 let _odAllReqs = [];
 let _odTFilter = 'all';
@@ -1072,7 +1067,7 @@ async function odAction(id, idx, action) {
     await fetch(`${API}/api/od-request/${id}/${action}`, { method: 'POST', headers: H() });
   } catch (_) { }
 
-  /* Update local cache */
+
   const local = JSON.parse(sessionStorage.getItem('od_requests') || '[]');
   local.forEach(r => { if (r.id === id) r.status = action; });
   sessionStorage.setItem('od_requests', JSON.stringify(local));
@@ -1081,7 +1076,6 @@ async function odAction(id, idx, action) {
   odUpdateTeacherStats(_odAllReqs);
   odUpdateBadge(_odAllReqs);
 
-  /* Re-render */
   let filtered = _odAllReqs;
   if (_odTFilter === 'pending') filtered = _odAllReqs.filter(r => !r.status || r.status === 'pending');
   else if (_odTFilter === 'eng') filtered = _odAllReqs.filter(r => (r.student_id || '').startsWith('ENG'));
@@ -1089,8 +1083,8 @@ async function odAction(id, idx, action) {
   odRenderTeacherList(filtered);
 }
 
-/* Update TITLES */
+
 if (typeof TITLES !== 'undefined') TITLES['od-requests'] = 'OD Requests';
 
-/* Load OD on init for badge count */
+
 setTimeout(loadOdRequests, 1500);

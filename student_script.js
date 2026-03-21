@@ -12,7 +12,7 @@ if (!userId || !token) { window.location.href = 'index.html'; }
 /* ── Auth header shorthand ─────────────────────────────────────────────── */
 const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
 
-/* ── Fetch helpers ─────────────────────────────────────────────────────── */
+/*Fetch helpers*/
 async function apiFetch(path) {
   try {
     const r = await fetch(API + path, { headers: H() });

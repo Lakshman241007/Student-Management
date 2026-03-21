@@ -33,9 +33,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 logger = logging.getLogger("eduportal")
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  CONFIG
-# ─────────────────────────────────────────────────────────────────────────────
+
 SUPABASE_URL       = os.getenv("SUPABASE_URL",  "https://your-project.supabase.co")
 SUPABASE_KEY       = os.getenv("SUPABASE_KEY",  "your-service-role-key")
 SECRET_KEY         = os.getenv("SECRET_KEY",    "change-me-in-production")
@@ -54,9 +54,9 @@ ALLOWED_ORIGINS = list(set(_base_origins + _live_server_origins))
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  APP
-# ─────────────────────────────────────────────────────────────────────────────
+
 app = FastAPI(
     title="VelsPortal API",
     version="4.0",
@@ -75,9 +75,9 @@ app.add_middleware(
 security = HTTPBearer()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 #  PYDANTIC SCHEMAS
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 class LoginRequest(BaseModel):
     user_id:  str
     password: str
@@ -112,7 +112,7 @@ class NoticeCreateRequest(BaseModel):
     body:    str
     type:    Optional[str] = "info"
 
-# ── Edit schemas for teacher to update student data ──────────────────────────
+# Edit schemas for teacher to update student data
 class EditPersonalRequest(BaseModel):
     name:           Optional[str] = None
     dob:            Optional[str] = None
@@ -157,7 +157,7 @@ class EditMarksRequest(BaseModel):
     assignment:   int
     semester:     Optional[str] = None
 
-# ── NEW: Admin schemas ────────────────────────────────────────────────────────
+# NEW: Admin schemas 
 class AddStudentRequest(BaseModel):
     """Admin adds a brand-new student (users + student_personal + student_profile)."""
     user_id:        str
@@ -235,7 +235,7 @@ class AdminChangePasswordRequest(BaseModel):
     new_password:     str
 
 
-# ── OD (On-Duty) Request schemas ─────────────────────────────────────────────
+# OD (On-Duty) Request schemas 
 class ODRequest(BaseModel):
     """Student submits an OD request."""
     id:           Optional[str] = None
@@ -255,9 +255,9 @@ class ODActionRequest(BaseModel):
     remarks: Optional[str] = None
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
+
 def create_token(data: dict) -> str:
     payload = {
         **data,
@@ -326,9 +326,9 @@ def _audit(admin_id: str, action: str, target_type: str = None,
         logger.warning(f"Audit log failed: {e}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  AUTH
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.post("/api/login", tags=["Auth"])
 async def login(req: LoginRequest):
     uid = req.user_id.strip().upper()
@@ -413,9 +413,9 @@ async def change_password(req: ChangePasswordRequest, payload: dict = Depends(ve
     return {"message": "Password updated successfully"}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  STUDENT READ
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.get("/api/student/{user_id}/summary", tags=["Student"])
 async def get_summary(user_id: str, payload: dict = Depends(verify_token)):
     _guard_student(payload, user_id)
@@ -529,9 +529,8 @@ async def get_notices(user_id: str, payload: dict = Depends(verify_token)):
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 #  TEACHER READ
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.get("/api/teacher/profile/{teacher_id}", tags=["Teacher"])
 async def get_teacher_profile(teacher_id: str, payload: dict = Depends(verify_token)):
     tid = teacher_id.upper()
@@ -624,9 +623,9 @@ async def get_departments(payload: dict = Depends(verify_token)):
     return [{"department": d, "count": c} for d, c in sorted(counts.items())]
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  TEACHER WRITE
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.put("/api/teacher/attendance/{user_id}", tags=["Teacher"])
 async def update_attendance(
     user_id: str, req: AttendanceUpdateRequest, payload: dict = Depends(verify_token)
@@ -671,9 +670,9 @@ async def delete_notice(notice_id: int, payload: dict = Depends(verify_token)):
     return {"message": "Notice deleted"}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  TEACHER WRITE — Edit student personal & profile details
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.put("/api/teacher/edit/personal/{user_id}", tags=["Teacher - Edit"])
 async def edit_personal(
     user_id: str,
@@ -770,9 +769,9 @@ async def edit_marks(
         raise HTTPException(status_code=500, detail="Failed to update marks")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — READ
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.get("/api/admin/teachers", tags=["Admin"])
 async def admin_get_teachers(payload: dict = Depends(verify_token)):
     """Return all teachers with their profile data."""
@@ -834,9 +833,9 @@ async def admin_audit(
     return {"total": len(rows), "logs": rows}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — WRITE: ADD STUDENT
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.post("/api/admin/add-student", tags=["Admin"])
 async def admin_add_student(req: AddStudentRequest, request: Request, payload: dict = Depends(verify_token)):
     """
@@ -918,9 +917,9 @@ async def admin_add_student(req: AddStudentRequest, request: Request, payload: d
         raise HTTPException(status_code=500, detail=f"Failed to add student: {str(e)}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — WRITE: ADD TEACHER
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.post("/api/admin/add-teacher", tags=["Admin"])
 async def admin_add_teacher(req: AddTeacherRequest, request: Request, payload: dict = Depends(verify_token)):
     """
@@ -978,9 +977,9 @@ async def admin_add_teacher(req: AddTeacherRequest, request: Request, payload: d
         raise HTTPException(status_code=500, detail=f"Failed to add teacher: {str(e)}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — WRITE: EDIT STUDENT
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.put("/api/admin/student/{user_id}", tags=["Admin"])
 async def admin_edit_student(
     user_id: str, req: EditPersonalRequest, request: Request, payload: dict = Depends(verify_token)
@@ -1004,9 +1003,9 @@ async def admin_edit_student(
         raise HTTPException(500, f"Failed: {str(e)}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — WRITE: DELETE STUDENT
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.delete("/api/admin/student/{user_id}", tags=["Admin"])
 async def admin_delete_student(user_id: str, request: Request, payload: dict = Depends(verify_token)):
     """
@@ -1027,9 +1026,9 @@ async def admin_delete_student(user_id: str, request: Request, payload: dict = D
         raise HTTPException(500, f"Failed to delete student: {str(e)}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — WRITE: EDIT TEACHER
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.put("/api/admin/teacher/{user_id}", tags=["Admin"])
 async def admin_edit_teacher(
     user_id: str, req: EditTeacherRequest, request: Request, payload: dict = Depends(verify_token)
@@ -1056,9 +1055,9 @@ async def admin_edit_teacher(
         raise HTTPException(500, f"Failed: {str(e)}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  ADMIN — WRITE: DELETE TEACHER
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.delete("/api/admin/teacher/{user_id}", tags=["Admin"])
 async def admin_delete_teacher(user_id: str, request: Request, payload: dict = Depends(verify_token)):
     """Admin deletes a teacher from users + teacher_profile."""
@@ -1076,9 +1075,9 @@ async def admin_delete_teacher(user_id: str, request: Request, payload: dict = D
 
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  OD (ON-DUTY) REQUESTS
-# ─────────────────────────────────────────────────────────────────────────────
+
 
 @app.post("/api/od-request", tags=["OD"])
 async def submit_od_request(req: ODRequest, payload: dict = Depends(verify_token)):
