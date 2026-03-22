@@ -42,7 +42,7 @@ SECRET_KEY         = os.getenv("SECRET_KEY",    "change-me-in-production")
 ALGORITHM          = "HS256"
 TOKEN_EXPIRE_HOURS = 8
 
-_env_origins = os.getenv("ALLOWED_ORIGINS", "*")
+_env_origins = os.getenv("ALLOWED_ORIGINS", "")
 _base_origins = [o.strip() for o in _env_origins.split(",") if o.strip()]
 _live_server_origins = [
     "http://127.0.0.1:5500", "http://localhost:5500",
@@ -51,9 +51,6 @@ _live_server_origins = [
     "null",
 ]
 ALLOWED_ORIGINS = list(set(_base_origins + _live_server_origins))
-# Allow all origins if wildcard set
-if "*" in ALLOWED_ORIGINS:
-    ALLOWED_ORIGINS = ["*"]
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -1231,6 +1228,6 @@ async def get_semesters():
         "arts":        [str(i) for i in range(1, 7)],
     }
 
-# ── Vercel serverless handler ──────────────────────
+# ── Vercel serverless handler ──────────────────────────────────────────────
 from mangum import Mangum
 handler = Mangum(app, lifespan="off")
