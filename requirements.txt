@@ -3,3 +3,4 @@ uvicorn
 supabase>=2.0
 python-dotenv
 PyJWT
+mangum

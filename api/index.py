@@ -1227,3 +1227,8 @@ async def get_semesters():
         "engineering": [str(i) for i in range(1, 9)],
         "arts":        [str(i) for i in range(1, 7)],
     }
+
+
+# ── Vercel serverless handler ──
+from mangum import Mangum
+handler = Mangum(app, lifespan='off')

@@ -1,4 +1,4 @@
-const API = 'https://student-management-production-a94b.up.railway.app';
+const API = '';
 const tId = sessionStorage.getItem('userId') || '';
 const token = sessionStorage.getItem('token') || '';
 const tName = sessionStorage.getItem('userName') || 'Faculty';

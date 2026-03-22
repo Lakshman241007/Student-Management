@@ -1,4 +1,4 @@
-const API = 'https://student-management-production-a94b.up.railway.app';
+const API = '';
 let role = 'student';
 
 /* ══════════════════════════════════════════════════════
