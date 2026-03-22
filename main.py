@@ -1228,6 +1228,15 @@ async def get_semesters():
         "arts":        [str(i) for i in range(1, 7)],
     }
 
-# ── Vercel serverless handler ──────────────────────────────────────────────
-from mangum import Mangum
-handler = Mangum(app, lifespan="off")
+
+@app.get("/", tags=["Utility"])
+async def root():
+    return {"message": "VelsPortal API v4.0 — running on Railway", "docs": "/docs"}
+
+
+# ── Serverless handler (Vercel / AWS Lambda only) ─────────────────────────
+try:
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
+except ImportError:
+    pass

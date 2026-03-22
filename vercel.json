@@ -2,37 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.11"
-      }
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
+      "src": "**/*.{html,css,js}",
       "use": "@vercel/static"
     }
   ],
   "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/student", "dest": "/student.html" },
+    { "src": "/teacher", "dest": "/teacher.html" },
+    { "src": "/management", "dest": "/management.html" },
+    { "src": "/management-login", "dest": "/management_login.html" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ],
+  "headers": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
     }
   ]
 }
