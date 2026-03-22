@@ -1,18 +1,11 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "**/*.{html,css,js}",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/student", "dest": "/student.html" },
-    { "src": "/teacher", "dest": "/teacher.html" },
-    { "src": "/management", "dest": "/management.html" },
-    { "src": "/management-login", "dest": "/management_login.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/student", "destination": "/student.html" },
+    { "source": "/teacher", "destination": "/teacher.html" },
+    { "source": "/management", "destination": "/management.html" },
+    { "source": "/management-login", "destination": "/management_login.html" }
   ],
   "headers": [
     {
