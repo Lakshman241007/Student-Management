@@ -3,7 +3,7 @@ const tId = sessionStorage.getItem('userId') || '';
 const token = sessionStorage.getItem('token') || '';
 const tName = sessionStorage.getItem('userName') || 'Faculty';
 
-/* Redirect if not logged in */
+
 if (!tId || !token) { window.location.href = 'index.html'; }
 
 const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
@@ -60,7 +60,7 @@ function spin(id, cols) {
     Loading from Supabase…</td></tr>`;
 }
 
-/* SIDEBAR IDENTITY */
+
 const tInit = tName.split(' ').filter(w => /^[A-Z]/.test(w)).map(w => w[0]).join('').slice(0, 2) || 'TC';
 document.getElementById('tAv').textContent = tInit;
 document.getElementById('tName').textContent = tName;
@@ -78,7 +78,7 @@ async function loadAllStudents() {
 
 /*  DASHBOARD */
 async function loadDashboard() {
-  /* Stats */
+
   const stats = await api('/api/teacher/stats');
   if (stats) {
     document.getElementById('stat-total').textContent = stats.total_students ?? '—';
@@ -90,8 +90,7 @@ async function loadDashboard() {
 
   await loadAllStudents();
 
-  /* Mini cards — 9 students mixed ENG+ART */
-  const sample = ALL_STUDENTS.slice(0, 9);
+  /* Mini cards — 9 students mixed ENG+ART */  const sample = ALL_STUDENTS.slice(0, 9);
   document.getElementById('dash-count').textContent = `Showing 9 of ${ALL_STUDENTS.length} total`;
   document.getElementById('dash-stus').innerHTML = sample.length
     ? sample.map(s => `
@@ -900,7 +899,6 @@ let _odAllReqs = [];
 let _odTFilter = 'all';
 const tDept = (tId || '').startsWith('TCH') ? sessionStorage.getItem('department') || '' : '';
 
-/* ── Load OD requests for this teacher's dept ─────────────────────────────── */
 async function loadOdRequests() {
   let reqs = [];
 

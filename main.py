@@ -1209,9 +1209,9 @@ def _od_action(od_id: str, status: str, reviewed_by: str) -> dict:
         raise HTTPException(status_code=500, detail=f"Failed to update OD request: {str(e)}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+
 #  UTILITY
-# ─────────────────────────────────────────────────────────────────────────────
+
 @app.get("/api/health", tags=["Utility"])
 async def health():
     return {
@@ -1234,7 +1234,7 @@ async def root():
     return {"message": "VelsPortal API v4.0 — running on Railway", "docs": "/docs"}
 
 
-# ── Serverless handler (Vercel / AWS Lambda only) ─────────────────────────
+# Serverless handler (Vercel / AWS Lambda only) 
 try:
     from mangum import Mangum
     handler = Mangum(app, lifespan="off")

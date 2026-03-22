@@ -1392,7 +1392,7 @@ tr:last-child td {
     cursor: not-allowed;
 }
 
-/* Responsive OD */
+
 @media (max-width: 768px) {
     .od-confirm-box {
         padding: 28px 18px 22px;

@@ -14,7 +14,7 @@
 
 <body>
 
-  <!-- ══ SIDEBAR ═══════════════════════════════════ -->
+
   <aside class="sb" id="sb">
     <div class="sb-scroll">
       <div class="sb-top">
@@ -58,7 +58,7 @@
     </div>
   </aside>
 
-  <!-- ══ MAIN ═══════════════════════════════════════ -->
+
   <main class="main">
     <header class="topbar">
       <div class="topbar-l">
@@ -70,7 +70,7 @@
 
     <div class="content">
 
-      <!-- ═══ DASHBOARD ═══════════════════════════════ -->
+ 
       <section class="sec act" id="sec-dashboard">
         <div class="welcome">
           <p class="w-inst">VELS Institution Of Science, Technology & Advanced Studies</p>
@@ -118,7 +118,7 @@
         </div>
       </section>
 
-      <!-- ═══ ALL STUDENTS ════════════════════════════ -->
+   
       <section class="sec" id="sec-students">
         <div class="card">
           <div class="ctitle">
@@ -138,7 +138,6 @@
         </div>
       </section>
 
-      <!-- ═══ ENGINEERING DEPT ═════════════════════════ -->
       <section class="sec" id="sec-eng">
         <div class="card">
           <div class="ctitle">
@@ -151,7 +150,7 @@
         </div>
       </section>
 
-      <!-- ═══ ARTS DEPT ════════════════════════════════ -->
+
       <section class="sec" id="sec-arts">
         <div class="card">
           <div class="ctitle">
@@ -164,7 +163,7 @@
         </div>
       </section>
 
-      <!-- ═══ ATTENDANCE MGMT ══════════════════════════ -->
+
       <section class="sec" id="sec-attendance">
         <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc sc-e">
@@ -218,7 +217,7 @@
         </div>
       </section>
 
-      <!-- ═══ MARKS ════════════════════════════════════ -->
+
       <section class="sec" id="sec-marks">
         <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc sc-v">
@@ -274,7 +273,7 @@
         </div>
       </section>
 
-      <!-- ═══ RESULTS ══════════════════════════════════ -->
+  
       <section class="sec" id="sec-results">
         <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc sc-e">
@@ -329,7 +328,7 @@
       </section>
 
 
-      <!-- ═══ OD REQUESTS ══════════════════════════════ -->
+
       <section class="sec" id="sec-od-requests">
         <!-- Stats -->
         <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
@@ -386,7 +385,7 @@
     </div><!-- /content -->
   </main>
 
-  <!-- ══ STUDENT EDIT MODAL ═════════════════════════ -->
+
   <div class="modal-overlay" id="stuModal" onclick="if(event.target===this)closeModal()">
     <div class="modal">
       <div class="modal-head">
@@ -434,11 +433,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════
-     JAVASCRIPT — Fully API-connected
-     Reads from Supabase via FastAPI (localhost:8000)
-     Shows Engineering (ENG001–ENG160) + Arts (ART001–ART120)
-══════════════════════════════════════════════════════ -->
+
   <script src="teacher_script.js"></script>
 </body>
 

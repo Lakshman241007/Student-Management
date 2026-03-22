@@ -1,15 +1,12 @@
-/* ════════════════════════════════════════════════════════════════════════════
-   VelsPortal · student.html · API-connected JS
-   All data fetched from FastAPI (http://localhost:8000) → Supabase
-   ════════════════════════════════════════════════════════════════════════════ */
+
 const API = 'https://student-management-production-13fd.up.railway.app';
 const userId = sessionStorage.getItem('userId') || '';
 const token = sessionStorage.getItem('token') || '';
 
-/* Redirect to login if no session */
+
 if (!userId || !token) { window.location.href = 'index.html'; }
 
-/* ── Auth header shorthand ─────────────────────────────────────────────── */
+
 const H = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
 
 /*Fetch helpers*/
@@ -22,7 +19,7 @@ async function apiFetch(path) {
   } catch (e) { console.error('Fetch failed:', path, e); return null; }
 }
 
-/* ── Grade helper ─────────────────────────────────────────────────────── */
+
 function gradeFromPct(pct) {
   if (pct >= 90) return { g: 'S', c: 'bg' };
   if (pct >= 80) return { g: 'A+', c: 'bg' };
@@ -32,16 +29,14 @@ function gradeFromPct(pct) {
   return { g: 'F', c: 'br' };
 }
 
-/* ── Nav colour map for notices ─────────────────────────────────────────── */
+
 const NOTICE_COLORS = { info: 'var(--cyan)', warning: 'var(--amber)', danger: 'var(--red)', success: 'var(--emerald)' };
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   INIT — runs once on page load, pre-fetches everything
-   ═══════════════════════════════════════════════════════════════════════════ */
+
 async function init() {
   showLoading(true);
 
-  /* Parallel fetch of all 7 data sources */
+
   const [summary, personal, profile, subjects, attendance, marks, resultsWrap, notices] = await Promise.all([
     apiFetch(`/api/student/${userId}/summary`),
     apiFetch(`/api/student/${userId}/personal`),
@@ -55,14 +50,14 @@ async function init() {
 
   showLoading(false);
 
-  /* ── Sidebar ─────────────────────────────────────────────── */
+
   const name = sessionStorage.getItem('userName') || (summary ? summary.user_id : userId);
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   document.getElementById('sbAv').textContent = initials;
   document.getElementById('sbName').textContent = name;
   document.getElementById('sbId').textContent = userId;
 
-  /* ── Dashboard welcome + stat cards ─────────────────────── */
+
   const cgpa = summary?.cgpa ?? '—';
   const attPct = summary?.attendance_pct ? summary.attendance_pct + '%' : '—';
   const currSem = summary?.current_sem ?? '—';
@@ -88,7 +83,7 @@ async function init() {
     const el = document.getElementById('qi-' + k); if (el) el.textContent = v;
   });
 
-  /* ── Notices ─────────────────────────────────────────────── */
+
   const noticeEl = document.getElementById('notices');
   if (notices && notices.length) {
     noticeEl.innerHTML = notices.map(n => {
@@ -102,7 +97,7 @@ async function init() {
     noticeEl.innerHTML = `<div style="color:var(--faint);font-size:.85rem;padding:10px 0">No notices at this time.</div>`;
   }
 
-  /* ── Personal Details ─────────────────────────────────────── */
+
   if (personal) {
     const pm = {
       'pd-name': personal.name ?? '—',
@@ -124,7 +119,7 @@ async function init() {
     if (bloodEl) bloodEl.innerHTML = `<span class="b br">${personal.blood_group ?? '—'}</span>`;
   }
 
-  /* ── Academic Profile ─────────────────────────────────────── */
+
   if (profile) {
     const ap = {
       'sp-id': userId,
@@ -148,7 +143,7 @@ async function init() {
     });
   }
 
-  /* ── Subjects (grouped by semester from API) ─────────────── */
+
   window._subjects = subjects || {};
   const semKeys = Object.keys(window._subjects).sort((a, b) => parseInt(a) - parseInt(b));
   const tabEl = document.getElementById('semTabs');
@@ -162,7 +157,7 @@ async function init() {
     document.getElementById('subGrid').innerHTML = '';
   }
 
-  /* ── Attendance ──────────────────────────────────────────── */
+
   if (attendance && attendance.length) {
     const tc = attendance.reduce((a, r) => a + (r.conducted || 0), 0);
     const ta = attendance.reduce((a, r) => a + (r.attended || 0), 0);
@@ -200,7 +195,7 @@ async function init() {
     document.getElementById('attBody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--faint);padding:20px">No attendance data.</td></tr>`;
   }
 
-  /* ── Internal Marks ─────────────────────────────────────── */
+
   if (marks && marks.length) {
     document.getElementById('marksBody').innerHTML = marks.map(r => {
       const tot = r.total ?? (r.ia1 + r.ia2 + r.ia3 + r.assignment);
@@ -218,7 +213,7 @@ async function init() {
     document.getElementById('marksBody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:20px">No marks data.</td></tr>`;
   }
 
-  /* ── Exam Results ────────────────────────────────────────── */
+
   const subs = resultsWrap?.subjects ?? [];
   const ocgpa = resultsWrap?.overall_cgpa ?? cgpa;
   const passed = subs.filter(s => s.status === 'Pass').length;
@@ -250,7 +245,7 @@ async function init() {
   }
 }
 
-/* ── Show/hide loading overlay ─────────────────────────────── */
+
 function showLoading(show) {
   let el = document.getElementById('loadingOverlay');
   if (!el) {
@@ -269,7 +264,7 @@ function showLoading(show) {
   el.style.display = show ? 'flex' : 'none';
 }
 
-/* ── Semester subjects ─────────────────────────────────────── */
+
 function showSem(sem, btn) {
   document.querySelectorAll('.stab').forEach(t => t.classList.remove('act'));
   if (btn) btn.classList.add('act');
@@ -287,7 +282,7 @@ function showSem(sem, btn) {
   }
 }
 
-/* ── Navigation ─────────────────────────────────────────────── */
+
 const TITLES = {
   dashboard: 'Dashboard', personal: 'Personal Details', profile: 'Student Profile',
   subjects: 'Semester Subjects', attendance: 'Attendance',
@@ -307,7 +302,7 @@ function go(name) {
   if (name === 'od') odInit();
 }
 
-/* ── Change Password via API ─────────────────────────────────── */
+
 async function chgPwd() {
   const c = document.getElementById('cp1').value;
   const n = document.getElementById('cp2').value;
@@ -340,10 +335,10 @@ async function chgPwd() {
   }
 }
 
-/* ── Sign out ────────────────────────────────────────────────── */
+
 function signOut() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
-/* ── Clock ───────────────────────────────────────────────────── */
+
 function tick() {
   const n = new Date();
   const el = document.getElementById('tbadge');
@@ -353,13 +348,9 @@ function tick() {
 }
 setInterval(tick, 1000); tick();
 
-/* ── Boot ─────────────────────────────────────────────────────── */
-init();
-/* ═══════════════════════════════════════════════════════════════════════════
-   OD (ON-DUTY) REQUEST MODULE
-   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Event catalogue ──────────────────────────────────────────────────────── */
+init();
+
 const OD_EVENTS = [
   {
     group: '🎭 Cultural Events', icon: '🎭', items: [
@@ -396,12 +387,12 @@ const OD_EVENTS = [
 const OD_ALL_ITEMS = OD_EVENTS.flatMap(g => g.items.map(i => ({ label: i, group: g.group, icon: g.icon })));
 
 let _odDropOpen = false;
-let _odFileData = null;   /* base64 string */
+let _odFileData = null;  
 let _odFileName = null;
-let _odPending = null;   /* form data waiting for confirm */
-let _odRequests = [];     /* local cache */
+let _odPending = null;   
+let _odRequests = [];     
 
-/* ── Init OD section ──────────────────────────────────────────────────────── */
+
 function odInit() {
   odBuildDropdown(OD_ALL_ITEMS);
   odLoadHistory();
@@ -413,12 +404,11 @@ function odInit() {
   });
 }
 
-/* ── Dropdown helpers ─────────────────────────────────────────────────────── */
 function odBuildDropdown(items) {
   const inner = document.getElementById('od-dd-inner');
   if (!inner) return;
 
-  /* Group filtered items */
+
   const grouped = {};
   items.forEach(it => {
     if (!grouped[it.group]) grouped[it.group] = { icon: it.icon, items: [] };
@@ -480,7 +470,6 @@ function odSelectEvent(label, e) {
   odBuildDropdown(OD_ALL_ITEMS); /* reset to full list */
 }
 
-/* ── File handling ────────────────────────────────────────────────────────── */
 function odFileChange(evt) {
   const file = evt.target.files[0];
   const zone = document.getElementById('od-upload-zone');
@@ -489,7 +478,7 @@ function odFileChange(evt) {
 
   if (!file) return;
 
-  /* Size check — 500 KB */
+
   if (file.size > 500 * 1024) {
     zone.classList.add('err');
     errEl.textContent = `File too large (${(file.size / 1024).toFixed(0)} KB). Maximum allowed is 500 KB.`;
@@ -500,7 +489,6 @@ function odFileChange(evt) {
     return;
   }
 
-  /* Read as base64 */
   const reader = new FileReader();
   reader.onload = function (e) {
     _odFileData = e.target.result;
@@ -515,7 +503,6 @@ function odFileChange(evt) {
   reader.readAsDataURL(file);
 }
 
-/* ── Field error helpers ──────────────────────────────────────────────────── */
 function odClearErr(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('err');
@@ -531,9 +518,9 @@ function odFieldErr(inputId, errId, msg) {
   if (errEl) errEl.textContent = msg;
 }
 
-/* ── Validate & show confirm ──────────────────────────────────────────────── */
+
 function odSubmit() {
-  /* Clear previous errors */
+
   ['od-college', 'od-event-search', 'od-from', 'od-to'].forEach(id => {
     const el = document.getElementById(id); if (el) el.classList.remove('err');
   });
@@ -672,7 +659,7 @@ async function odConfirmYes() {
   }
 }
 
-/* ── Reset form ─────────────────────────────────────────────────────────── */
+/* Reset form  */
 function odResetForm() {
   document.getElementById('od-college').value = '';
   document.getElementById('od-event-val').value = '';
@@ -687,7 +674,7 @@ function odResetForm() {
   _odFileData = null; _odFileName = null; _odPending = null;
 }
 
-/* ── Load & render history ─────────────────────────────────────────────── */
+/*  Load & render history */
 async function odLoadHistory() {
   /* Try API */
   let reqs = [];

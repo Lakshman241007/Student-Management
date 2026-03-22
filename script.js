@@ -1,9 +1,9 @@
 const API = 'https://student-management-production-13fd.up.railway.app';
 let role = 'student';
 
-/* ══════════════════════════════════════════════════════
+/*
    SERVER WAKE-UP MANAGER
-══════════════════════════════════════════════════════ */
+*/
 let serverAlive = false;
 let wakeListeners = [];
 let wakeInterval = null;
@@ -91,9 +91,9 @@ function waitForServer() {
 
 startWakeUp();
 
-/* ══════════════════════════════════════════════════════
+/* 
    TAB SWITCHER
-══════════════════════════════════════════════════════ */
+*/
 function sw(r) {
   role = r;
   const s = r === 'student';
@@ -116,9 +116,9 @@ function sw(r) {
   uid.focus();
 }
 
-/* ══════════════════════════════════════════════════════
+/* 
    HELPERS
-══════════════════════════════════════════════════════ */
+*/
 function hideErr() {
   const e = document.getElementById('errMsg');
   e.style.display = 'none';
@@ -175,7 +175,7 @@ function resetAllFields() {
   clearFieldErr('fpwd');
 }
 
-/* ── Input listeners ──────────────────────────────── */
+/*  Input listeners  */
 document.getElementById('fuid').addEventListener('input', function () {
   const pos = this.selectionStart;
   const val = this.value.toUpperCase().replace(/\s/g, '');
@@ -189,7 +189,7 @@ document.getElementById('fpwd').addEventListener('input', function () {
   hideErr();
 });
 
-/* ── Password toggle ──────────────────────────────── */
+/*  Password toggle  */
 function togglePwd() {
   const input   = document.getElementById('fpwd');
   const eyeOpen = document.getElementById('eyeOpen');
@@ -202,9 +202,9 @@ function togglePwd() {
   eyeBtn.classList.toggle('t-mode', role === 'teacher');
 }
 
-/* ══════════════════════════════════════════════════════
+/* 
    LOGIN
-══════════════════════════════════════════════════════ */
+ */
 async function login() {
   const uid = document.getElementById('fuid').value.trim().toUpperCase();
   const pwd = document.getElementById('fpwd').value;

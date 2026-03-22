@@ -4,6 +4,12 @@
 **AI Tools Used:** Grok (CSS & UI design), Gemini (content writing)
 **Stack:** FastAPI · Supabase · Vercel · Railway · Vanilla HTML/CSS/JS
 
+
+
+---
+
+**LIVE DEMO** : VelsPortal-Login ==> "https://student-management-pearl-one.vercel.app" 
+
 ---
 
 ## What Is This?
@@ -185,26 +191,6 @@ PORT=8000
 | `admin_users` | Admin login credentials |
 | `admin_audit_log` | Tracks every admin action |
 
----
-
-## Running Locally
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Add your .env file with the 4 variables listed above
-
-# Start the backend
-uvicorn main:app --reload --port 8000
-
-# Open index.html in your browser (use Live Server in VS Code)
-```
-
-For local dev, temporarily change `const API` in the JS files to `http://localhost:8000`.
-
----
-
 **Also where each code (function) i mentioned its procress in command lines**
 
 ## Credits
@@ -213,3 +199,12 @@ For local dev, temporarily change `const API` in the JS files to `http://localho
 - **Content Writing**     — Gemini
 - **Backend, deployment** — Lakshman
 - **Built & managed by**  — Lakshman
+
+---
+
+**If you're reading this… you are awesome 😄**
+**Thanks for spending your time on my project.**
+**Have a great day and keep coding 🚀**
+
+
+*------*-------*-------*-------*-------*-------*------*------*-------*-------*-------*

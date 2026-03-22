@@ -11,7 +11,7 @@
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ══ SIGN-IN PROGRESS OVERLAY ══════════════════════════════════ */
+
     .signin-overlay {
       position: fixed;
       inset: 0;
@@ -46,7 +46,7 @@
       transform: scale(1) translateY(0);
     }
 
-    /* Spinner */
+
     .sp-ring {
       position: relative;
       width: 68px;
@@ -144,7 +144,7 @@
       margin-top: -10px;
     }
 
-    /* Step dots */
+
     .sp-dots {
       display: flex;
       gap: 8px;
@@ -188,7 +188,7 @@
       }
     }
 
-    /* ══ ADMIN FAB ══════════════════════════════════════════════════ */
+    /* ADMIN FAB */
     .admin-fab {
       position: fixed;
       bottom: 24px;
@@ -256,7 +256,7 @@
       }
     }
 
-    /* ══ MISC POLISH ════════════════════════════════════════════════ */
+    /* MISC POLISH */
     /* Smooth focus ring on inputs */
     .form-input {
       transition: border-color .2s, background .2s, box-shadow .25s;
@@ -298,7 +298,7 @@
     <div class="blob blob-3"></div>
   </div>
 
-  <!-- ══ SIGN-IN OVERLAY ══ -->
+  <!--  SIGN-IN OVERLAY -->
   <div class="signin-overlay" id="signinOverlay">
     <div class="sp-wrap">
       <!-- spinner shown during loading -->
@@ -325,14 +325,14 @@
     </div>
   </div>
 
-  <!-- ── INSTITUTION HEADER ── -->
+  <!--  INSTITUTION HEADER -->
   <header class="inst-header">
     <div class="inst-pill">🏛 &nbsp; NAAC Accredited · Grade A++</div>
     <h1 class="inst-name">VELS Institution Of Science, Technology <span class="hi">&amp; Advanced Studies</span></h1>
     <p class="inst-sub">Deemed to the University &nbsp; Estd. u/s 3 of the UGC Act, 1956</p>
   </header>
 
-  <!-- ── LOGIN CARD ── -->
+  <!-- LOGIN CARD -->
   <div class="page-body">
     <div class="login-card">
 
@@ -527,9 +527,7 @@
       }
     };
 
-    /* Show overlay immediately when login() is called with valid input
-       We intercept the button click to show step-0 instantly,
-       before any async happens, so there's zero delay feel.*/
+ 
     const loginBtn = document.getElementById('btnLogin');
     loginBtn.addEventListener('click', () => {
       const uid = document.getElementById('fuid').value.trim();
