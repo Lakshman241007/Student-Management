@@ -1,4 +1,4 @@
-const API = '';
+const API = 'student-management-production-13fd.up.railway.app';
 const tId = sessionStorage.getItem('userId') || '';
 const token = sessionStorage.getItem('token') || '';
 const tName = sessionStorage.getItem('userName') || 'Faculty';

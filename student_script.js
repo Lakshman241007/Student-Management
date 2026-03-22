@@ -2,7 +2,7 @@
    VelsPortal · student.html · API-connected JS
    All data fetched from FastAPI (http://localhost:8000) → Supabase
    ════════════════════════════════════════════════════════════════════════════ */
-const API = 'https://student-management-production-a94b.up.railway.app';
+const API = 'student-management-production-13fd.up.railway.app';
 const userId = sessionStorage.getItem('userId') || '';
 const token = sessionStorage.getItem('token') || '';
 
